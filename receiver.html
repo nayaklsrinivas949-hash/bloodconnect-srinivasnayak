@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Request Blood — BloodConnect</title>
+  <meta name="description" content="Request blood and get matched with compatible donors near you.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="./" class="brand">
+        <img src="./assets/logo.svg" alt="BloodConnect logo" class="brand-mark" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';" />
+        <span class="brand-fallback" style="display:none; width:28px; height:28px; background:var(--primary); border-radius:8px; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">B</span>
+        <span class="brand-text">BloodConnect</span>
+      </a>
+      <nav class="main-nav" aria-label="Main">
+        <a class="btn btn-ghost" href="./donor.html">Become a donor</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="section form-section">
+      <div class="container narrow">
+        <h1>Request blood</h1>
+        <p>Tell us what you need and we'll help find compatible donors.</p>
+        <form class="form-card" id="receiver-form" novalidate>
+          <div class="form-grid">
+            <label>
+              <span>Full name</span>
+              <input type="text" name="name" required placeholder="John Doe" />
+            </label>
+            <label>
+              <span>Email</span>
+              <input type="email" name="email" required placeholder="john@example.com" />
+            </label>
+            <label>
+              <span>Phone</span>
+              <input type="tel" name="phone" required placeholder="+1 555 987 6543" />
+            </label>
+            <label>
+              <span>City</span>
+              <input type="text" name="city" required placeholder="Delhi" />
+            </label>
+            <label>
+              <span>Blood group needed</span>
+              <select name="group" required>
+                <option value="" disabled selected>Select</option>
+                <option>O+</option>
+                <option>O-</option>
+                <option>A+</option>
+                <option>A-</option>
+                <option>B+</option>
+                <option>B-</option>
+                <option>AB+</option>
+                <option>AB-</option>
+              </select>
+            </label>
+            <label>
+              <span>Urgency</span>
+              <select name="urgency" required>
+                <option value="" disabled selected>Select</option>
+                <option>Immediate</option>
+                <option>Within 24 hours</option>
+                <option>This week</option>
+              </select>
+            </label>
+          </div>
+          <label>
+            <span>Additional details</span>
+            <textarea name="details" rows="4" placeholder="Hospital, required units, notes..."></textarea>
+          </label>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit">Find donors</button>
+            <a class="btn btn-ghost" href="./">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <a href="./" class="brand">
+        <img src="./assets/logo.svg" alt="BloodConnect logo" class="brand-mark" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';" />
+        <span class="brand-fallback" style="display:none; width:28px; height:28px; background:var(--primary); border-radius:8px; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">B</span>
+        <span class="brand-text">BloodConnect</span>
+      </a>
+      <p>© <span id="year"></span> BloodConnect</p>
+    </div>
+  </footer>
+
+  <script src="./scripts/main.js"></script>
+  <script src="./scripts/forms.js"></script>
+</body>
+</html>
+
+

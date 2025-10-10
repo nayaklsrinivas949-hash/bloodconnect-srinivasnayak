@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BloodConnect — Donate & Request Blood</title>
+  <meta name="description" content="BloodConnect helps connect blood donors with recipients quickly and safely.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="./" class="brand">
+        <img src="./assets/logo.svg" alt="BloodConnect logo" class="brand-mark" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';" />
+        <span class="brand-fallback" style="display:none; width:28px; height:28px; background:var(--primary); border-radius:8px; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">B</span>
+        <span class="brand-text">BloodConnect</span>
+      </a>
+      <nav class="main-nav" aria-label="Main">
+        <button class="nav-toggle" aria-expanded="false" aria-controls="nav-list">
+          <span class="sr-only">Toggle navigation</span>
+          ☰
+        </button>
+        <ul id="nav-list" class="nav-list">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </nav>
+      <div class="header-cta">
+        <a class="btn btn-secondary" href="./receiver.html">Request blood</a>
+        <a class="btn btn-primary" href="./donor.html">Become a donor</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <h1>Connect donors to save lives faster</h1>
+          <p>
+            Find nearby compatible donors or register as a donor. Built for speed, reliability, and safety.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="./receiver.html">Find a donor</a>
+            <a class="btn btn-ghost" href="./donor.html">Register to donate</a>
+          </div>
+          <ul class="hero-stats" aria-label="Impact statistics">
+            <li>
+              <span class="stat-value">10k+</span>
+              <span class="stat-label">Matches made</span>
+            </li>
+            <li>
+              <span class="stat-value">5k+</span>
+              <span class="stat-label">Active donors</span>
+            </li>
+            <li>
+              <span class="stat-value">50+</span>
+              <span class="stat-label">Cities</span>
+            </li>
+          </ul>
+        </div>
+        <div class="hero-art">
+          <img src="./assets/hero-illustration.svg" alt="Illustration of donors and recipients connecting" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+          <div class="hero-fallback" style="display:none; width:100%; height:300px; background:linear-gradient(135deg, var(--primary-50) 0%, var(--secondary-50) 100%); border-radius:16px; align-items:center; justify-content:center; flex-direction:column; gap:16px;">
+            <div style="width:80px; height:80px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-size:32px;">🩸</div>
+            <p style="color:var(--muted); font-size:16px; margin:0;">Connecting donors and recipients</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="section">
+      <div class="container">
+        <h2 class="section-title">Why BloodConnect</h2>
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">🩸</div>
+            <h3>Smart compatibility</h3>
+            <p>ABO and Rh matching with configurable filters for urgency and distance.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">📍</div>
+            <h3>Location-first</h3>
+            <p>Find donors near you with privacy-preserving geosearch.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">🔒</div>
+            <h3>Privacy & safety</h3>
+            <p>Verified profiles, consent-driven contact, and secure messaging.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="how-it-works" class="section alt">
+      <div class="container how-grid">
+        <div class="how-step">
+          <span class="step-num">1</span>
+          <h3>Create a profile</h3>
+          <p>Donors add blood group, availability, and city. Recipients describe their need.</p>
+        </div>
+        <div class="how-step">
+          <span class="step-num">2</span>
+          <h3>Get matched</h3>
+          <p>We match compatible donors using your filters and notify instantly.</p>
+        </div>
+        <div class="how-step">
+          <span class="step-num">3</span>
+          <h3>Connect securely</h3>
+          <p>Share contact details with consent and coordinate donation safely.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section cta">
+      <div class="container cta-inner">
+        <h2>Ready to make a difference?</h2>
+        <div class="cta-actions">
+          <a class="btn btn-primary" href="./donor.html">Become a donor</a>
+          <a class="btn btn-secondary" href="./receiver.html">Request blood</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="section">
+      <div class="container faq">
+        <h2 class="section-title">Frequently asked questions</h2>
+        <details>
+          <summary>Is my data safe?</summary>
+          <p>We only share your contact details with explicit consent for a match.</p>
+        </details>
+        <details>
+          <summary>How do matches work?</summary>
+          <p>We match based on blood group compatibility, proximity, and availability.</p>
+        </details>
+        <details>
+          <summary>Does it cost anything?</summary>
+          <p>No. BloodConnect is free for donors and recipients.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <a href="./" class="brand">
+        <img src="./assets/logo.svg" alt="BloodConnect logo" class="brand-mark" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';" />
+        <span class="brand-fallback" style="display:none; width:28px; height:28px; background:var(--primary); border-radius:8px; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">B</span>
+        <span class="brand-text">BloodConnect</span>
+      </a>
+      <nav aria-label="Footer">
+        <ul class="footer-nav">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="mailto:contact@bloodconnect.org">Contact</a></li>
+        </ul>
+      </nav>
+      <p class="copyright">© <span id="year"></span> BloodConnect</p>
+    </div>
+  </footer>
+
+  <script src="./scripts/main.js"></script>
+</body>
+</html>
+
+

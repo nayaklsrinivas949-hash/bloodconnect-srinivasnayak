@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480" fill="none">
+  <defs>
+    <linearGradient id="heroBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff0f3"/>
+      <stop offset="100%" stop-color="#fce7f3"/>
+    </linearGradient>
+    <linearGradient id="donorGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e11d48"/>
+      <stop offset="100%" stop-color="#be123c"/>
+    </linearGradient>
+    <linearGradient id="receiverGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0ea5e9"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="480" rx="20" fill="url(#heroBg)"/>
+  
+  <!-- Donor side -->
+  <g transform="translate(80, 120)">
+    <circle cx="80" cy="80" r="60" fill="#fde6ec" stroke="#e11d48" stroke-width="2"/>
+    <path d="M80 40c15 20 35 35 35 60a35 35 0 1 1-70 0c0-25 20-40 35-60z" fill="url(#donorGrad)"/>
+    <circle cx="80" cy="80" r="15" fill="#fff"/>
+    <text x="80" y="180" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" font-weight="600" fill="#e11d48">Donor</text>
+  </g>
+  
+  <!-- Connection line -->
+  <path d="M240 200 Q320 160 400 200" stroke="#e11d48" stroke-width="3" fill="none" stroke-dasharray="8,4"/>
+  <circle cx="320" cy="160" r="8" fill="#e11d48"/>
+  
+  <!-- Receiver side -->
+  <g transform="translate(480, 120)">
+    <circle cx="80" cy="80" r="60" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="2"/>
+    <path d="M80 40c15 20 35 35 35 60a35 35 0 1 1-70 0c0-25 20-40 35-60z" fill="url(#receiverGrad)"/>
+    <circle cx="80" cy="80" r="15" fill="#fff"/>
+    <text x="80" y="180" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" font-weight="600" fill="#0ea5e9">Receiver</text>
+  </g>
+  
+  <!-- Heart symbol in center -->
+  <g transform="translate(300, 200)">
+    <path d="M20 6c-6-8-16-8-20 0-4-8-14-8-20 0-6 6-6 16 0 22l20 20 20-20c6-6 6-16 0-22z" fill="#e11d48" opacity="0.8"/>
+  </g>
+</svg>
+
+
