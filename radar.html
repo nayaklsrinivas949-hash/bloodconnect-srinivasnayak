@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>3D Proximity Match Radar — BloodConnect 3D</title>
+  <meta name="description" content="Immersive 3D holographic proximity radar visualizing blood donor distribution, hospital centers, distance rings, and real-time compatibility vectors.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="./index.html" class="brand">
+        <div class="brand-icon-3d">🛰️</div>
+        <div class="brand-text">Blood<span>Connect</span> <small style="font-size: 11px; background: rgba(6,182,212,0.2); border: 1px solid rgba(6,182,212,0.4); padding: 2px 6px; border-radius: 4px; vertical-align: middle; color: var(--accent-cyan);">3D RADAR</small></div>
+      </a>
+
+      <nav class="main-nav" aria-label="Main Navigation">
+        <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">☰</button>
+        <ul id="nav-list" class="nav-list">
+          <li><a href="./index.html">Home</a></li>
+          <li><a href="./radar.html" class="active">3D Match Radar 🛰️</a></li>
+          <li><a href="./donor.html">Donor Hub & Fitness 🧬</a></li>
+          <li><a href="./admin.html">Hospital Admin 🏥</a></li>
+          <li><a href="./rewards.html">Medical Points Vault 🪙</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-cta">
+        <button class="audio-toggle-btn" id="audio-toggle-btn">🔊 Sound ON</button>
+        <a class="btn btn-primary" href="./admin.html">Dispatch Emergency Request</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top: 24px; padding-bottom: 60px;">
+    <!-- Top Filter & Search Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <h1 style="font-size: 26px; font-weight: 800; color: #fff;">🛰️ 3D Geo-Proximity Match Radar</h1>
+        <p style="color: var(--text-muted); font-size: 13px;">Explore real-time spatial donor distribution, hospital nodes, and compatibility beams in 3D</p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button class="btn btn-ghost" id="radar-view-iso">Isometric 3D</button>
+        <button class="btn btn-ghost" id="radar-view-top">Top-Down 2D</button>
+      </div>
+    </div>
+
+    <!-- Radar Layout Grid -->
+    <div class="radar-view-container">
+      <!-- Left Panel: Controls & Filters -->
+      <div class="radar-controls-panel">
+        <div class="glass-card" style="padding: 20px;">
+          <h2 style="font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 14px;">Radar Filters</h2>
+          
+          <div class="form-group">
+            <label class="form-label" for="radar-hosp-select">Reference Hospital</label>
+            <select class="form-select" id="radar-hosp-select">
+              <!-- Populated by JS -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="radar-blood-filter">Patient Blood Need</label>
+            <select class="form-select" id="radar-blood-filter">
+              <option value="ALL">All Blood Groups</option>
+              <option value="O+">O+ (Positive)</option>
+              <option value="O-">O- (Universal)</option>
+              <option value="A+">A+ (Positive)</option>
+              <option value="A-">A- (Negative)</option>
+              <option value="B+">B+ (Positive)</option>
+              <option value="B-">B- (Negative)</option>
+              <option value="AB+">AB+ (Universal Recipient)</option>
+              <option value="AB-">AB- (Negative)</option>
+            </select>
+          </div>
+
+          <div class="form-group range-slider-group">
+            <div class="range-label">
+              <span>Proximity Range</span>
+              <span class="range-value" id="radar-radius-disp">30 km</span>
+            </div>
+            <input type="range" id="radar-radius-slider" min="5" max="60" step="5" value="30">
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); margin-top: 4px;">
+              <span>5 km</span>
+              <span>30 km</span>
+              <span>60 km</span>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 14px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); cursor: pointer;">
+              <input type="checkbox" id="radar-fit-only" style="width: auto;">
+              <span>Only show Medically Fit Donors</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Radar Stats Card -->
+        <div class="glass-card" style="padding: 20px;">
+          <h2 style="font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 12px;">Scan Diagnostics</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="stat-box" style="padding: 10px;">
+              <div class="stat-val cyan" id="stat-total-donors">10</div>
+              <div class="stat-lbl">In Range</div>
+            </div>
+            <div class="stat-box" style="padding: 10px;">
+              <div class="stat-val green" id="stat-fit-donors">8</div>
+              <div class="stat-lbl">Medically Fit</div>
+            </div>
+          </div>
+          <div style="margin-top: 12px; font-size: 12px; color: var(--text-dim); text-align: center;">
+            💡 Click on any donor node in the 3D grid to view detailed vitals and profile.
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Full 3D Radar Canvas -->
+      <div class="radar-canvas-panel">
+        <div id="full-radar-canvas" class="canvas-container"></div>
+        
+        <div class="radar-floating-tools">
+          <span class="pulse-badge" style="background: rgba(7, 12, 24, 0.85); color: var(--accent-cyan);"><span class="pulse-dot" style="background: #06b6d4;"></span> 360° LIVE SWEEP</span>
+        </div>
+
+        <div class="radar-legend">
+          <div class="legend-item"><span class="legend-dot cyan"></span> Hospital Core</div>
+          <div class="legend-item"><span class="legend-dot green"></span> Fit & Compatible</div>
+          <div class="legend-item"><span class="legend-dot red"></span> Exact Match</div>
+          <div class="legend-item"><span class="legend-dot amber"></span> Cooldown Window</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Matched Donors Grid below Radar -->
+    <div class="glass-card" style="margin-top: 32px;">
+      <h2 style="font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 16px;">Detected Donors in Radar Scope</h2>
+      <div id="radar-donors-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Donor Detail Inspector Modal -->
+  <div class="modal-backdrop" id="modal-donor-detail">
+    <div class="modal-box" style="max-width: 620px;">
+      <button class="modal-close-btn" onclick="document.getElementById('modal-donor-detail').classList.remove('active')">&times;</button>
+      
+      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px;">
+        <div class="blood-badge" id="modal-donor-blood" style="width: 54px; height: 54px; font-size: 22px;">O+</div>
+        <div>
+          <h3 style="font-size: 22px; font-weight: 800; color: #fff;" id="modal-donor-name">Rahul Varma</h3>
+          <p style="color: var(--text-muted); font-size: 13px;" id="modal-donor-city">Jubilee Hills, Hyderabad &bull; #DONOR-101</p>
+        </div>
+      </div>
+
+      <!-- Contact Details & Quick Communication -->
+      <div style="background: rgba(14,165,233,0.1); border: 1px solid rgba(14,165,233,0.3); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
+        <div style="font-size: 11px; color: var(--secondary-glow); text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">Donor Contact & Communication</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; margin-bottom: 10px;">
+          <div>📱 Phone: <strong id="modal-donor-phone">+91 98480 44521</strong></div>
+          <div>✉️ Email: <strong id="modal-donor-email">rahul.varma@example.com</strong></div>
+          <div style="grid-column: 1 / -1;">🏠 Address: <strong id="modal-donor-address">Flat 402, Kakatiya Residency, Road No. 36, Jubilee Hills, Hyderabad</strong></div>
+          <div style="grid-column: 1 / -1;">🚨 Emergency Contact: <strong id="modal-donor-emergency">Pooja Varma (+91 98480 99887)</strong></div>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <a id="modal-donor-call-btn" href="tel:+919820144521" class="contact-action-btn call">📞 Call Donor</a>
+          <a id="modal-donor-whatsapp-btn" href="#" target="_blank" class="contact-action-btn whatsapp">💬 WhatsApp</a>
+          <a id="modal-donor-email-btn" href="mailto:test@example.com" class="contact-action-btn email">✉️ Email</a>
+        </div>
+      </div>
+
+      <!-- Vitals & Readiness -->
+      <div style="background: rgba(0,0,0,0.4); border-radius: var(--radius-md); padding: 14px; margin-bottom: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
+        <div><strong>Hemoglobin:</strong> <span id="modal-donor-hb">14.8 g/dL</span></div>
+        <div><strong>Blood Pressure:</strong> <span id="modal-donor-bp">120/80</span></div>
+        <div><strong>Readiness Score:</strong> <span id="modal-donor-score" style="color: var(--accent-emerald);">98%</span></div>
+        <div><strong>Cooldown Days:</strong> <span id="modal-donor-cooldown">0 days (Ready)</span></div>
+        <div><strong>Total Donations:</strong> <span id="modal-donor-donations">6 times</span></div>
+        <div><strong>Reward Points:</strong> <span id="modal-donor-points" style="color: var(--accent-amber);">1,850 pts</span></div>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+        <button class="btn btn-ghost" onclick="document.getElementById('modal-donor-detail').classList.remove('active')">Close</button>
+        <button class="btn btn-secondary" id="modal-donor-route-btn">
+          <span>🚗</span> View Hospital Route (GPS)
+        </button>
+        <button class="btn btn-primary" onclick="alert('Emergency alert dispatched directly to donor phone.'); document.getElementById('modal-donor-detail').classList.remove('active');">
+          <span>📲</span> Send Emergency SOS
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Turn-by-Turn GPS Hospital Directions Modal -->
+  <div class="modal-backdrop" id="modal-radar-directions">
+    <div class="modal-box" style="max-width: 640px;">
+      <button class="modal-close-btn" onclick="document.getElementById('modal-radar-directions').classList.remove('active')">&times;</button>
+      
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <div class="brand-icon-3d" style="background: var(--primary-gradient); width: 42px; height: 42px; font-size: 22px;">🚗</div>
+        <div>
+          <h3 style="font-size: 22px; font-weight: 800; color: #fff;">Direct to Hospital Navigation</h3>
+          <p style="color: var(--text-muted); font-size: 13px;" id="radar-dir-route-title">Donor Location &rarr; Apollo Super Specialty Hospital</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap;">
+        <div class="route-mode-pill">🚗 Car ETA: <strong id="radar-dir-time-car" style="color: #fff; margin-left: 4px;">14 mins</strong></div>
+        <div class="route-mode-pill" style="background: rgba(16,185,129,0.15); color: var(--accent-emerald); border-color: rgba(16,185,129,0.3);">
+          🏍️ Two-Wheeler: <strong id="radar-dir-time-bike" style="color: #fff; margin-left: 4px;">10 mins</strong>
+        </div>
+        <div class="route-mode-pill" style="background: rgba(225,29,72,0.2); color: var(--primary-glow); border-color: rgba(225,29,72,0.4);">
+          🚨 Green Corridor: <strong id="radar-dir-time-emergency" style="color: #fff; margin-left: 4px;">6 mins</strong>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <h4 style="font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 10px;">Turn-by-Turn Route Checkpoints</h4>
+        <div id="radar-dir-steps-container">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap;">
+        <a id="btn-radar-google-maps" href="#" target="_blank" class="btn btn-primary" style="padding: 12px 20px;">
+          <span>🗺️</span> Open in Google Maps
+        </a>
+        <button class="btn btn-ghost" onclick="document.getElementById('modal-radar-directions').classList.remove('active')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="./scripts/audio-synth.js"></script>
+  <script src="./scripts/blood-data.js"></script>
+  <script src="./scripts/matching-engine.js"></script>
+  <script src="./scripts/three-scene.js"></script>
+  <script src="./scripts/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let radar = null;
+      let currentHospital = bloodData.getHospitalById('HOSP-001') || bloodData.getHospitals()[0];
+
+      // Audio Toggle Button
+      const audioBtn = document.getElementById('audio-toggle-btn');
+      if (audioBtn && window.soundFX) {
+        audioBtn.textContent = window.soundFX.isMuted ? '🔇 Sound OFF' : '🔊 Sound ON';
+        audioBtn.addEventListener('click', () => {
+          const muted = window.soundFX.toggleMute();
+          audioBtn.textContent = muted ? '🔇 Sound OFF' : '🔊 Sound ON';
+        });
+      }
+
+      // 1. Populate Hospitals
+      const hospSelect = document.getElementById('radar-hosp-select');
+      hospSelect.innerHTML = bloodData.getHospitals().map(h => `
+        <option value="${h.id}">${h.name} (${h.city})</option>
+      `).join('');
+
+      hospSelect.addEventListener('change', (e) => {
+        currentHospital = bloodData.getHospitalById(e.target.value);
+        updateRadar();
+      });
+
+      // 2. Initialize 3D Radar Scene
+      if (window.BloodConnect3D && document.getElementById('full-radar-canvas')) {
+        radar = BloodConnect3D.initRadar3DScene('full-radar-canvas', {
+          onDonorSelect: (donor) => {
+            showDonorModal(donor);
+          }
+        });
+
+        document.getElementById('radar-view-top').addEventListener('click', () => {
+          radar.setTopDownView();
+        });
+        document.getElementById('radar-view-iso').addEventListener('click', () => {
+          radar.setIsometricView();
+        });
+      }
+
+      // 3. Radius Slider & Blood Filter
+      const radiusSlider = document.getElementById('radar-radius-slider');
+      const radiusDisp = document.getElementById('radar-radius-disp');
+      radiusSlider.addEventListener('input', (e) => {
+        radiusDisp.textContent = `${e.target.value} km`;
+        updateRadar();
+      });
+
+      const bloodFilter = document.getElementById('radar-blood-filter');
+      bloodFilter.addEventListener('change', updateRadar);
+
+      const fitOnlyCheck = document.getElementById('radar-fit-only');
+      fitOnlyCheck.addEventListener('change', updateRadar);
+
+      // 4. Update Radar Logic
+      function updateRadar() {
+        const radius = parseInt(radiusSlider.value, 10);
+        const group = bloodFilter.value;
+        const fitOnly = fitOnlyCheck.checked;
+
+        let allDonors = bloodData.getDonors();
+        if (fitOnly) {
+          allDonors = allDonors.filter(d => d.isMedicallyFit && (d.cooldownDaysRemaining || 0) === 0);
+        }
+
+        let matches = [];
+        if (group === 'ALL') {
+          // Compute distance for all donors
+          matches = allDonors.map(d => {
+            const dist = MatchingEngine.calculateDistanceKm(currentHospital.lat, currentHospital.lon, d.lat, d.lon);
+            return {
+              donor: d,
+              distanceKm: dist,
+              isExactMatch: false,
+              isCompatible: true,
+              isMedicallyFit: d.isMedicallyFit,
+              withinRadius: dist <= radius,
+              matchScore: Math.max(40, 100 - dist * 2)
+            };
+          }).filter(m => m.withinRadius);
+        } else {
+          matches = MatchingEngine.matchDonorsForRequest({
+            hospitalId: currentHospital.id,
+            bloodGroup: group,
+            targetRadiusKm: radius
+          }, {
+            maxDistanceKm: radius,
+            hospital: currentHospital,
+            allDonors
+          });
+        }
+
+        // Update 3D Canvas
+        if (radar) {
+          radar.updateRadarData(currentHospital, matches, radius);
+        }
+
+        // Update Diagnostics
+        document.getElementById('stat-total-donors').textContent = matches.length;
+        const fitCount = matches.filter(m => m.donor.isMedicallyFit && (m.donor.cooldownDaysRemaining || 0) === 0).length;
+        document.getElementById('stat-fit-donors').textContent = fitCount;
+
+        // Render Cards Grid
+        const grid = document.getElementById('radar-donors-grid');
+        if (matches.length === 0) {
+          grid.innerHTML = `<div style="color: var(--text-dim); text-align: center; grid-column: 1 / -1; padding: 30px;">No donors found within ${radius} km radius with selected criteria.</div>`;
+          return;
+        }
+
+        grid.innerHTML = matches.map(m => {
+          const d = m.donor;
+          return `
+            <div class="match-card" style="cursor: pointer; flex-direction: column; align-items: stretch; gap: 10px;" onclick="window.inspectDonor('${d.id}')">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div class="blood-badge" style="width: 40px; height: 40px; font-size: 16px;">${d.bloodGroup}</div>
+                  <div>
+                    <div style="font-weight: 700; color: #fff; font-size: 14px;">${d.name}</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">${d.streetAddress || d.city} &bull; <strong style="color: var(--secondary-glow);">${m.distanceKm} km</strong></div>
+                  </div>
+                </div>
+                <div>
+                  ${d.isMedicallyFit ? '<span class="status-badge fit">Fit</span>' : '<span class="status-badge cooldown">Cooldown</span>'}
+                </div>
+              </div>
+              <div style="font-size: 11px; color: var(--text-dim); display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-glass); padding-top: 6px;">
+                <span>📱 ${d.phone}</span>
+                <span style="color: var(--primary-glow); font-weight: 600;">Click to Inspect &bull; 🚗 Route &rarr;</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      let activeDonorForRoute = null;
+
+      function showDonorModal(donor) {
+        activeDonorForRoute = donor;
+        document.getElementById('modal-donor-blood').textContent = donor.bloodGroup;
+        document.getElementById('modal-donor-name').textContent = donor.name;
+        document.getElementById('modal-donor-city').textContent = `${donor.streetAddress || donor.city}, ${donor.city} • #${donor.id}`;
+        
+        document.getElementById('modal-donor-phone').textContent = donor.phone;
+        document.getElementById('modal-donor-email').textContent = donor.email;
+        document.getElementById('modal-donor-address').textContent = `${donor.streetAddress || ''}, ${donor.area || ''}, ${donor.city} - ${donor.pincode || ''}`;
+        document.getElementById('modal-donor-emergency').textContent = `${donor.emergencyContactPerson || 'Family'} (${donor.emergencyContactPhone || donor.phone})`;
+        
+        document.getElementById('modal-donor-call-btn').href = `tel:${donor.phone}`;
+        document.getElementById('modal-donor-whatsapp-btn').href = `https://wa.me/${donor.phone.replace(/[^0-9]/g, '')}`;
+        document.getElementById('modal-donor-email-btn').href = `mailto:${donor.email}`;
+
+        document.getElementById('modal-donor-hb').textContent = `${donor.hemoglobin || 14.5} g/dL`;
+        document.getElementById('modal-donor-bp').textContent = donor.bloodPressure || '120/80';
+        document.getElementById('modal-donor-score').textContent = `${donor.fitnessReadinessScore || 95}%`;
+        document.getElementById('modal-donor-cooldown').textContent = donor.cooldownDaysRemaining > 0 ? `${donor.cooldownDaysRemaining} days remaining` : '0 days (Fit & Ready)';
+        document.getElementById('modal-donor-donations').textContent = `${donor.totalDonations || 0} times`;
+        document.getElementById('modal-donor-points').textContent = `${donor.pointsBalance || 0} pts`;
+        document.getElementById('modal-donor-detail').classList.add('active');
+      }
+
+      document.getElementById('modal-donor-route-btn').addEventListener('click', () => {
+        if (!activeDonorForRoute) return;
+        document.getElementById('modal-donor-detail').classList.remove('active');
+
+        const route = MatchingEngine.generateRouteDirections(activeDonorForRoute, currentHospital);
+
+        document.getElementById('radar-dir-route-title').innerHTML = `${activeDonorForRoute.name} (${activeDonorForRoute.area || activeDonorForRoute.city}) &rarr; ${currentHospital.name}`;
+        document.getElementById('radar-dir-time-car').textContent = route.estimatedTimes.car;
+        document.getElementById('radar-dir-time-bike').textContent = route.estimatedTimes.twoWheeler;
+        document.getElementById('radar-dir-time-emergency').textContent = route.estimatedTimes.emergencyPriority;
+
+        const stepsCont = document.getElementById('radar-dir-steps-container');
+        stepsCont.innerHTML = route.steps.map(s => `
+          <div class="route-step-card">
+            <div class="route-step-icon">${s.icon}</div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; font-weight: 600; color: #fff;">${s.instruction}</div>
+              <div style="font-size: 11px; color: var(--text-dim);">${s.distance}</div>
+            </div>
+          </div>
+        `).join('');
+
+        document.getElementById('btn-radar-google-maps').href = route.googleMapsUrl;
+        if (window.soundFX) window.soundFX.playRadarPing();
+        document.getElementById('modal-radar-directions').classList.add('active');
+      });
+
+      window.inspectDonor = (donorId) => {
+        const d = bloodData.getDonorById(donorId);
+        if (d) showDonorModal(d);
+      };
+
+      updateRadar();
+    });
+  </script>
+</body>
+</html>

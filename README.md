@@ -1,99 +1,77 @@
-# BloodConnect
+# BloodConnect 3D 🩸
 
-A modern web application that connects blood donors with recipients, built with HTML, CSS, and JavaScript.
+A next-generation **3D Graphic Design Web Platform** connecting hospital emergency blood requests with nearby compatible donors in real-time within a configurable distance radius. Powered by **Three.js WebGL**, **Haversine Proximity Geosearch**, **Day-to-Day Donor Medical Fitness Tracking**, and a **Medical Benefits Points Redemption System**.
 
-## Features
+---
 
-- **Donor Registration**: Easy signup for blood donors with blood group and availability information
-- **Recipient Requests**: Quick blood request form for those in need
-- **Smart Matching**: Compatible blood group matching system
-- **Location-based**: Find donors and recipients in your area
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
-- **Modern UI**: Clean, professional interface with smooth animations
+## 🌟 Key Features
 
-## Pages
+- **🎮 Immersive 3D WebGL Graphics**:
+  - **3D Hero Pulsating Heart & Blood Stream**: Interactive organic 3D heart with biological heartbeat rhythm, floating erythrocytes (red blood cells), platelets, and glowing plasma particles.
+  - **3D Geo-Proximity Match Radar**: Holographic 3D city grid with concentric distance rings (1km, 5km, 10km, 25km, 50km), rotating sweep beam, and glowing laser arcs connecting requests to matching donors.
+  - **3D Bio-Fitness Hologram**: Anatomical vitals scanner tracking donor readiness score and cooldown gauge.
+  - **3D Metallic Gold Reward Token**: Interactive 3D medallion for the points redemption vault.
+- **📍 Smart Distance & Proximity Range Finder**:
+  - Configurable distance radius slider (1 km to 100 km).
+  - Exact Haversine spherical distance calculation.
+- **🧬 Smart Blood Group Compatibility Engine**:
+  - Full ABO and Rh compatibility matrix ($O^-, O^+, A^-, A^+, B^-, B^+, AB^-, AB^+$).
+  - Highlighting universal donors ($O^-$) and universal recipients ($AB^+$).
+- **🏥 Hospital Admin Command Center (`admin.html`)**:
+  - Emergency patient blood request dispatcher with urgency tiers (Critical, High, Standard).
+  - Live 3D match radar with one-click SOS broadcasting.
+  - **Hospital Visit Verification Terminal**: Verifies arriving donors, records hemoglobin & BP vitals, sets 56-day cooldown, and automatically awards **500 Redeem Points**.
+- **📋 Donor Hub & Day-to-Day Medical Fitness Center (`donor.html`)**:
+  - Daily health check-in form (sleep, hydration, vitals, medications) to evaluate real-time Medical Readiness Score.
+  - 56-day donation cooldown timer and digital hospital check-in pass.
+  - Nearby emergency blood requests matching donor blood group.
+- **🪙 Medical Benefits & Points Redemption Store (`rewards.html`)**:
+  - Earn points from blood donations (+500 pts) and daily health check-in streaks (+25 pts).
+  - Redeem points for medical vouchers:
+    1. *Comprehensive Lab & Blood Profile Test* (300 pts)
+    2. *25% Pharmacy & Medicine Discount Pass* (400 pts)
+    3. *Emergency Blood Reserve Token for Family* (600 pts)
+    4. *Full Dental & Vision Diagnostic Checkup* (350 pts)
+    5. *Annual Full Body Health & ECG Scan Coupon* (800 pts)
+    6. *1-Year Emergency Ambulance Assistance Cover* (500 pts)
 
-- **Home** (`index.html`): Landing page with features and call-to-action
-- **Donor Registration** (`donor.html`): Form for blood donors to register
-- **Recipient Request** (`receiver.html`): Form for blood recipients to request help
+---
 
-## Technology Stack
-
-- **HTML5**: Semantic markup with accessibility features
-- **CSS3**: Modern styling with CSS Grid, Flexbox, and custom properties
-- **JavaScript**: Vanilla JS for form handling and interactions
-- **SVG**: Scalable vector graphics for icons and illustrations
-
-## Getting Started
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/nayaklsrinivas949-hash/bloodconnect.git
-   ```
-
-2. Navigate to the project directory:
-   ```bash
-   cd bloodconnect
-   ```
-
-3. Open `index.html` in your web browser to view the application.
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 bloodconnect/
-├── index.html          # Home page
-├── donor.html          # Donor registration page
-├── receiver.html       # Recipient request page
+├── index.html            # 3D Landing Page with Hero Heart & Compatibility Matrix
+├── admin.html            # Hospital Admin Command Center & Verification Terminal
+├── donor.html            # Donor Hub, 3D Bio-Scanner & Daily Fitness Tracker
+├── radar.html            # Dedicated 3D Holographic Proximity Match Radar
+├── rewards.html          # 3D Medical Benefits & Points Redemption Vault
+├── receiver.html         # Patient / Emergency Blood Request Form
 ├── styles/
-│   └── styles.css      # Main stylesheet
+│   └── styles.css        # Cyber-medical glassmorphism design system & neon lighting
 ├── scripts/
-│   ├── main.js         # Main JavaScript functionality
-│   └── forms.js        # Form handling
-├── assets/
-│   ├── logo.svg        # BloodConnect logo
-│   └── hero-illustration.svg  # Hero section illustration
-├── .gitignore          # Git ignore file
-└── README.md           # Project documentation
+│   ├── blood-data.js     # Unified state management & LocalStorage persistence
+│   ├── matching-engine.js# Haversine distance & ABO/Rh compatibility algorithms
+│   ├── three-scene.js    # Three.js WebGL engine for 3D Heart, Radar, Bio-Avatar & Coin
+│   └── main.js           # UI helpers, navigation & emergency ticker
+└── README.md             # Project documentation
 ```
 
-## Features in Detail
+---
 
-### Smart Compatibility
-- ABO and Rh blood group matching
-- Configurable filters for urgency and distance
-- Real-time compatibility checking
+## 🚀 How to Run
 
-### Location-First Approach
-- Privacy-preserving geosearch
-- City-based donor/recipient matching
-- Distance-based filtering
+1. Clone or open the project directory:
+   ```bash
+   cd bloodconnect
+   ```
+2. Open `index.html` in any modern web browser (Chrome, Edge, Firefox, Safari).
+3. No build tools or Node.js required! All 3D WebGL rendering runs natively via standard Three.js.
 
-### Privacy & Safety
-- Verified profiles
-- Consent-driven contact sharing
-- Secure messaging system
+---
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contact
+## 👨‍💻 Developer
 
 - **Developer**: Srinivas Nayak
 - **Email**: nayaklsrinivas949@gmail.com
 - **GitHub**: [@nayaklsrinivas949-hash](https://github.com/nayaklsrinivas949-hash)
-
-## Acknowledgments
-
-- Design inspiration from modern healthcare applications
-- Icons and illustrations created with SVG
-- Responsive design principles from modern web standards

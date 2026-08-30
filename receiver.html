@@ -3,101 +3,189 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Request Blood — BloodConnect</title>
-  <meta name="description" content="Request blood and get matched with compatible donors near you.">
+  <title>Request Blood — BloodConnect 3D</title>
+  <meta name="description" content="Request blood and find nearby compatible donors in real-time with 3D proximity matching.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
+  <!-- Header -->
   <header class="site-header">
     <div class="container header-inner">
-      <a href="./" class="brand">
-        <img src="./assets/logo.svg" alt="BloodConnect logo" class="brand-mark" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';" />
-        <span class="brand-fallback" style="display:none; width:28px; height:28px; background:var(--primary); border-radius:8px; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">B</span>
-        <span class="brand-text">BloodConnect</span>
+      <a href="./index.html" class="brand">
+        <div class="brand-icon-3d">🩸</div>
+        <div class="brand-text">Blood<span>Connect</span> <small style="font-size: 11px; background: rgba(225,29,72,0.2); border: 1px solid var(--border-glow); padding: 2px 6px; border-radius: 4px; vertical-align: middle; color: var(--primary-glow);">3D</small></div>
       </a>
-      <nav class="main-nav" aria-label="Main">
-        <a class="btn btn-ghost" href="./donor.html">Become a donor</a>
+
+      <nav class="main-nav" aria-label="Main Navigation">
+        <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-label="Toggle navigation">☰</button>
+        <ul id="nav-list" class="nav-list">
+          <li><a href="./index.html">Home</a></li>
+          <li><a href="./radar.html">3D Match Radar 🛰️</a></li>
+          <li><a href="./donor.html">Donor Hub & Fitness 🧬</a></li>
+          <li><a href="./admin.html">Hospital Admin 🏥</a></li>
+          <li><a href="./rewards.html">Medical Points Vault 🪙</a></li>
+        </ul>
       </nav>
+
+      <div class="header-cta">
+        <button class="audio-toggle-btn" id="audio-toggle-btn">🔊 Sound ON</button>
+        <a class="btn btn-secondary" href="./admin.html">Hospital Portal</a>
+        <a class="btn btn-primary" href="./donor.html">Become a Donor</a>
+      </div>
     </div>
   </header>
 
-  <main>
-    <section class="section form-section">
-      <div class="container narrow">
-        <h1>Request blood</h1>
-        <p>Tell us what you need and we'll help find compatible donors.</p>
-        <form class="form-card" id="receiver-form" novalidate>
-          <div class="form-grid">
-            <label>
-              <span>Full name</span>
-              <input type="text" name="name" required placeholder="John Doe" />
-            </label>
-            <label>
-              <span>Email</span>
-              <input type="email" name="email" required placeholder="john@example.com" />
-            </label>
-            <label>
-              <span>Phone</span>
-              <input type="tel" name="phone" required placeholder="+1 555 987 6543" />
-            </label>
-            <label>
-              <span>City</span>
-              <input type="text" name="city" required placeholder="Delhi" />
-            </label>
-            <label>
-              <span>Blood group needed</span>
-              <select name="group" required>
-                <option value="" disabled selected>Select</option>
-                <option>O+</option>
-                <option>O-</option>
-                <option>A+</option>
-                <option>A-</option>
-                <option>B+</option>
-                <option>B-</option>
-                <option>AB+</option>
-                <option>AB-</option>
+  <main class="container" style="padding-top: 36px; padding-bottom: 60px;">
+    <div style="max-width: 760px; margin: 0 auto;">
+      <div class="section-head" style="margin-bottom: 30px;">
+        <span class="section-tag" style="color: var(--primary-glow);">Fast Patient Assistance</span>
+        <h1 class="section-title">Emergency Blood Request</h1>
+        <p class="section-desc">Submit your urgent patient requirement to search nearby compatible donors within real-time distance proximity.</p>
+      </div>
+
+      <div class="glass-card highlight">
+        <form id="receiver-request-form">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="rec-patient-name">Patient Full Name *</label>
+              <input type="text" class="form-input" id="rec-patient-name" required placeholder="e.g. Ramesh Chandra">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="rec-blood-group">Blood Group Needed *</label>
+              <select class="form-select" id="rec-blood-group" required>
+                <option value="O+">O+ (Positive)</option>
+                <option value="O-">O- (Universal)</option>
+                <option value="A+">A+ (Positive)</option>
+                <option value="A-">A- (Negative)</option>
+                <option value="B+">B+ (Positive)</option>
+                <option value="B-">B- (Negative)</option>
+                <option value="AB+">AB+ (Universal Recipient)</option>
+                <option value="AB-">AB- (Negative)</option>
               </select>
-            </label>
-            <label>
-              <span>Urgency</span>
-              <select name="urgency" required>
-                <option value="" disabled selected>Select</option>
-                <option>Immediate</option>
-                <option>Within 24 hours</option>
-                <option>This week</option>
-              </select>
-            </label>
+            </div>
           </div>
-          <label>
-            <span>Additional details</span>
-            <textarea name="details" rows="4" placeholder="Hospital, required units, notes..."></textarea>
-          </label>
-          <div class="form-actions">
-            <button class="btn btn-primary" type="submit">Find donors</button>
-            <a class="btn btn-ghost" href="./">Cancel</a>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="rec-hospital-select">Treating Hospital / Center *</label>
+              <select class="form-select" id="rec-hospital-select" required>
+                <option value="HOSP-001">Apollo Hospitals Jubilee Hills (Hyderabad)</option>
+                <option value="HOSP-002">KIMS Hospitals Secunderabad (Begumpet)</option>
+                <option value="HOSP-003">Yashoda Hospitals Somajiguda (Raj Bhavan Rd)</option>
+                <option value="HOSP-004">CARE Hospitals Banjara Hills (Road No. 1)</option>
+                <option value="HOSP-005">Continental Hospitals Gachibowli (Financial Dist)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="rec-units">Units Required (Bags) *</label>
+              <input type="number" class="form-input" id="rec-units" min="1" max="10" value="2" required>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="rec-urgency">Urgency Level *</label>
+              <select class="form-select" id="rec-urgency" required>
+                <option value="CRITICAL">🚨 CRITICAL (Emergency ICU / Surgery within 4h)</option>
+                <option value="HIGH">⚠️ HIGH (Within 24 Hours)</option>
+                <option value="STANDARD">ℹ️ STANDARD (Elective Schedule)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="rec-contact">Contact Phone Number *</label>
+              <input type="tel" class="form-input" id="rec-contact" required placeholder="+91 98201 00000">
+            </div>
+          </div>
+
+          <div class="form-group range-slider-group">
+            <div class="range-label">
+              <span>Proximity Search Radius</span>
+              <span class="range-value" id="rec-radius-disp">25 km</span>
+            </div>
+            <input type="range" id="rec-radius-slider" min="5" max="60" step="5" value="25">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="rec-notes">Medical Condition / Ward Details</label>
+            <textarea class="form-textarea" id="rec-notes" rows="3" placeholder="e.g. ICU Bed 06, Acute post-operative blood loss, urgent blood replacement."></textarea>
+          </div>
+
+          <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+            <a href="./index.html" class="btn btn-ghost">Cancel</a>
+            <button type="submit" class="btn btn-primary" style="padding: 12px 28px;">
+              <span>🚀</span> Dispatch Request & View Matched Donors
+            </button>
           </div>
         </form>
       </div>
-    </section>
+    </div>
   </main>
 
+  <!-- Site Footer -->
   <footer class="site-footer">
     <div class="container footer-inner">
-      <a href="./" class="brand">
-        <img src="./assets/logo.svg" alt="BloodConnect logo" class="brand-mark" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';" />
-        <span class="brand-fallback" style="display:none; width:28px; height:28px; background:var(--primary); border-radius:8px; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">B</span>
-        <span class="brand-text">BloodConnect</span>
-      </a>
-      <p>© <span id="year"></span> BloodConnect</p>
+      <div class="brand">
+        <div class="brand-icon-3d" style="width: 30px; height: 30px; font-size: 16px;">🩸</div>
+        <div class="brand-text">Blood<span>Connect</span> 3D</div>
+      </div>
+      <p style="color: var(--text-dim); font-size: 13px;">&copy; <span id="year"></span> BloodConnect 3D.</p>
     </div>
   </footer>
 
+  <!-- Scripts -->
+  <script src="./scripts/audio-synth.js"></script>
+  <script src="./scripts/blood-data.js"></script>
+  <script src="./scripts/matching-engine.js"></script>
   <script src="./scripts/main.js"></script>
-  <script src="./scripts/forms.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Audio Toggle Button
+      const audioBtn = document.getElementById('audio-toggle-btn');
+      if (audioBtn && window.soundFX) {
+        audioBtn.textContent = window.soundFX.isMuted ? '🔇 Sound OFF' : '🔊 Sound ON';
+        audioBtn.addEventListener('click', () => {
+          const muted = window.soundFX.toggleMute();
+          audioBtn.textContent = muted ? '🔇 Sound OFF' : '🔊 Sound ON';
+        });
+      }
+      const slider = document.getElementById('rec-radius-slider');
+      const disp = document.getElementById('rec-radius-disp');
+      slider.addEventListener('input', (e) => {
+        disp.textContent = `${e.target.value} km`;
+      });
+
+      const form = document.getElementById('receiver-request-form');
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const pName = document.getElementById('rec-patient-name').value.trim();
+        const bGroup = document.getElementById('rec-blood-group').value;
+        const hospId = document.getElementById('rec-hospital-select').value;
+        const units = parseInt(document.getElementById('rec-units').value, 10);
+        const urgency = document.getElementById('rec-urgency').value;
+        const radius = parseInt(slider.value, 10);
+        const notes = document.getElementById('rec-notes').value.trim();
+
+        const hosp = bloodData.getHospitalById(hospId);
+
+        const newReq = bloodData.createRequest({
+          hospitalId: hospId,
+          hospitalName: hosp ? hosp.name : 'Hospital',
+          patientName: pName,
+          bloodGroup: bGroup,
+          unitsNeeded: units,
+          urgency,
+          condition: notes || 'Emergency Patient Blood Request',
+          targetRadiusKm: radius
+        });
+
+        alert(`Emergency Blood Request [${newReq.id}] successfully created for ${pName} (${bGroup})! Redirecting to 3D Radar to inspect nearby donors...`);
+        window.location.href = `./radar.html?reqId=${newReq.id}`;
+      });
+    });
+  </script>
 </body>
 </html>
-
-
