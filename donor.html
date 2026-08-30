@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Donor Hub & Bio-Fitness Center — BloodConnect 3D</title>
+  <title>Donor Hub & Bio-Fitness Center — BloodConnect</title>
   <meta name="description" content="Donor health dashboard with 3D vital scanner, contact details, turn-by-turn GPS hospital navigation, daily medical fitness tracking, and points rewards.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
     <div class="container header-inner">
       <a href="./index.html" class="brand">
         <div class="brand-icon-3d">🧬</div>
-        <div class="brand-text">Blood<span>Connect</span> <small style="font-size: 11px; background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4); padding: 2px 6px; border-radius: 4px; vertical-align: middle; color: var(--accent-emerald);">DONOR</small></div>
+        <div class="brand-text">Blood<span>Connect</span></div>
       </a>
 
       <nav class="main-nav" aria-label="Main Navigation">
@@ -745,8 +745,8 @@
           pincode,
           emergencyContactPerson: emergency,
           emergencyContactPhone: phone,
-          lat: 19.0760 + (Math.random() - 0.5) * 0.08,
-          lon: 72.8777 + (Math.random() - 0.5) * 0.08,
+          lat: 17.4156 + (Math.random() - 0.5) * 0.08,
+          lon: 78.4116 + (Math.random() - 0.5) * 0.08,
           cooldownDaysRemaining: 0,
           isMedicallyFit: true,
           fitnessReadinessScore: 95,
@@ -756,7 +756,7 @@
         });
 
         if (window.soundFX) window.soundFX.playSuccessChime();
-        alert(`Welcome to BloodConnect 3D, ${name}! Your contact details and address have been saved. +500 welcome points!`);
+        alert(`Welcome to BloodConnect, ${name}! Your contact details and address have been saved. +500 welcome points!`);
         currentDonor = newDonor;
         populateProfiles();
         profileSelect.value = newDonor.id;
