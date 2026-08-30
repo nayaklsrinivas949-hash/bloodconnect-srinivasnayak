@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://nayaklsrinivas949-hash.github.io/bloodconnect-3d/sitemap.xml
