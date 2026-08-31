@@ -14,10 +14,17 @@
 </head>
 <body>
   <!-- Live Emergency Need Ticker -->
-  <aside class="emergency-ticker" id="urgent-ticker" aria-label="Emergency alerts">
-    <span class="pulse-badge"><span class="pulse-dot"></span> CRITICAL SOS</span>
-    <span id="ticker-text">Apollo Hospital urgently needs 2 Units of O+ (ICU Bed 04) &bull; Distance match active within 20km</span>
-    <a href="./donor.html" style="color: #fff; text-decoration: underline; font-weight: 700; margin-left: 12px;">Respond Now &rarr;</a>
+  <aside class="emergency-ticker" id="urgent-ticker" aria-label="Emergency alerts" style="cursor: pointer;">
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <span class="pulse-badge" id="sos-badge"><span class="pulse-dot"></span> CRITICAL SOS</span>
+      <span id="ticker-text">Apollo Hospitals Jubilee Hills urgently needs 2 Units of O+ (ICU Bed 04) &bull; Distance match active within 20km</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <button type="button" class="btn btn-primary" id="btn-trigger-sos-sound" style="padding: 4px 12px; font-size: 12px; min-height: 28px; background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); border-color: #ff4d6d; box-shadow: 0 0 14px rgba(225,29,72,0.6);" title="Activate Critical SOS Emergency Siren & 3D Pulse">
+        <span>🚨</span> Sound SOS Siren
+      </button>
+      <a href="./donor.html" style="color: #fff; text-decoration: underline; font-weight: 700;">Respond Now &rarr;</a>
+    </div>
   </aside>
 
   <!-- Navigation Header -->
@@ -278,13 +285,39 @@
       if (window.BloodConnect3D && document.getElementById('hero-canvas')) {
         const heroScene = BloodConnect3D.initHeroScene('hero-canvas');
         
-        // Ticker SOS Pulse trigger
-        const ticker = document.getElementById('urgent-ticker');
-        if (ticker && heroScene) {
-          ticker.addEventListener('click', () => {
+        // Critical SOS Emergency Siren & Pulse Trigger
+        const triggerSOSAlarm = () => {
+          if (window.soundFX) {
+            window.soundFX.playEmergencySiren(4);
+            window.soundFX.playHeartbeat();
+          }
+          if (heroScene) {
             heroScene.triggerEmergencyPulse();
-            if (window.soundFX) window.soundFX.playEmergencySiren();
+          }
+
+          // Visual feedback on ticker
+          const ticker = document.getElementById('urgent-ticker');
+          if (ticker) {
+            ticker.style.background = 'linear-gradient(90deg, #991b1b 0%, #e11d48 50%, #991b1b 100%)';
+            ticker.style.boxShadow = '0 0 25px rgba(225,29,72,0.8)';
+            setTimeout(() => {
+              ticker.style.background = '';
+              ticker.style.boxShadow = '';
+            }, 2500);
+          }
+        };
+
+        const sosBtn = document.getElementById('btn-trigger-sos-sound');
+        if (sosBtn) {
+          sosBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            triggerSOSAlarm();
           });
+        }
+
+        const ticker = document.getElementById('urgent-ticker');
+        if (ticker) {
+          ticker.addEventListener('click', triggerSOSAlarm);
         }
       }
 

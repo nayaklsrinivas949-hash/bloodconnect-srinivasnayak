@@ -88,30 +88,57 @@ class SoundFX {
   }
 
   /**
-   * Emergency SOS Alert Siren
+   * High-Intensity Emergency SOS Alert Siren
+   * Generates a realistic multi-cycle dual-tone emergency ambulance/hospital siren
    */
-  playEmergencySiren() {
+  playEmergencySiren(repeatCycles = 3) {
     if (this.isMuted) return;
     this._initContext();
     if (!this.ctx) return;
 
-    const now = this.ctx.currentTime;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
+    const startTime = this.ctx.currentTime;
+    const cycleDuration = 0.45;
 
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(700, now);
-    osc.frequency.linearRampToValueAtTime(1100, now + 0.25);
-    osc.frequency.linearRampToValueAtTime(700, now + 0.5);
+    for (let i = 0; i < repeatCycles; i++) {
+      const cycleStart = startTime + (i * cycleDuration);
 
-    gain.gain.setValueAtTime(0.2, now);
-    gain.gain.linearRampToValueAtTime(0.001, now + 0.5);
+      // Primary Siren Oscillator (High-Low Modulated Sawtooth)
+      const osc1 = this.ctx.createOscillator();
+      const gain1 = this.ctx.createGain();
 
-    osc.connect(gain);
-    gain.connect(this.ctx.destination);
+      osc1.type = 'sawtooth';
+      osc1.frequency.setValueAtTime(680, cycleStart);
+      osc1.frequency.linearRampToValueAtTime(1180, cycleStart + (cycleDuration * 0.5));
+      osc1.frequency.linearRampToValueAtTime(680, cycleStart + cycleDuration);
 
-    osc.start(now);
-    osc.stop(now + 0.5);
+      gain1.gain.setValueAtTime(0.22, cycleStart);
+      gain1.gain.linearRampToValueAtTime(0.28, cycleStart + (cycleDuration * 0.5));
+      gain1.gain.exponentialRampToValueAtTime(0.001, cycleStart + cycleDuration);
+
+      // Secondary Harmonized Warning Tone (Sine Wave Layer)
+      const osc2 = this.ctx.createOscillator();
+      const gain2 = this.ctx.createGain();
+
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(880, cycleStart);
+      osc2.frequency.linearRampToValueAtTime(1350, cycleStart + (cycleDuration * 0.5));
+      osc2.frequency.linearRampToValueAtTime(880, cycleStart + cycleDuration);
+
+      gain2.gain.setValueAtTime(0.18, cycleStart);
+      gain2.gain.linearRampToValueAtTime(0.22, cycleStart + (cycleDuration * 0.5));
+      gain2.gain.exponentialRampToValueAtTime(0.001, cycleStart + cycleDuration);
+
+      // Audio Routing
+      osc1.connect(gain1);
+      gain1.connect(this.ctx.destination);
+      osc2.connect(gain2);
+      gain2.connect(this.ctx.destination);
+
+      osc1.start(cycleStart);
+      osc1.stop(cycleStart + cycleDuration);
+      osc2.start(cycleStart);
+      osc2.stop(cycleStart + cycleDuration);
+    }
   }
 
   /**
