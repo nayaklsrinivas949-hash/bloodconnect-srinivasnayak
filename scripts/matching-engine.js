@@ -205,8 +205,8 @@ class MatchingEngine {
       steps,
       googleMapsUrl,
       hospitalGate: hospital.emergencyGate || 'Emergency Main Gate',
-      hospitalContact: hospital.contact || '+91 40 2360 7777',
-      emergencyHelpline: hospital.emergencyHelpline || '1066'
+      hospitalContact: hospital.contact || '+91 85121 27287',
+      emergencyHelpline: hospital.emergencyHelpline || '8512127287'
     };
   }
 
@@ -228,7 +228,7 @@ class MatchingEngine {
     } else if (templateType === 'directions') {
       const lat = hospital ? hospital.lat : '17.4156';
       const lon = hospital ? hospital.lon : '78.4116';
-      return `Hello ${donorName}, here are your direct navigation instructions for donating blood at ${hospName}:\n📍 Address: ${hospAddr}\n🚪 Entrance: ${gate}\n🗺️ Google Maps: https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}\n📞 Hospital Desk: ${hospital ? hospital.contact : '+91 40 2360 7777'}`;
+      return `Hello ${donorName}, here are your direct navigation instructions for donating blood at ${hospName}:\n📍 Address: ${hospAddr}\n🚪 Entrance: ${gate}\n🗺️ Google Maps: https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}\n📞 Hospital Desk: ${hospital ? hospital.contact : '+91 85121 27287'}`;
     } else if (templateType === 'gratitude') {
       return `Hello ${donorName}, thank you for your selfless blood donation at ${hospName}! 500 Medical Reward Points have been credited to your BloodConnect vault. You can redeem these points anytime for free diagnostic tests, pharmacy medicine discounts, or ambulance cover.`;
     }

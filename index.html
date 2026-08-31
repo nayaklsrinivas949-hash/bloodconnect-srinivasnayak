@@ -394,7 +394,7 @@
 
         const requests = bloodData.getRequests().filter(r => r.status === 'ACTIVE').slice(0, 4);
         grid.innerHTML = requests.map(r => {
-          const hosp = bloodData.getHospitalById(r.hospitalId) || { name: 'Apollo Hospitals Jubilee Hills', city: 'Hyderabad', lat: 17.4156, lon: 78.4116, contact: '+91 40 2360 7777', emergencyGate: 'Gate 2' };
+          const hosp = bloodData.getHospitalById(r.hospitalId) || { name: 'Apollo Hospitals Jubilee Hills', city: 'Hyderabad', lat: 17.4156, lon: 78.4116, contact: '+91 85121 27287', emergencyGate: 'Gate 2' };
           const defaultMsg = MatchingEngine.generateDefaultChatMessage(null, hosp, r, 'emergency');
           const waUrl = MatchingEngine.generateWhatsAppUrl(hosp.contact, defaultMsg);
 
