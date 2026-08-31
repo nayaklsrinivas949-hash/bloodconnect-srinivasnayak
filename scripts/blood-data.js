@@ -4,14 +4,14 @@
  */
 
 const STORAGE_KEYS = {
-  DONORS: 'bloodconnect_donors_hyd_v7',
-  HOSPITALS: 'bloodconnect_hospitals_hyd_v7',
-  REQUESTS: 'bloodconnect_requests_hyd_v7',
-  REWARDS_CATALOG: 'bloodconnect_rewards_catalog_hyd_v7',
-  REDEMPTIONS: 'bloodconnect_redemptions_hyd_v7',
-  CURRENT_USER: 'bloodconnect_current_user_hyd_v7',
-  FITNESS_LOGS: 'bloodconnect_fitness_logs_hyd_v7',
-  INVENTORY: 'bloodconnect_inventory_hyd_v7'
+  DONORS: 'bloodconnect_donors_hyd_v8',
+  HOSPITALS: 'bloodconnect_hospitals_hyd_v8',
+  REQUESTS: 'bloodconnect_requests_hyd_v8',
+  REWARDS_CATALOG: 'bloodconnect_rewards_catalog_hyd_v8',
+  REDEMPTIONS: 'bloodconnect_redemptions_hyd_v8',
+  CURRENT_USER: 'bloodconnect_current_user_hyd_v8',
+  FITNESS_LOGS: 'bloodconnect_fitness_logs_hyd_v8',
+  INVENTORY: 'bloodconnect_inventory_hyd_v8'
 };
 
 // Seed Hospitals in Hyderabad with full addresses and emergency gate directions
@@ -42,8 +42,8 @@ const SEED_HOSPITALS = [
     pincode: '500003',
     lat: 17.4375,
     lon: 78.4878,
-    contact: '+91 87121 27287',
-    emergencyHelpline: '8712125287',
+    contact: '+91 97015 16959',
+    emergencyHelpline: '9701516959',
     bloodBankHead: 'Dr. Radhika Reddy',
     department: 'Emergency & Surgery Division',
     emergencyGate: 'Gate A (Main Casualty Wing, 1st Floor Blood Bank)',
