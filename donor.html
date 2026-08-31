@@ -87,8 +87,16 @@
         </div>
 
         <!-- 3D Bio Canvas -->
-        <div style="height: 320px; width: 100%; border-radius: var(--radius-md); overflow: hidden; background: #050914; border: 1px solid var(--border-glass); margin-bottom: 16px;">
+        <div style="height: 360px; width: 100%; border-radius: var(--radius-md); overflow: hidden; background: radial-gradient(circle at center, rgba(6,182,212,0.15) 0%, #050914 90%); border: 1px solid var(--border-glass); margin-bottom: 14px; position: relative;">
           <div id="bio-scan-canvas" class="canvas-container"></div>
+          <div style="position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 10; white-space: nowrap;">
+            <button type="button" class="btn btn-ghost" id="btn-trigger-bio-surge" style="padding: 4px 10px; font-size: 11px; min-height: 26px; background: rgba(7,12,24,0.85); backdrop-filter: blur(8px); border-color: rgba(6,182,212,0.4); color: var(--accent-cyan);">
+              <span>⚡</span> Surge Scan
+            </button>
+            <button type="button" class="btn btn-ghost" id="btn-sound-heartbeat" style="padding: 4px 10px; font-size: 11px; min-height: 26px; background: rgba(7,12,24,0.85); backdrop-filter: blur(8px); border-color: rgba(225,29,72,0.4); color: var(--primary-glow);">
+              <span>💓</span> Heartbeat
+            </button>
+          </div>
         </div>
 
         <!-- Readiness Score Bar -->
@@ -604,8 +612,39 @@
       });
 
       // 2. Initialize 3D Bio-Fitness Scanner
+      let bioScanInstance = null;
       if (window.BloodConnect3D && document.getElementById('bio-scan-canvas')) {
         bioScanInstance = BloodConnect3D.initBioFitnessScanner('bio-scan-canvas', currentDonor);
+      }
+
+      const surgeBtn = document.getElementById('btn-trigger-bio-surge');
+      if (surgeBtn) {
+        surgeBtn.addEventListener('click', () => {
+          if (bioScanInstance && bioScanInstance.triggerScanSurge) {
+            bioScanInstance.triggerScanSurge();
+          }
+        });
+      }
+
+      const heartSoundBtn = document.getElementById('btn-sound-heartbeat');
+      if (heartSoundBtn) {
+        heartSoundBtn.addEventListener('click', () => {
+          if (window.soundFX) window.soundFX.playHeartbeat();
+          if (bioScanInstance && bioScanInstance.triggerScanSurge) {
+            bioScanInstance.triggerScanSurge();
+          }
+        });
+      }
+
+      const scanVitalsBadge = document.getElementById('btn-heartbeat-sound');
+      if (scanVitalsBadge) {
+        scanVitalsBadge.style.cursor = 'pointer';
+        scanVitalsBadge.addEventListener('click', () => {
+          if (window.soundFX) window.soundFX.playHeartbeat();
+          if (bioScanInstance && bioScanInstance.triggerScanSurge) {
+            bioScanInstance.triggerScanSurge();
+          }
+        });
       }
 
       // 3. Render Dashboard

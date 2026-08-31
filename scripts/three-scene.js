@@ -539,67 +539,77 @@ class BloodConnect3D {
   }
 
   /**
-   * 3D Anatomical Human Body Scanner Hologram for Donor Profile
-   * Replaced cylindrical shape with a realistic anatomical human body silhouette,
-   * sculpted torso, shoulders, arms, legs, pulsating heart, spine, and vascular HUD.
+   * Advanced 3D Anatomical Human Bio-Vitals Scanner & Holographic Medical Matrix
+   * Features:
+   * - Articulated anatomical human mannequin with dual-layer cyber hologram shader
+   * - Dynamic arterial blood tree with glowing erythrocyte nanoparticles flowing in real-time
+   * - Dual-phase pulsating biological heart core with crimson point lighting
+   * - Sweeping cyber-laser scanner plane with organ-triggered bio-pings
+   * - Concentric orbital vitals gauges, compass base pedestal, and interactive mouse/touch controls
    */
   static initBioFitnessScanner(containerId, donor) {
     const container = document.getElementById(containerId);
     if (!container) return null;
 
-    const width = container.clientWidth || 360;
+    const width = container.clientWidth || 380;
     const height = container.clientHeight || 420;
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
-    camera.position.set(0, 0.2, 7.5);
+    scene.background = null;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 100);
+    camera.position.set(0, 0.1, 7.2);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
 
-    // Lighting
-    const amb = new THREE.AmbientLight(0xffffff, 0.7);
+    // Multi-Directional Cyber Lighting
+    const amb = new THREE.AmbientLight(0xffffff, 0.75);
     scene.add(amb);
 
-    const cyanLight = new THREE.DirectionalLight(0x38bdf8, 2.5);
-    cyanLight.position.set(4, 6, 6);
+    const cyanLight = new THREE.DirectionalLight(0x38bdf8, 2.8);
+    cyanLight.position.set(5, 6, 6);
     scene.add(cyanLight);
 
-    const emeraldLight = new THREE.DirectionalLight(0x10b981, 1.8);
-    emeraldLight.position.set(-4, -4, 4);
+    const emeraldLight = new THREE.DirectionalLight(0x10b981, 2.0);
+    emeraldLight.position.set(-5, -4, 4);
     scene.add(emeraldLight);
 
+    const bottomGlow = new THREE.PointLight(0x0284c7, 3, 12);
+    bottomGlow.position.set(0, -3.2, 2);
+    scene.add(bottomGlow);
+
     const scanGroup = new THREE.Group();
-    scanGroup.position.y = -0.3; // Center vertically
+    scanGroup.position.y = -0.25;
     scene.add(scanGroup);
 
-    // Holographic Cyber-Wireframe Material
-    const bodyMat = new THREE.MeshStandardMaterial({
+    // Cyber Hologram Materials
+    const wireMat = new THREE.MeshStandardMaterial({
       color: 0x06b6d4,
       emissive: 0x0284c7,
-      emissiveIntensity: 0.45,
+      emissiveIntensity: 0.5,
       wireframe: true,
       transparent: true,
       opacity: 0.65,
       roughness: 0.2,
-      metalness: 0.8
+      metalness: 0.85
     });
 
     const innerSolidMat = new THREE.MeshStandardMaterial({
-      color: 0x034b6e,
-      emissive: 0x022c44,
-      emissiveIntensity: 0.25,
+      color: 0x0284c7,
+      emissive: 0x082f49,
+      emissiveIntensity: 0.35,
       transparent: true,
-      opacity: 0.28,
-      roughness: 0.3
+      opacity: 0.3,
+      roughness: 0.25,
+      metalness: 0.7
     });
 
-    // Helper to create dual wireframe + solid glow meshes
     const addBodyPart = (geo, x, y, z, rotX = 0, rotY = 0, rotZ = 0) => {
-      const wire = new THREE.Mesh(geo, bodyMat);
+      const wire = new THREE.Mesh(geo, wireMat);
       wire.position.set(x, y, z);
       wire.rotation.set(rotX, rotY, rotZ);
       scanGroup.add(wire);
@@ -613,27 +623,34 @@ class BloodConnect3D {
       return wire;
     };
 
-    // 1. Head (Sculpted Cranium + Jaw)
-    const headGeo = new THREE.SphereGeometry(0.42, 18, 18);
-    headGeo.scale(0.85, 1.15, 0.95);
+    // 1. Head (Sculpted Cranium + Jawline)
+    const headGeo = new THREE.SphereGeometry(0.42, 20, 20);
+    headGeo.scale(0.85, 1.18, 0.95);
     addBodyPart(headGeo, 0, 2.2, 0);
+
+    // Brain Hologram Matrix
+    const brainGeo = new THREE.SphereGeometry(0.24, 14, 14);
+    const brainMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.8 });
+    const brainMesh = new THREE.Mesh(brainGeo, brainMat);
+    brainMesh.position.set(0, 2.25, 0.05);
+    scanGroup.add(brainMesh);
 
     // 2. Neck
     const neckGeo = new THREE.CylinderGeometry(0.2, 0.24, 0.4, 16);
     addBodyPart(neckGeo, 0, 1.65, 0);
 
-    // 3. Torso / Upper Chest (Pectorals / Thorax with broad shoulders)
-    const chestGeo = new THREE.CylinderGeometry(0.85, 0.65, 0.95, 16);
-    chestGeo.scale(1.25, 1.0, 0.7); // Broad chest, flatter depth
+    // 3. Thoracic Chest (Broad Pectoral Torso)
+    const chestGeo = new THREE.CylinderGeometry(0.86, 0.66, 0.95, 18);
+    chestGeo.scale(1.25, 1.0, 0.72);
     addBodyPart(chestGeo, 0, 1.05, 0);
 
-    // 4. Waist & Abdomen (Tapered natural waist)
-    const abdomenGeo = new THREE.CylinderGeometry(0.62, 0.68, 0.75, 16);
+    // 4. Waist & Abdomen
+    const abdomenGeo = new THREE.CylinderGeometry(0.64, 0.68, 0.75, 18);
     abdomenGeo.scale(1.1, 1.0, 0.7);
     addBodyPart(abdomenGeo, 0, 0.35, 0);
 
-    // 5. Pelvis & Hips
-    const pelvisGeo = new THREE.CylinderGeometry(0.68, 0.58, 0.5, 16);
+    // 5. Pelvis
+    const pelvisGeo = new THREE.CylinderGeometry(0.68, 0.58, 0.5, 18);
     pelvisGeo.scale(1.15, 1.0, 0.75);
     addBodyPart(pelvisGeo, 0, -0.15, 0);
 
@@ -642,48 +659,92 @@ class BloodConnect3D {
     addBodyPart(shoulderGeo, -1.05, 1.35, 0);
     addBodyPart(shoulderGeo, 1.05, 1.35, 0);
 
-    // 7. Arms (Upper arms, Elbows, Forearms)
-    const upperArmGeo = new THREE.CylinderGeometry(0.18, 0.15, 0.8, 12);
+    // 7. Arms (Upper Arms, Forearms, Hands)
+    const upperArmGeo = new THREE.CylinderGeometry(0.18, 0.15, 0.8, 14);
     addBodyPart(upperArmGeo, -1.15, 0.85, 0, 0, 0, 0.12);
     addBodyPart(upperArmGeo, 1.15, 0.85, 0, 0, 0, -0.12);
 
-    const forearmGeo = new THREE.CylinderGeometry(0.14, 0.11, 0.8, 12);
+    const forearmGeo = new THREE.CylinderGeometry(0.14, 0.11, 0.8, 14);
     addBodyPart(forearmGeo, -1.28, 0.1, 0, 0, 0, 0.08);
     addBodyPart(forearmGeo, 1.28, 0.1, 0, 0, 0, -0.08);
 
-    // Hands
-    const handGeo = new THREE.SphereGeometry(0.12, 10, 10);
+    const handGeo = new THREE.SphereGeometry(0.12, 12, 12);
     handGeo.scale(0.8, 1.4, 0.6);
     addBodyPart(handGeo, -1.33, -0.4, 0);
     addBodyPart(handGeo, 1.33, -0.4, 0);
 
     // 8. Legs (Thighs, Knees, Calves, Feet)
-    const thighGeo = new THREE.CylinderGeometry(0.3, 0.22, 1.1, 14);
+    const thighGeo = new THREE.CylinderGeometry(0.3, 0.22, 1.1, 16);
     thighGeo.scale(1.0, 1.0, 0.9);
     addBodyPart(thighGeo, -0.45, -0.85, 0, 0, 0, -0.05);
     addBodyPart(thighGeo, 0.45, -0.85, 0, 0, 0, 0.05);
 
-    const kneeGeo = new THREE.SphereGeometry(0.18, 12, 12);
+    const kneeGeo = new THREE.SphereGeometry(0.18, 14, 14);
     addBodyPart(kneeGeo, -0.47, -1.45, 0.02);
     addBodyPart(kneeGeo, 0.47, -1.45, 0.02);
 
-    const calfGeo = new THREE.CylinderGeometry(0.2, 0.14, 1.1, 14);
+    const calfGeo = new THREE.CylinderGeometry(0.2, 0.14, 1.1, 16);
     addBodyPart(calfGeo, -0.47, -2.05, 0, 0, 0, -0.02);
     addBodyPart(calfGeo, 0.47, -2.05, 0, 0, 0, 0.02);
 
-    // Feet
     const footGeo = new THREE.BoxGeometry(0.24, 0.15, 0.55);
     addBodyPart(footGeo, -0.48, -2.65, 0.12);
     addBodyPart(footGeo, 0.48, -2.65, 0.12);
 
-    // 9. Spine / Central Neural Column
-    const spineGeo = new THREE.CylinderGeometry(0.06, 0.06, 2.0, 12);
-    const spineMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.8 });
+    // 9. Central Neural Spine Column
+    const spineGeo = new THREE.CylinderGeometry(0.06, 0.06, 2.0, 14);
+    const spineMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.85 });
     const spineMesh = new THREE.Mesh(spineGeo, spineMat);
     spineMesh.position.set(0, 0.65, -0.1);
     scanGroup.add(spineMesh);
 
-    // 10. Anatomical Pulsating Heart & Major Arterial Core
+    // 10. Circulatory Arterial Vascular Tree (3D Curved Blood Stream)
+    const vascularGroup = new THREE.Group();
+    scanGroup.add(vascularGroup);
+
+    const arteryMat = new THREE.MeshBasicMaterial({ color: 0xe11d48, transparent: true, opacity: 0.65 });
+
+    // Aorta & Carotid branch
+    const aortaGeo = new THREE.CylinderGeometry(0.045, 0.04, 0.7, 8);
+    const aorta = new THREE.Mesh(aortaGeo, arteryMat);
+    aorta.position.set(0.08, 1.5, 0.05);
+    vascularGroup.add(aorta);
+
+    // Femoral Arteries
+    const leftFemoral = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.025, 1.8, 8), arteryMat);
+    leftFemoral.position.set(-0.45, -1.35, 0);
+    vascularGroup.add(leftFemoral);
+
+    const rightFemoral = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.025, 1.8, 8), arteryMat);
+    rightFemoral.position.set(0.45, -1.35, 0);
+    vascularGroup.add(rightFemoral);
+
+    // Brachial Arm Arteries
+    const leftArmArtery = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.02, 1.3, 8), arteryMat);
+    leftArmArtery.position.set(-1.2, 0.4, 0);
+    leftArmArtery.rotation.z = 0.1;
+    vascularGroup.add(leftArmArtery);
+
+    const rightArmArtery = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.02, 1.3, 8), arteryMat);
+    rightArmArtery.position.set(1.2, 0.4, 0);
+    rightArmArtery.rotation.z = -0.1;
+    vascularGroup.add(rightArmArtery);
+
+    // Real-Time Flowing Erythrocyte Nanoparticles in Vascular System
+    const rbcParticleCount = 45;
+    const rbcParticles = [];
+    const rbcGeo = new THREE.SphereGeometry(0.035, 8, 8);
+    const rbcMat = new THREE.MeshBasicMaterial({ color: 0xff0055 });
+
+    for (let i = 0; i < rbcParticleCount; i++) {
+      const p = new THREE.Mesh(rbcGeo, rbcMat);
+      const branch = i % 4; // 0: Aorta/Neck, 1: Left Leg, 2: Right Leg, 3: Arms
+      const progress = Math.random();
+      scanGroup.add(p);
+      rbcParticles.push({ mesh: p, branch, progress, speed: 0.008 + Math.random() * 0.006 });
+    }
+
+    // 11. Anatomical Pulsating Heart (Left Chest Cavity)
     const heartShape = new THREE.Shape();
     heartShape.moveTo(0.12, 0.12);
     heartShape.bezierCurveTo(0.12, 0.12, 0.1, 0, 0, 0);
@@ -693,108 +754,187 @@ class BloodConnect3D {
     heartShape.bezierCurveTo(0.4, 0.18, 0.4, 0, 0.25, 0);
     heartShape.bezierCurveTo(0.18, 0, 0.12, 0.12, 0.12, 0.12);
 
-    const heartExtrude = new THREE.ExtrudeGeometry(heartShape, { depth: 0.2, bevelEnabled: true, bevelSegments: 4, steps: 1, bevelSize: 0.08, bevelThickness: 0.1 });
+    const heartExtrude = new THREE.ExtrudeGeometry(heartShape, { depth: 0.24, bevelEnabled: true, bevelSegments: 6, steps: 1, bevelSize: 0.08, bevelThickness: 0.12 });
     heartExtrude.center();
 
     const heartMat = new THREE.MeshStandardMaterial({
       color: 0xe11d48,
       emissive: 0xff0033,
-      emissiveIntensity: 0.95,
-      roughness: 0.2,
-      metalness: 0.5
+      emissiveIntensity: 1.0,
+      roughness: 0.15,
+      metalness: 0.6
     });
 
     const heartCore = new THREE.Mesh(heartExtrude, heartMat);
-    heartCore.scale.set(1.2, -1.2, 1.2);
-    heartCore.position.set(0.15, 1.15, 0.15); // Located in left chest cavity
+    heartCore.scale.set(1.3, -1.3, 1.3);
+    heartCore.position.set(0.16, 1.15, 0.16);
     scanGroup.add(heartCore);
 
-    // Glowing Heart Light Point
-    const heartPulseLight = new THREE.PointLight(0xff0044, 2.5, 4);
-    heartPulseLight.position.set(0.15, 1.15, 0.25);
+    const heartPulseLight = new THREE.PointLight(0xff0044, 3.0, 5);
+    heartPulseLight.position.set(0.16, 1.15, 0.3);
     scanGroup.add(heartPulseLight);
 
-    // 11. Biological Vitals Ring Gauges around Body
-    const ringGeo1 = new THREE.TorusGeometry(1.6, 0.025, 16, 64);
-    const ringMat1 = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.75 });
+    // 12. Vitals Orbital Ring Gauges
+    const ringGeo1 = new THREE.TorusGeometry(1.65, 0.025, 16, 64);
+    const ringMat1 = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.8 });
     const vitalRingChest = new THREE.Mesh(ringGeo1, ringMat1);
     vitalRingChest.rotation.x = Math.PI / 2;
-    vitalRingChest.position.y = 1.1;
+    vitalRingChest.position.y = 1.15;
     scanGroup.add(vitalRingChest);
 
-    const ringGeo2 = new THREE.TorusGeometry(1.3, 0.02, 16, 64);
-    const ringMat2 = new THREE.MeshBasicMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.6 });
+    const ringGeo2 = new THREE.TorusGeometry(1.35, 0.02, 16, 64);
+    const ringMat2 = new THREE.MeshBasicMaterial({ color: 0x06b6d4, transparent: true, opacity: 0.65 });
     const vitalRingWaist = new THREE.Mesh(ringGeo2, ringMat2);
     vitalRingWaist.rotation.x = Math.PI / 2;
-    vitalRingWaist.position.y = 0.3;
+    vitalRingWaist.position.y = 0.35;
     scanGroup.add(vitalRingWaist);
 
-    // 12. Dynamic Vertical Scanning Laser Plane with Cyber Hologram Disk
-    const laserGeo = new THREE.RingGeometry(0, 1.85, 48);
-    const laserMat = new THREE.MeshBasicMaterial({
-      color: 0x38bdf8,
-      transparent: true,
-      opacity: 0.35,
-      side: THREE.DoubleSide
-    });
-    const laserPlane = new THREE.Mesh(laserGeo, laserMat);
-    laserPlane.rotation.x = Math.PI / 2;
-    scanGroup.add(laserPlane);
+    // 13. Dynamic Dual Laser Scanner Sweep Plane
+    const laserGroup = new THREE.Group();
+    scanGroup.add(laserGroup);
 
-    // Circular Hologram Pedestal at Base
-    const pedestalGeo = new THREE.CylinderGeometry(1.6, 1.7, 0.08, 32);
+    const laserDisk = new THREE.Mesh(
+      new THREE.RingGeometry(0, 1.9, 48),
+      new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.45, side: THREE.DoubleSide })
+    );
+    laserDisk.rotation.x = Math.PI / 2;
+    laserGroup.add(laserDisk);
+
+    const laserBorder = new THREE.Mesh(
+      new THREE.TorusGeometry(1.9, 0.035, 16, 64),
+      new THREE.MeshBasicMaterial({ color: 0x0284c7, transparent: true, opacity: 0.9 })
+    );
+    laserBorder.rotation.x = Math.PI / 2;
+    laserGroup.add(laserBorder);
+
+    // 14. Hologram Base Pedestal with Digital Compass Grid
+    const pedestalGeo = new THREE.CylinderGeometry(1.75, 1.85, 0.1, 36);
     const pedestalMat = new THREE.MeshStandardMaterial({
       color: 0x0284c7,
       emissive: 0x0369a1,
-      emissiveIntensity: 0.6,
+      emissiveIntensity: 0.7,
       transparent: true,
-      opacity: 0.7
+      opacity: 0.75
     });
     const pedestal = new THREE.Mesh(pedestalGeo, pedestalMat);
     pedestal.position.y = -2.75;
     scanGroup.add(pedestal);
 
-    // Drag to Rotate Interaction
+    // Interactive Drag to Rotate & Zoom
     let isUserDragging = false;
-    let prevX = 0;
+    let prevX = 0, prevY = 0;
+    let targetRotY = 0, targetRotX = 0;
+
     container.addEventListener('mousedown', (e) => {
       isUserDragging = true;
       prevX = e.clientX;
+      prevY = e.clientY;
     });
+
     window.addEventListener('mouseup', () => { isUserDragging = false; });
     window.addEventListener('mousemove', (e) => {
       if (!isUserDragging) return;
       const dx = e.clientX - prevX;
-      scanGroup.rotation.y += dx * 0.01;
+      const dy = e.clientY - prevY;
+      targetRotY += dx * 0.012;
+      targetRotX += dy * 0.006;
+      targetRotX = Math.max(-0.4, Math.min(0.4, targetRotX));
       prevX = e.clientX;
+      prevY = e.clientY;
     });
+
+    // Touch Support for Mobile
+    container.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        isUserDragging = true;
+        prevX = e.touches[0].clientX;
+        prevY = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => { isUserDragging = false; });
+    window.addEventListener('touchmove', (e) => {
+      if (!isUserDragging || e.touches.length !== 1) return;
+      const dx = e.touches[0].clientX - prevX;
+      targetRotY += dx * 0.015;
+      prevX = e.touches[0].clientX;
+    }, { passive: true });
+
+    // Mouse Wheel Zoom
+    container.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      camera.position.z += e.deltaY * 0.005;
+      camera.position.z = Math.max(5.0, Math.min(9.5, camera.position.z));
+    }, { passive: false });
 
     // Animation Loop
     let animId;
     let scanTime = 0;
+    let scanSurge = 1.0;
 
     const animate = () => {
       animId = requestAnimationFrame(animate);
-      scanTime += 0.03;
+      scanTime += 0.03 * scanSurge;
 
-      // Gentle continuous rotation if not dragged
+      // Rotation inertia & gentle auto-rotation
       if (!isUserDragging) {
-        scanGroup.rotation.y += 0.008;
+        targetRotY += 0.008;
+      }
+      scanGroup.rotation.y += (targetRotY - scanGroup.rotation.y) * 0.08;
+      scanGroup.rotation.x += (targetRotX - scanGroup.rotation.x) * 0.08;
+
+      // Vertical Laser Sweep (From Head +2.4 to Feet -2.6)
+      const laserY = Math.sin(scanTime * 1.5) * 2.45;
+      laserGroup.position.y = laserY;
+
+      // Laser intensity modulation based on body scanning position
+      if (Math.abs(laserY - 1.15) < 0.3) {
+        // Highlighting Heart Region
+        laserDisk.material.color.setHex(0xff0055);
+        laserDisk.material.opacity = 0.7;
+      } else if (laserY > 1.9) {
+        // Highlighting Brain Region
+        laserDisk.material.color.setHex(0x38bdf8);
+        laserDisk.material.opacity = 0.6;
+        brainMesh.rotation.y += 0.04;
+      } else {
+        laserDisk.material.color.setHex(0x06b6d4);
+        laserDisk.material.opacity = 0.38;
       }
 
-      // Vertical Laser Sweep (From Head to Feet)
-      laserPlane.position.y = Math.sin(scanTime * 1.6) * 2.5;
-
-      // Heartbeat pulse rhythm
-      const beat1 = Math.pow(Math.sin(scanTime * 3.5), 32);
-      const beat2 = Math.pow(Math.sin(scanTime * 3.5 + 0.3), 32) * 0.4;
-      const beatScale = 1.2 + (beat1 + beat2) * 0.35;
+      // Dual-phase Biological Heartbeat Rhythm (Lub-Dub)
+      const beat1 = Math.pow(Math.sin(scanTime * 3.6), 32);
+      const beat2 = Math.pow(Math.sin(scanTime * 3.6 + 0.35), 32) * 0.45;
+      const beatScale = 1.25 + (beat1 + beat2) * 0.4 * scanSurge;
       heartCore.scale.set(beatScale, -beatScale, beatScale);
-      heartPulseLight.intensity = 2.0 + (beat1 + beat2) * 4.0;
+      heartPulseLight.intensity = 2.5 + (beat1 + beat2) * 5.0 * scanSurge;
 
-      // Vital Rings counter-rotation & gentle oscillation
-      vitalRingChest.rotation.z += 0.01;
-      vitalRingWaist.rotation.z -= 0.015;
+      // Flowing Erythrocyte Nanoparticles in Arteries
+      rbcParticles.forEach(p => {
+        p.progress += p.speed;
+        if (p.progress > 1.0) p.progress = 0;
+
+        const prg = p.progress;
+        if (p.branch === 0) {
+          // Aorta / Neck flow
+          p.mesh.position.set(0.08, 1.15 + prg * 1.05, 0.05);
+        } else if (p.branch === 1) {
+          // Left Leg Femoral flow
+          p.mesh.position.set(-0.45, 0.2 - prg * 2.6, 0);
+        } else if (p.branch === 2) {
+          // Right Leg Femoral flow
+          p.mesh.position.set(0.45, 0.2 - prg * 2.6, 0);
+        } else {
+          // Arms flow
+          const armSide = (prg > 0.5) ? -1 : 1;
+          const subPrg = (prg > 0.5) ? (prg - 0.5) * 2 : prg * 2;
+          p.mesh.position.set(armSide * (1.05 + subPrg * 0.3), 1.25 - subPrg * 1.5, 0);
+        }
+      });
+
+      // Vital Rings counter-rotation
+      vitalRingChest.rotation.z += 0.012;
+      vitalRingWaist.rotation.z -= 0.016;
 
       renderer.render(scene, camera);
     };
@@ -802,7 +942,7 @@ class BloodConnect3D {
 
     const onResize = () => {
       if (!container) return;
-      const w = container.clientWidth || 360;
+      const w = container.clientWidth || 380;
       const h = container.clientHeight || 420;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
@@ -811,6 +951,15 @@ class BloodConnect3D {
     window.addEventListener('resize', onResize);
 
     return {
+      triggerScanSurge: () => {
+        scanSurge = 2.2;
+        heartMat.emissive.setHex(0xff0022);
+        if (window.soundFX) window.soundFX.playHeartbeat();
+        setTimeout(() => {
+          scanSurge = 1.0;
+          heartMat.emissive.setHex(0xff0033);
+        }, 3000);
+      },
       destroy: () => {
         cancelAnimationFrame(animId);
         window.removeEventListener('resize', onResize);
