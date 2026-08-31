@@ -221,7 +221,7 @@
           <div style="font-size: 12px; line-height: 1.6; color: var(--text-muted);" id="desk-hospital-info">
             <div>📍 <strong>Address:</strong> <span id="desk-info-addr">Road No. 36 Jubilee Hills, Hyderabad</span></div>
             <div>🚪 <strong>Entrance:</strong> <span id="desk-info-gate" style="color: var(--secondary-glow);">Emergency Gate 2 &bull; Blood Bank Reception</span></div>
-            <div>📞 <strong>Desk Helpline:</strong> <span id="desk-info-phone" style="color: var(--accent-emerald);">+91 87121 27285</span></div>
+            <div>📞 <strong>Desk Helpline:</strong> <span id="desk-info-phone" style="color: var(--accent-emerald);">+91 87121 27287</span></div>
           </div>
 
           <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-glass);">
@@ -891,7 +891,7 @@
         const hospital = (window.bloodData && bloodData.getHospitalById(hospitalId)) || (window.bloodData && bloodData.getHospitals()[0]) || { name: 'Apollo Hospitals Jubilee Hills', city: 'Hyderabad', lat: 17.4156, lon: 78.4116 };
         activeHospitalForDirections = hospital;
 
-        const route = window.MatchingEngine ? MatchingEngine.generateRouteDirections(currentDonor, hospital) : { estimatedTimes: { car: '25 mins', twoWheeler: '18 mins', emergencyPriority: '12 mins' }, hospitalGate: 'Gate 2', steps: [], googleMapsUrl: '#', hospitalContact: '+91 87121 27285' };
+        const route = window.MatchingEngine ? MatchingEngine.generateRouteDirections(currentDonor, hospital) : { estimatedTimes: { car: '25 mins', twoWheeler: '18 mins', emergencyPriority: '12 mins' }, hospitalGate: 'Gate 2', steps: [], googleMapsUrl: '#', hospitalContact: '+91 87121 27287' };
 
         document.getElementById('dir-route-title').innerHTML = `${currentDonor.area || currentDonor.city} &rarr; ${hospital.name}`;
         document.getElementById('dir-time-car').textContent = route.estimatedTimes.car;
@@ -928,7 +928,7 @@
       // 7. Generate Hospital Pass Action with Dynamic QR and 6-Digit PIN
       window.generateHospitalPass = (reqId, hospName, pName, bGroup, units, hospitalId) => {
         try {
-          const hosp = (window.bloodData && bloodData.getHospitalById(hospitalId)) || (window.bloodData && bloodData.getHospitals()[0]) || { id: hospitalId, name: hospName, city: 'Hyderabad', emergencyGate: 'Gate 2 (Trauma Center & Blood Bank Reception)', streetAddress: 'Road 36, Jubilee Hills, Hyderabad', contact: '+91 87121 27285' };
+          const hosp = (window.bloodData && bloodData.getHospitalById(hospitalId)) || (window.bloodData && bloodData.getHospitals()[0]) || { id: hospitalId, name: hospName, city: 'Hyderabad', emergencyGate: 'Gate 2 (Trauma Center & Blood Bank Reception)', streetAddress: 'Road 36, Jubilee Hills, Hyderabad', contact: '+91 87121 27287' };
           activeHospitalForDirections = hosp;
           
           if (window.soundFX) window.soundFX.playSuccessChime();
@@ -971,7 +971,7 @@
           // Pre-populate WhatsApp Reception Link
           const waBtn = document.getElementById('btn-pass-whatsapp');
           if (waBtn) {
-            const phone = hosp.contact || '+91 87121 27285';
+            const phone = hosp.contact || '+91 87121 27287';
             const cleanPhone = phone.replace(/[^0-9]/g, '');
             const waPhone = cleanPhone.startsWith('91') ? cleanPhone : (cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone);
             const waMsg = `Hello ${hosp.name} Blood Bank Reception, I am verified donor ${currentDonor.name} (${currentDonor.bloodGroup}). I have generated Fast-Track Check-In Pass: ${passCode} (PIN: ${formattedPin}) for patient ${pName}. I am on my way.`;
@@ -1129,8 +1129,8 @@
         let phone = '';
 
         if (donorChatTarget.type === 'hospital') {
-          const hosp = donorChatTarget.targetObj || { name: 'Apollo Hospitals Jubilee Hills', contact: '+91 87121 27285', emergencyGate: 'Gate 2', streetAddress: 'Road 36 Jubilee Hills, Hyderabad' };
-          phone = hosp.contact || '+91 87121 27285';
+          const hosp = donorChatTarget.targetObj || { name: 'Apollo Hospitals Jubilee Hills', contact: '+91 87121 27287', emergencyGate: 'Gate 2', streetAddress: 'Road 36 Jubilee Hills, Hyderabad' };
+          phone = hosp.contact || '+91 87121 27287';
           const patientStr = donorChatTarget.request ? ` for Patient ${donorChatTarget.request.patientName} (${donorChatTarget.request.bloodGroup})` : '';
 
           if (templateKey === 'on_way') {
@@ -1185,7 +1185,7 @@
       function updateDeskHospital() {
         if (!deskSelect) return;
         const hospId = deskSelect.value;
-        const hosp = (window.bloodData && bloodData.getHospitalById(hospId)) || (window.bloodData && bloodData.getHospitals()[0]) || { name: 'Apollo Hospitals Jubilee Hills', streetAddress: 'Road 36 Jubilee Hills, Hyderabad', emergencyGate: 'Gate 2', contact: '+91 87121 27285' };
+        const hosp = (window.bloodData && bloodData.getHospitalById(hospId)) || (window.bloodData && bloodData.getHospitals()[0]) || { name: 'Apollo Hospitals Jubilee Hills', streetAddress: 'Road 36 Jubilee Hills, Hyderabad', emergencyGate: 'Gate 2', contact: '+91 87121 27287' };
 
         const addrEl = document.getElementById('desk-info-addr');
         if (addrEl) addrEl.textContent = hosp.streetAddress || `${hosp.city}, Hyderabad`;
@@ -1194,14 +1194,14 @@
         if (gateEl) gateEl.textContent = `${hosp.emergencyGate || 'Emergency Gate'} • Blood Bank Reception`;
 
         const phoneEl = document.getElementById('desk-info-phone');
-        if (phoneEl) phoneEl.textContent = hosp.contact || '+91 87121 27285';
+        if (phoneEl) phoneEl.textContent = hosp.contact || '+91 87121 27287';
 
         setDeskTemplate('on_way');
       }
 
       window.setDeskTemplate = (templateKey) => {
         if (!deskSelect || !deskTextarea) return;
-        const hosp = (window.bloodData && bloodData.getHospitalById(deskSelect.value)) || (window.bloodData && bloodData.getHospitals()[0]) || { name: 'Apollo Hospitals Jubilee Hills', contact: '+91 87121 27285' };
+        const hosp = (window.bloodData && bloodData.getHospitalById(deskSelect.value)) || (window.bloodData && bloodData.getHospitals()[0]) || { name: 'Apollo Hospitals Jubilee Hills', contact: '+91 87121 27287' };
         let msg = '';
 
         if (templateKey === 'on_way') {
@@ -1216,7 +1216,7 @@
 
         deskTextarea.value = msg;
 
-        const phone = hosp.contact || '+91 87121 27285';
+        const phone = hosp.contact || '+91 87121 27287';
         const cleanPhone = phone.replace(/[^0-9]/g, '');
         const waPhone = cleanPhone.startsWith('91') ? cleanPhone : (cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone);
 
