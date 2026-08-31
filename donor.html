@@ -492,10 +492,11 @@
           <div class="qr-mock"></div>
         </div>
 
-        <div style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: var(--radius-md); font-size: 12px; text-align: left; margin-top: 10px;">
+        <div style="background: rgba(0,0,0,0.5); padding: 12px; border-radius: var(--radius-md); font-size: 12px; text-align: left; margin-top: 10px; line-height: 1.6;">
           <div><strong>Donor:</strong> <span id="pass-donor-name">Rahul Varma (O+)</span></div>
-          <div><strong>Pass ID:</strong> <span id="pass-code">BC-PASS-9901-O+</span></div>
-          <div><strong>Reward upon completion:</strong> <span style="color: var(--accent-amber);">+500 Medical Points</span></div>
+          <div><strong>Pass ID:</strong> <span id="pass-code" style="color: var(--secondary-glow); font-family: monospace; font-weight: 700;">BC-PASS-9901-O+</span></div>
+          <div><strong>Issued At:</strong> <span id="pass-timestamp" style="color: var(--text-muted);">Just now</span></div>
+          <div><strong>Reward upon completion:</strong> <span style="color: var(--accent-amber); font-weight: 700;">+500 Medical Points</span></div>
         </div>
       </div>
 
@@ -909,27 +910,46 @@
 
       // 7. Generate Hospital Pass Action
       window.generateHospitalPass = (reqId, hospName, pName, bGroup, units, hospitalId) => {
-        activeHospitalForDirections = (window.bloodData && bloodData.getHospitalById(hospitalId)) || (window.bloodData && bloodData.getHospitals()[0]);
-        if (window.soundFX) window.soundFX.playRadarPing();
-        document.getElementById('pass-hosp-name').textContent = hospName;
-        document.getElementById('pass-patient-meta').textContent = `Patient: ${pName} (${bGroup}) • ${units} Units Needed`;
-        document.getElementById('pass-donor-name').textContent = `${currentDonor.name} (${currentDonor.bloodGroup})`;
-        document.getElementById('pass-code').textContent = `BC-PASS-${reqId}-${currentDonor.id}`;
-        document.getElementById('pass-timestamp').textContent = new Date().toLocaleString();
-        document.getElementById('modal-hospital-pass').classList.add('active');
+        try {
+          activeHospitalForDirections = (window.bloodData && bloodData.getHospitalById(hospitalId)) || (window.bloodData && bloodData.getHospitals()[0]) || { id: hospitalId, name: hospName, city: 'Hyderabad' };
+          
+          if (window.soundFX) window.soundFX.playSuccessChime();
+
+          const hospEl = document.getElementById('pass-hosp-name');
+          if (hospEl) hospEl.textContent = hospName;
+
+          const pMetaEl = document.getElementById('pass-patient-meta');
+          if (pMetaEl) pMetaEl.textContent = `Patient: ${pName} (${bGroup}) • ${units} Units Needed`;
+
+          const dNameEl = document.getElementById('pass-donor-name');
+          if (dNameEl) dNameEl.textContent = `${currentDonor.name} (${currentDonor.bloodGroup})`;
+
+          const codeEl = document.getElementById('pass-code');
+          if (codeEl) codeEl.textContent = `BC-PASS-${reqId}-${currentDonor.id}`;
+
+          const timeEl = document.getElementById('pass-timestamp');
+          if (timeEl) timeEl.textContent = new Date().toLocaleString();
+
+          const modal = document.getElementById('modal-hospital-pass');
+          if (modal) modal.classList.add('active');
+        } catch (err) {
+          console.error('Error generating hospital pass:', err);
+        }
       };
 
       const passCloseBtn = document.getElementById('btn-close-pass');
       if (passCloseBtn) {
         passCloseBtn.addEventListener('click', () => {
-          document.getElementById('modal-hospital-pass').classList.remove('active');
+          const passModal = document.getElementById('modal-hospital-pass');
+          if (passModal) passModal.classList.remove('active');
         });
       }
 
-      const passDirectBtn = document.getElementById('btn-get-directions-pass');
+      const passDirectBtn = document.getElementById('btn-pass-directions-trigger');
       if (passDirectBtn) {
         passDirectBtn.addEventListener('click', () => {
-          document.getElementById('modal-hospital-pass').classList.remove('active');
+          const passModal = document.getElementById('modal-hospital-pass');
+          if (passModal) passModal.classList.remove('active');
           if (activeHospitalForDirections) {
             openDirectionsToHospital(activeHospitalForDirections.id);
           }
