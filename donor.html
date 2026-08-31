@@ -531,13 +531,21 @@
 
       function renderContactCard() {
         const grid = document.getElementById('donor-contact-details-grid');
+        
+        // Generate prefilled default messages
+        const defaultMsg = MatchingEngine.generateDefaultChatMessage(currentDonor, null, null, 'emergency');
+        const waUrl = MatchingEngine.generateWhatsAppUrl(currentDonor.phone, defaultMsg);
+
+        const emergMsg = `Hello ${currentDonor.emergencyContactPerson || 'Family'}, reaching out from BloodConnect regarding donor ${currentDonor.name} (${currentDonor.bloodGroup}).`;
+        const emergWaUrl = MatchingEngine.generateWhatsAppUrl(currentDonor.emergencyContactPhone || currentDonor.phone, emergMsg);
+
         grid.innerHTML = `
           <div class="stat-box" style="text-align: left; padding: 16px;">
             <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;">Phone & Direct Connect</div>
             <div style="font-size: 15px; font-weight: 700; color: #fff; margin: 4px 0;">${currentDonor.phone}</div>
-            <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
               <a href="tel:${currentDonor.phone}" class="contact-action-btn call">📞 Call</a>
-              <a href="https://wa.me/${currentDonor.phone.replace(/[^0-9]/g, '')}" target="_blank" class="contact-action-btn whatsapp">💬 WhatsApp</a>
+              <a href="${waUrl}" target="_blank" class="contact-action-btn whatsapp">💬 WhatsApp (SOS Msg)</a>
             </div>
           </div>
 
@@ -545,7 +553,7 @@
             <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;">Email Address</div>
             <div style="font-size: 15px; font-weight: 700; color: #fff; margin: 4px 0;">${currentDonor.email}</div>
             <div style="margin-top: 8px;">
-              <a href="mailto:${currentDonor.email}" class="contact-action-btn email">✉️ Send Email</a>
+              <a href="mailto:${currentDonor.email}?subject=BloodConnect%20Urgent%20Blood%20Donation&body=${encodeURIComponent(defaultMsg)}" class="contact-action-btn email">✉️ Send Email</a>
             </div>
           </div>
 
@@ -553,15 +561,18 @@
             <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;">Emergency Contact</div>
             <div style="font-size: 14px; font-weight: 700; color: #fff; margin: 4px 0;">${currentDonor.emergencyContactPerson || 'Pooja Varma (Sister)'}</div>
             <div style="font-size: 13px; color: var(--accent-amber);">${currentDonor.emergencyContactPhone || '+91 98201 99887'}</div>
+            <div style="margin-top: 8px;">
+              <a href="${emergWaUrl}" target="_blank" class="contact-action-btn whatsapp" style="font-size: 11px;">💬 WhatsApp Contact</a>
+            </div>
           </div>
 
           <div class="stat-box" style="text-align: left; padding: 16px; grid-column: 1 / -1;">
             <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;">Residential & Navigation Address</div>
             <div style="font-size: 15px; font-weight: 700; color: #fff; margin: 4px 0;">
-              ${currentDonor.streetAddress || 'Flat 402, Sea Green Heights, Hill Road'}, ${currentDonor.area || 'Bandra West'}, ${currentDonor.city} - ${currentDonor.pincode || '400050'}
+              ${currentDonor.streetAddress || 'Flat 402, Sea Green Heights, Road 36'}, ${currentDonor.area || 'Jubilee Hills'}, ${currentDonor.city} - ${currentDonor.pincode || '500033'}
             </div>
             <div style="font-size: 12px; color: var(--secondary-glow);">
-              GPS Coordinates: ${currentDonor.lat}° N, ${currentDonor.lon}° E &bull; Preferred Center: ${currentDonor.preferredHospital || 'Apollo Super Specialty Hospital'}
+              GPS Coordinates: ${currentDonor.lat}° N, ${currentDonor.lon}° E &bull; Preferred Center: ${currentDonor.preferredHospital || 'Apollo Hospitals Jubilee Hills'}
             </div>
           </div>
         `;

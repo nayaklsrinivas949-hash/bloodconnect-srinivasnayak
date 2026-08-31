@@ -389,11 +389,10 @@
         document.getElementById('modal-donor-phone').textContent = donor.phone;
         document.getElementById('modal-donor-email').textContent = donor.email;
         document.getElementById('modal-donor-address').textContent = `${donor.streetAddress || ''}, ${donor.area || ''}, ${donor.city} - ${donor.pincode || ''}`;
-        document.getElementById('modal-donor-emergency').textContent = `${donor.emergencyContactPerson || 'Family'} (${donor.emergencyContactPhone || donor.phone})`;
-        
         document.getElementById('modal-donor-call-btn').href = `tel:${donor.phone}`;
-        document.getElementById('modal-donor-whatsapp-btn').href = `https://wa.me/${donor.phone.replace(/[^0-9]/g, '')}`;
-        document.getElementById('modal-donor-email-btn').href = `mailto:${donor.email}`;
+        const defaultMsg = MatchingEngine.generateDefaultChatMessage(donor, currentHospital, null, 'emergency');
+        document.getElementById('modal-donor-whatsapp-btn').href = MatchingEngine.generateWhatsAppUrl(donor.phone, defaultMsg);
+        document.getElementById('modal-donor-email-btn').href = `mailto:${donor.email}?subject=BloodConnect%20Urgent%20Blood%20Donation&body=${encodeURIComponent(defaultMsg)}`;
 
         document.getElementById('modal-donor-hb').textContent = `${donor.hemoglobin || 14.5} g/dL`;
         document.getElementById('modal-donor-bp').textContent = donor.bloodPressure || '120/80';

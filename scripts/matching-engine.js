@@ -205,9 +205,40 @@ class MatchingEngine {
       steps,
       googleMapsUrl,
       hospitalGate: hospital.emergencyGate || 'Emergency Main Gate',
-      hospitalContact: hospital.contact || '+91 22 2345 6789',
-      emergencyHelpline: hospital.emergencyHelpline || '1800-200-5555'
+      hospitalContact: hospital.contact || '+91 40 2360 7777',
+      emergencyHelpline: hospital.emergencyHelpline || '1066'
     };
+  }
+
+  /**
+   * Generates formatted default chat messages for WhatsApp, SMS, and Email
+   */
+  static generateDefaultChatMessage(donor, hospital = null, request = null, templateType = 'emergency') {
+    const donorName = donor ? donor.name : 'Lifesaver';
+    const bloodGroup = donor ? donor.bloodGroup : 'Blood';
+    const hospName = hospital ? hospital.name : 'Apollo Hospitals Jubilee Hills';
+    const hospAddr = hospital ? `${hospital.streetAddress || ''}, ${hospital.city || 'Hyderabad'}` : 'Hyderabad';
+    const gate = hospital ? (hospital.emergencyGate || 'Emergency Gate 2') : 'Blood Bank Reception (Ground Floor)';
+    
+    if (templateType === 'emergency') {
+      const patientStr = request ? ` for Patient ${request.patientName} (${request.unitsNeeded} units needed)` : '';
+      return `Hello ${donorName}, this is an urgent communication from BloodConnect regarding an emergency requirement for ${bloodGroup} blood${patientStr} at ${hospName}. Are you available and medically fit to donate today? Your immediate support will save a life! Hospital Location: ${hospAddr} (Enter via ${gate}). Please reply YES to confirm.`;
+    } else if (templateType === 'fitness') {
+      return `Hello ${donorName}, this is BloodConnect. We hope you are doing well! Please complete your daily medical fitness check-in on the portal to keep your donor profile active and earn +25 reward streak points. Thank you for your lifesaving support!`;
+    } else if (templateType === 'directions') {
+      const lat = hospital ? hospital.lat : '17.4156';
+      const lon = hospital ? hospital.lon : '78.4116';
+      return `Hello ${donorName}, here are your direct navigation instructions for donating blood at ${hospName}:\n📍 Address: ${hospAddr}\n🚪 Entrance: ${gate}\n🗺️ Google Maps: https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}\n📞 Hospital Desk: ${hospital ? hospital.contact : '+91 40 2360 7777'}`;
+    } else if (templateType === 'gratitude') {
+      return `Hello ${donorName}, thank you for your selfless blood donation at ${hospName}! 500 Medical Reward Points have been credited to your BloodConnect vault. You can redeem these points anytime for free diagnostic tests, pharmacy medicine discounts, or ambulance cover.`;
+    }
+    return `Hello ${donorName}, reaching out from BloodConnect regarding blood donation opportunities in ${donor ? (donor.area || donor.city) : 'Hyderabad'}.`;
+  }
+
+  static generateWhatsAppUrl(phone, message) {
+    const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+    const formattedPhone = cleanPhone.startsWith('91') ? cleanPhone : (cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone);
+    return `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
   }
 }
 

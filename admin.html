@@ -355,6 +355,47 @@
     </div>
   </div>
 
+  <!-- Direct Chat & WhatsApp Message Modal -->
+  <div class="modal-backdrop" id="modal-chat-donor">
+    <div class="modal-box" style="max-width: 620px;">
+      <button class="modal-close-btn" onclick="document.getElementById('modal-chat-donor').classList.remove('active')">&times;</button>
+      
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <div class="brand-icon-3d" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); width: 42px; height: 42px; font-size: 22px;">💬</div>
+        <div>
+          <h3 style="font-size: 22px; font-weight: 800; color: #fff;">Direct Message Donor</h3>
+          <p style="color: var(--text-muted); font-size: 13px;" id="chat-donor-subtitle">To: Rahul Varma (O+) &bull; +91 98480 44521</p>
+        </div>
+      </div>
+
+      <!-- Quick Template Pills -->
+      <div style="margin-bottom: 14px;">
+        <label class="form-label" style="font-size: 12px;">Choose Message Template:</label>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-ghost" style="padding: 4px 10px; font-size: 11px; min-height: 28px;" onclick="setChatTemplate('emergency')">🚨 Emergency SOS</button>
+          <button type="button" class="btn btn-ghost" style="padding: 4px 10px; font-size: 11px; min-height: 28px;" onclick="setChatTemplate('fitness')">🩺 Fitness Check</button>
+          <button type="button" class="btn btn-ghost" style="padding: 4px 10px; font-size: 11px; min-height: 28px;" onclick="setChatTemplate('directions')">📍 GPS Directions</button>
+          <button type="button" class="btn btn-ghost" style="padding: 4px 10px; font-size: 11px; min-height: 28px;" onclick="setChatTemplate('gratitude')">🪙 Reward Points</button>
+        </div>
+      </div>
+
+      <!-- Message Textarea -->
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label class="form-label" for="chat-message-text">Message Content (Pre-filled for WhatsApp & SMS):</label>
+        <textarea id="chat-message-text" class="form-input" rows="5" style="resize: vertical; line-height: 1.5; font-size: 13px;"></textarea>
+      </div>
+
+      <!-- Launch Buttons -->
+      <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+        <button type="button" class="btn btn-ghost" onclick="copyChatMessage()">📋 Copy</button>
+        <a id="btn-chat-sms" href="#" class="btn btn-secondary" style="padding: 10px 16px;">📱 Send SMS</a>
+        <a id="btn-chat-whatsapp" href="#" target="_blank" class="btn btn-success" style="padding: 10px 18px; background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);">
+          <span>💬</span> Open in WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="./scripts/audio-synth.js"></script>
   <script src="./scripts/blood-data.js"></script>
@@ -505,7 +546,7 @@
                   </div>
                   <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                     <a href="tel:${d.phone}" class="contact-action-btn call">📞 Call</a>
-                    <a href="https://wa.me/${d.phone.replace(/[^0-9]/g, '')}" target="_blank" class="contact-action-btn whatsapp">💬 WhatsApp</a>
+                    <button class="contact-action-btn whatsapp" onclick="openChatModal('${d.id}')">💬 WhatsApp</button>
                     <a href="mailto:${d.email}" class="contact-action-btn email">✉️ Email</a>
                     <button class="contact-action-btn directions" onclick="viewRouteFromDonor('${d.id}')">🚗 Route (GPS)</button>
                     <button class="btn btn-primary" style="padding: 4px 10px; font-size: 11px; min-height: 28px;" onclick="quickNotify('${d.name}', '${d.phone}')">📲 SOS Alert</button>
@@ -691,6 +732,53 @@
         document.getElementById('btn-admin-google-maps').href = route.googleMapsUrl;
         if (window.soundFX) window.soundFX.playRadarPing();
         document.getElementById('modal-admin-directions').classList.add('active');
+      };
+
+      let activeChatDonor = null;
+
+      window.openChatModal = (donorId) => {
+        const donor = bloodData.getDonorById(donorId);
+        if (!donor) return;
+        activeChatDonor = donor;
+
+        document.getElementById('chat-donor-subtitle').innerHTML = `To: <strong>${donor.name}</strong> (${donor.bloodGroup}) &bull; ${donor.phone}`;
+        
+        // Find if hospital has active requests matching donor blood group
+        const hospitalRequests = bloodData.getRequests().filter(r => r.hospitalId === currentHospital.id && r.status === 'ACTIVE');
+        const matchedReq = hospitalRequests.find(r => MatchingEngine.isCompatible(donor.bloodGroup, r.bloodGroup)) || hospitalRequests[0];
+
+        window.setChatTemplate('emergency', matchedReq);
+
+        if (window.soundFX) window.soundFX.playRadarPing();
+        document.getElementById('modal-chat-donor').classList.add('active');
+      };
+
+      window.setChatTemplate = (templateKey, req = null) => {
+        if (!activeChatDonor) return;
+        const msg = MatchingEngine.generateDefaultChatMessage(activeChatDonor, currentHospital, req, templateKey);
+        const textarea = document.getElementById('chat-message-text');
+        textarea.value = msg;
+
+        // Update action links
+        const cleanPhone = (activeChatDonor.phone || '').replace(/[^0-9]/g, '');
+        const waPhone = cleanPhone.startsWith('91') ? cleanPhone : (cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone);
+        
+        const updateLinks = () => {
+          const currentText = textarea.value;
+          document.getElementById('btn-chat-whatsapp').href = `https://wa.me/${waPhone}?text=${encodeURIComponent(currentText)}`;
+          document.getElementById('btn-chat-sms').href = `sms:${activeChatDonor.phone}?body=${encodeURIComponent(currentText)}`;
+        };
+
+        updateLinks();
+        textarea.oninput = updateLinks;
+      };
+
+      window.copyChatMessage = () => {
+        const text = document.getElementById('chat-message-text').value;
+        navigator.clipboard.writeText(text).then(() => {
+          if (window.soundFX) window.soundFX.playSuccessChime();
+          alert('Message copied to clipboard!');
+        });
       };
 
       window.markFulfilled = (reqId) => {
