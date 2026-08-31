@@ -1,7 +1,14 @@
 {
   "version": 2,
-  "name": "bloodconnect-3d",
+  "name": "bloodconnect",
   "cleanUrls": true,
+  "rewrites": [
+    { "source": "/donor", "destination": "/donor.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/radar", "destination": "/radar.html" },
+    { "source": "/rewards", "destination": "/rewards.html" },
+    { "source": "/receiver", "destination": "/receiver.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
