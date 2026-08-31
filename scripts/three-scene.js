@@ -10,13 +10,12 @@ class BloodConnect3D {
   /**
    * Hero Scene on Landing Page: Realistic organic heart with biconcave red blood cells
    */
-  static initHeroScene(canvasId) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return null;
+  static initHeroScene(containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return null;
 
-    const container = canvas.parentElement;
-    const width = container.clientWidth || 500;
-    const height = container.clientHeight || 450;
+    const width = container.clientWidth || (container.parentElement ? container.parentElement.clientWidth : 500) || 500;
+    const height = container.clientHeight || (container.parentElement ? container.parentElement.clientHeight : 460) || 460;
 
     const scene = new THREE.Scene();
     scene.background = null;
@@ -24,12 +23,24 @@ class BloodConnect3D {
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
     camera.position.set(0, 0, 10);
 
-    const renderer = new THREE.WebGLRenderer({
-      canvas: canvas,
-      antialias: true,
-      alpha: true,
-      powerPreference: 'high-performance'
-    });
+    let renderer;
+    if (container.tagName === 'CANVAS') {
+      renderer = new THREE.WebGLRenderer({
+        canvas: container,
+        antialias: true,
+        alpha: true,
+        powerPreference: 'high-performance'
+      });
+    } else {
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        powerPreference: 'high-performance'
+      });
+      container.innerHTML = '';
+      container.appendChild(renderer.domElement);
+    }
+
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
