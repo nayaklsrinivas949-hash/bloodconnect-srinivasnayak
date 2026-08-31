@@ -170,6 +170,77 @@
       </div>
     </div>
 
+    <!-- Hospital Message Desk & Communication Terminal -->
+    <div class="glass-card highlight" style="margin-bottom: 36px; border-color: rgba(37, 211, 102, 0.4); background: linear-gradient(135deg, rgba(37, 211, 102, 0.08) 0%, rgba(14, 165, 233, 0.08) 100%);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="brand-icon-3d" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); width: 42px; height: 42px; font-size: 22px;">💬</div>
+          <div>
+            <h2 style="font-size: 20px; font-weight: 800; color: #fff;">Hospital Message Desk & Dispatch Terminal</h2>
+            <p style="font-size: 13px; color: var(--text-muted);">Direct instant communication with blood bank coordinators & emergency response units</p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <button type="button" class="btn btn-primary" id="btn-desk-siren" style="padding: 6px 14px; font-size: 12px; background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); border-color: #ff4d6d; box-shadow: 0 0 12px rgba(225,29,72,0.5);">
+            <span>🚨</span> Sound Emergency Siren
+          </button>
+          <span class="status-badge fit" style="font-size: 12px;">🟢 5 Hospital Desks Online</span>
+        </div>
+      </div>
+
+      <!-- Desk Controls Grid -->
+      <div style="display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px;" class="desk-grid">
+        <!-- Left: Hospital Selection & Meta -->
+        <div style="background: rgba(0,0,0,0.3); border-radius: var(--radius-md); padding: 18px; border: 1px solid var(--border-glass);">
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label class="form-label" for="desk-hospital-select" style="font-size: 12px; font-weight: 700;">Select Target Hospital Desk:</label>
+            <select class="form-select" id="desk-hospital-select" style="font-size: 13px;">
+              <option value="HOSP-001">Apollo Hospitals Jubilee Hills (Gate 2)</option>
+              <option value="HOSP-002">KIMS Hospitals Secunderabad (Begumpet)</option>
+              <option value="HOSP-003">Yashoda Hospitals Somajiguda</option>
+              <option value="HOSP-004">CARE Hospitals Banjara Hills</option>
+              <option value="HOSP-005">Continental Hospitals Gachibowli</option>
+            </select>
+          </div>
+
+          <div style="font-size: 12px; line-height: 1.6; color: var(--text-muted);" id="desk-hospital-info">
+            <div>📍 <strong>Address:</strong> <span id="desk-info-addr">Road No. 36 Jubilee Hills, Hyderabad</span></div>
+            <div>🚪 <strong>Entrance:</strong> <span id="desk-info-gate" style="color: var(--secondary-glow);">Emergency Gate 2 &bull; Blood Bank Reception</span></div>
+            <div>📞 <strong>Desk Helpline:</strong> <span id="desk-info-phone" style="color: var(--accent-emerald);">+91 40 2360 7777</span></div>
+          </div>
+
+          <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border-glass);">
+            <label class="form-label" style="font-size: 11px; text-transform: uppercase;">Quick Action Templates:</label>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+              <button type="button" class="btn btn-ghost" style="text-align: left; justify-content: flex-start; padding: 6px 10px; font-size: 12px;" onclick="setDeskTemplate('on_way')">🚗 I'm On My Way (Confirm ETA)</button>
+              <button type="button" class="btn btn-ghost" style="text-align: left; justify-content: flex-start; padding: 6px 10px; font-size: 12px;" onclick="setDeskTemplate('directions')">📍 Entrance & Gate Info</button>
+              <button type="button" class="btn btn-ghost" style="text-align: left; justify-content: flex-start; padding: 6px 10px; font-size: 12px;" onclick="setDeskTemplate('fitness')">🩺 Fitness / Fasting Check</button>
+              <button type="button" class="btn btn-ghost" style="text-align: left; justify-content: flex-start; padding: 6px 10px; font-size: 12px;" onclick="setDeskTemplate('emergency')">🚨 Critical SOS Dispatch</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Message Composer & 1-Click Launchers -->
+        <div style="display: flex; flex-direction: column; justify-content: space-between; background: rgba(0,0,0,0.3); border-radius: var(--radius-md); padding: 18px; border: 1px solid var(--border-glass);">
+          <div class="form-group" style="margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label class="form-label" for="desk-message-textarea" style="font-size: 12px; margin-bottom: 0;">Compose Message to Desk:</label>
+              <span id="desk-char-count" style="font-size: 11px; color: var(--text-dim);">Pre-filled & ready</span>
+            </div>
+            <textarea id="desk-message-textarea" class="form-input" rows="6" style="resize: vertical; font-size: 13px; line-height: 1.5;"></textarea>
+          </div>
+
+          <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; align-items: center;">
+            <button type="button" class="btn btn-ghost" onclick="copyDeskMessage()">📋 Copy Text</button>
+            <a id="btn-desk-sms" href="#" class="btn btn-secondary" style="padding: 10px 16px; font-size: 13px;">📱 Send SMS</a>
+            <a id="btn-desk-whatsapp" href="#" target="_blank" class="btn btn-success" style="padding: 10px 18px; font-size: 13px; background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);">
+              <span>💬</span> Send via WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Nearby Emergency Blood Requests Matching Donor -->
     <div class="glass-card highlight" style="margin-bottom: 36px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
@@ -653,6 +724,9 @@
               </div>
               <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 ${urgencyBadge}
+                <button class="contact-action-btn siren" style="padding: 8px 12px; font-size: 13px; background: rgba(225,29,72,0.2); border-color: rgba(225,29,72,0.5); color: #ff4d6d;" onclick="playRequestSiren('${hosp.name}', '${req.patientName}', '${req.bloodGroup}')">
+                  <span>🚨</span> Siren
+                </button>
                 <button class="contact-action-btn whatsapp" style="padding: 8px 12px; font-size: 13px;" onclick="openDonorChatModal('hospital', '${hosp.id}', '${req.id}')">
                   <span>💬</span> Message Desk
                 </button>
@@ -893,7 +967,87 @@
         });
       };
 
+      // 9. Inline Hospital Message Desk Terminal Logic
+      const deskSelect = document.getElementById('desk-hospital-select');
+      const deskTextarea = document.getElementById('desk-message-textarea');
+
+      function updateDeskHospital() {
+        if (!deskSelect) return;
+        const hospId = deskSelect.value;
+        const hosp = bloodData.getHospitalById(hospId) || bloodData.getHospitals()[0];
+
+        document.getElementById('desk-info-addr').textContent = hosp.streetAddress || `${hosp.city}, Hyderabad`;
+        document.getElementById('desk-info-gate').textContent = `${hosp.emergencyGate || 'Emergency Gate'} • Blood Bank Reception`;
+        document.getElementById('desk-info-phone').textContent = hosp.contact || '+91 40 2360 7777';
+
+        setDeskTemplate('on_way');
+      }
+
+      window.setDeskTemplate = (templateKey) => {
+        if (!deskSelect || !deskTextarea) return;
+        const hosp = bloodData.getHospitalById(deskSelect.value) || bloodData.getHospitals()[0];
+        let msg = '';
+
+        if (templateKey === 'on_way') {
+          msg = `Hello ${hosp.name} Blood Bank Reception, I am ${currentDonor.name} (${currentDonor.bloodGroup} Donor). I am responding to an emergency request and am on my way from ${currentDonor.area || currentDonor.city}. ETA: 25-35 minutes. Please prepare the donor station.`;
+        } else if (templateKey === 'directions') {
+          msg = `Hello ${hosp.name}, I am ${currentDonor.name} (${currentDonor.bloodGroup} Donor). I am approaching ${hosp.name}. Could you please confirm the direct blood bank gate? (Reporting to: ${hosp.emergencyGate || 'Emergency Gate'}).`;
+        } else if (templateKey === 'fitness') {
+          msg = `Hello Medical Officer at ${hosp.name}, I am ${currentDonor.name} (${currentDonor.bloodGroup} Donor, fitness readiness: ${currentDonor.fitnessReadinessScore}%). Are there any pre-donation guidelines I should follow before arrival?`;
+        } else if (templateKey === 'emergency') {
+          msg = `🚨 CRITICAL EMERGENCY SOS: Verified Donor ${currentDonor.name} (${currentDonor.bloodGroup}) is available for immediate emergency dispatch to ${hosp.name}. Phone: ${currentDonor.phone}.`;
+        }
+
+        deskTextarea.value = msg;
+
+        const phone = hosp.contact || '+91 40 2360 7777';
+        const cleanPhone = phone.replace(/[^0-9]/g, '');
+        const waPhone = cleanPhone.startsWith('91') ? cleanPhone : (cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone);
+
+        const updateDeskLinks = () => {
+          const currentText = deskTextarea.value;
+          document.getElementById('btn-desk-whatsapp').href = `https://wa.me/${waPhone}?text=${encodeURIComponent(currentText)}`;
+          document.getElementById('btn-desk-sms').href = `sms:${phone}?body=${encodeURIComponent(currentText)}`;
+        };
+
+        updateDeskLinks();
+        deskTextarea.oninput = updateDeskLinks;
+      };
+
+      window.copyDeskMessage = () => {
+        if (!deskTextarea) return;
+        navigator.clipboard.writeText(deskTextarea.value).then(() => {
+          if (window.soundFX) window.soundFX.playSuccessChime();
+          alert('Message desk text copied to clipboard!');
+        });
+      };
+
+      if (deskSelect) {
+        deskSelect.addEventListener('change', updateDeskHospital);
+      }
+
+      const deskSirenBtn = document.getElementById('btn-desk-siren');
+      if (deskSirenBtn) {
+        deskSirenBtn.addEventListener('click', () => {
+          if (window.soundFX) {
+            window.soundFX.playEmergencySiren(4);
+            window.soundFX.playHeartbeat();
+          }
+          alert('🚨 Emergency SOS Siren Sound Activated! High-intensity medical alert broadcasted.');
+        });
+      }
+
+      // 10. Emergency Request Siren Audio Trigger
+      window.playRequestSiren = (hospName, patientName, bloodGroup) => {
+        if (window.soundFX) {
+          window.soundFX.playEmergencySiren(4);
+          window.soundFX.playHeartbeat();
+        }
+        alert(`🚨 EMERGENCY SIREN ACTIVATED!\n\nHospital: ${hospName}\nPatient: ${patientName} (${bloodGroup})\nUrgent blood supply required immediately.`);
+      };
+
       renderDonorDashboard();
+      updateDeskHospital();
     });
   </script>
 </body>
