@@ -37,6 +37,9 @@ class BloodConnect3D {
         alpha: true,
         powerPreference: 'high-performance'
       });
+      renderer.domElement.style.width = '100%';
+      renderer.domElement.style.height = '100%';
+      renderer.domElement.style.display = 'block';
       container.innerHTML = '';
       container.appendChild(renderer.domElement);
     }
@@ -551,8 +554,8 @@ class BloodConnect3D {
     const container = document.getElementById(containerId);
     if (!container) return null;
 
-    const width = container.clientWidth || 380;
-    const height = container.clientHeight || 420;
+    const width = Math.max(300, container.clientWidth || 380);
+    const height = Math.max(320, container.clientHeight || 360);
 
     const scene = new THREE.Scene();
     scene.background = null;
@@ -561,10 +564,14 @@ class BloodConnect3D {
     camera.position.set(0, 0.1, 7.2);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
+    renderer.domElement.style.display = 'block';
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
+
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
     // Multi-Directional Cyber Lighting
     const amb = new THREE.AmbientLight(0xffffff, 0.75);

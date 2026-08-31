@@ -613,9 +613,13 @@
 
       // 2. Initialize 3D Bio-Fitness Scanner
       let bioScanInstance = null;
-      if (window.BloodConnect3D && document.getElementById('bio-scan-canvas')) {
-        bioScanInstance = BloodConnect3D.initBioFitnessScanner('bio-scan-canvas', currentDonor);
+      function startBioScanner() {
+        if (window.BloodConnect3D && document.getElementById('bio-scan-canvas') && !bioScanInstance) {
+          bioScanInstance = BloodConnect3D.initBioFitnessScanner('bio-scan-canvas', currentDonor);
+        }
       }
+      startBioScanner();
+      window.addEventListener('load', startBioScanner);
 
       const surgeBtn = document.getElementById('btn-trigger-bio-surge');
       if (surgeBtn) {
