@@ -555,151 +555,103 @@
   <script src="./scripts/main.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      let currentDonor = bloodData.getDonorById('DONOR-101') || bloodData.getDonors()[0];
+      let currentDonor = (window.bloodData && bloodData.getDonorById('DONOR-101')) || (window.bloodData && bloodData.getDonors()[0]) || {
+        id: 'DONOR-101',
+        name: 'Rahul Varma',
+        bloodGroup: 'O+',
+        phone: '+91 98201 12345',
+        email: 'rahul.varma@bloodconnect.org',
+        city: 'Hyderabad',
+        area: 'Jubilee Hills',
+        streetAddress: 'Flat 402, Sea Green Heights, Road 36',
+        pincode: '500033',
+        lat: 17.4325,
+        lon: 78.4071,
+        isMedicallyFit: true,
+        fitnessReadinessScore: 98,
+        hemoglobin: 14.8,
+        bloodPressure: '120/80',
+        cooldownDaysRemaining: 0,
+        totalDonations: 6,
+        pointsBalance: 1850,
+        dailyFitnessStatus: 'Medically Fit to Donate',
+        badges: ['Life Saver Gold', 'Rapid Responder', '100% Fit Streak'],
+        emergencyContactPerson: 'Pooja Varma (Sister)',
+        emergencyContactPhone: '+91 98201 99887'
+      };
+
       let bioScanInstance = null;
       let activeHospitalForDirections = null;
 
-      // Audio Toggle Button
-      const audioBtn = document.getElementById('audio-toggle-btn');
-      if (audioBtn && window.soundFX) {
-        audioBtn.textContent = window.soundFX.isMuted ? '🔇 Sound OFF' : '🔊 Sound ON';
-        audioBtn.addEventListener('click', () => {
-          const muted = window.soundFX.toggleMute();
-          audioBtn.textContent = muted ? '🔇 Sound OFF' : '🔊 Sound ON';
-        });
-      }
-
-      // Heartbeat Sound Trigger on Bio-Scan
-      document.getElementById('btn-heartbeat-sound').addEventListener('click', () => {
-        if (window.soundFX) window.soundFX.playHeartbeat();
-      });
-
-      // 1. Populate Donor Profile Selector
-      const profileSelect = document.getElementById('donor-profile-selector');
-      function populateProfiles() {
-        const donors = bloodData.getDonors();
-        profileSelect.innerHTML = donors.map(d => `
-          <option value="${d.id}" ${d.id === currentDonor.id ? 'selected' : ''}>
-            ${d.name} (${d.bloodGroup}) — ${d.isMedicallyFit ? 'Fit' : 'Cooldown'}
-          </option>
-        `).join('');
-      }
-      populateProfiles();
-
-      profileSelect.addEventListener('change', (e) => {
-        currentDonor = bloodData.getDonorById(e.target.value);
-        bloodData.setCurrentUser({ role: 'donor', donorId: currentDonor.id });
-        renderDonorDashboard();
-      });
-
-      // Live GPS Auto-Detection
-      document.getElementById('btn-donor-gps').addEventListener('click', () => {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (pos) => {
-              const lat = Math.round(pos.coords.latitude * 10000) / 10000;
-              const lon = Math.round(pos.coords.longitude * 10000) / 10000;
-              bloodData.updateDonorLocation(currentDonor.id, lat, lon);
-              currentDonor = bloodData.getDonorById(currentDonor.id);
-              alert(`Your GPS coordinates have been calibrated to (${lat}, ${lon})! Nearby emergency matches updated.`);
-              renderDonorDashboard();
-            },
-            () => {
-              alert('GPS permission not granted. Keeping default registered city coordinates.');
-            }
-          );
-        }
-      });
-
-      // 2. Initialize 3D Bio-Fitness Scanner
-      let bioScanInstance = null;
-      function startBioScanner() {
-        if (window.BloodConnect3D && document.getElementById('bio-scan-canvas') && !bioScanInstance) {
-          bioScanInstance = BloodConnect3D.initBioFitnessScanner('bio-scan-canvas', currentDonor);
-        }
-      }
-      startBioScanner();
-      window.addEventListener('load', startBioScanner);
-
-      const surgeBtn = document.getElementById('btn-trigger-bio-surge');
-      if (surgeBtn) {
-        surgeBtn.addEventListener('click', () => {
-          if (bioScanInstance && bioScanInstance.triggerScanSurge) {
-            bioScanInstance.triggerScanSurge();
-          }
-        });
-      }
-
-      const heartSoundBtn = document.getElementById('btn-sound-heartbeat');
-      if (heartSoundBtn) {
-        heartSoundBtn.addEventListener('click', () => {
-          if (window.soundFX) window.soundFX.playHeartbeat();
-          if (bioScanInstance && bioScanInstance.triggerScanSurge) {
-            bioScanInstance.triggerScanSurge();
-          }
-        });
-      }
-
-      const scanVitalsBadge = document.getElementById('btn-heartbeat-sound');
-      if (scanVitalsBadge) {
-        scanVitalsBadge.style.cursor = 'pointer';
-        scanVitalsBadge.addEventListener('click', () => {
-          if (window.soundFX) window.soundFX.playHeartbeat();
-          if (bioScanInstance && bioScanInstance.triggerScanSurge) {
-            bioScanInstance.triggerScanSurge();
-          }
-        });
-      }
-
-      // 3. Render Dashboard
+      // 1. Core Render Dashboard Function (Runs Immediately)
       function renderDonorDashboard() {
         if (!currentDonor) return;
 
-        document.getElementById('donor-hero-name').textContent = currentDonor.name;
-        document.getElementById('donor-hero-blood-badge').textContent = currentDonor.bloodGroup;
-        document.getElementById('donor-hero-meta').textContent = `📍 ${currentDonor.area || currentDonor.city}, ${currentDonor.city} • Verified BloodConnect Hero #${currentDonor.id}`;
-        document.getElementById('donor-points-val').textContent = `${currentDonor.pointsBalance || 0} pts`;
+        try {
+          const heroName = document.getElementById('donor-hero-name');
+          if (heroName) heroName.textContent = currentDonor.name;
 
-        const readiness = currentDonor.fitnessReadinessScore || 90;
-        document.getElementById('donor-readiness-pct').textContent = `${readiness}%`;
-        document.getElementById('donor-readiness-bar').style.width = `${readiness}%`;
+          const heroBadge = document.getElementById('donor-hero-blood-badge');
+          if (heroBadge) heroBadge.textContent = currentDonor.bloodGroup;
 
-        const badgeCont = document.getElementById('donor-fitness-badge-container');
-        if (currentDonor.isMedicallyFit && (currentDonor.cooldownDaysRemaining || 0) === 0) {
-          badgeCont.innerHTML = `<span class="status-badge fit">⚡ Medically Fit to Donate (${currentDonor.dailyFitnessStatus || 'Clear'})</span>`;
-        } else {
-          badgeCont.innerHTML = `<span class="status-badge cooldown">⏳ In Recovery Cooldown (${currentDonor.cooldownDaysRemaining} days remaining)</span>`;
+          const heroMeta = document.getElementById('donor-hero-meta');
+          if (heroMeta) heroMeta.textContent = `📍 ${currentDonor.area || currentDonor.city}, ${currentDonor.city} • Verified BloodConnect Hero #${currentDonor.id}`;
+
+          const ptsVal = document.getElementById('donor-points-val');
+          if (ptsVal) ptsVal.textContent = `${currentDonor.pointsBalance || 0} pts`;
+
+          const readiness = currentDonor.fitnessReadinessScore || 90;
+          const readPct = document.getElementById('donor-readiness-pct');
+          if (readPct) readPct.textContent = `${readiness}%`;
+
+          const readBar = document.getElementById('donor-readiness-bar');
+          if (readBar) readBar.style.width = `${readiness}%`;
+
+          const badgeCont = document.getElementById('donor-fitness-badge-container');
+          if (badgeCont) {
+            if (currentDonor.isMedicallyFit && (currentDonor.cooldownDaysRemaining || 0) === 0) {
+              badgeCont.innerHTML = `<span class="status-badge fit">⚡ Medically Fit to Donate (${currentDonor.dailyFitnessStatus || 'Clear'})</span>`;
+            } else {
+              badgeCont.innerHTML = `<span class="status-badge cooldown">⏳ In Recovery Cooldown (${currentDonor.cooldownDaysRemaining || 0} days remaining)</span>`;
+            }
+          }
+
+          const hb = document.getElementById('vital-hb');
+          if (hb) hb.innerHTML = `${currentDonor.hemoglobin || 14.5} <small style="font-size: 12px; color: var(--text-muted);">g/dL</small>`;
+
+          const bp = document.getElementById('vital-bp');
+          if (bp) bp.innerHTML = `${currentDonor.bloodPressure || '120/80'} <small style="font-size: 12px; color: var(--text-muted);">mmHg</small>`;
+          
+          const cooldownDays = currentDonor.cooldownDaysRemaining || 0;
+          const cd = document.getElementById('vital-cooldown');
+          if (cd) cd.innerHTML = `${cooldownDays} <small style="font-size: 12px; color: var(--text-muted);">days left</small>`;
+
+          const cdSub = document.getElementById('vital-cooldown-sub');
+          if (cdSub) cdSub.textContent = cooldownDays === 0 ? 'Eligible & Ready' : `Eligible after ${cooldownDays} days`;
+
+          const totDon = document.getElementById('vital-total-donations');
+          if (totDon) totDon.innerHTML = `${currentDonor.totalDonations || 0} <small style="font-size: 12px; color: var(--text-muted);">times</small>`;
+
+          const badgesList = document.getElementById('donor-badges-list');
+          if (badgesList) {
+            const badges = currentDonor.badges || ['Life Saver Gold', 'Community Hero'];
+            badgesList.innerHTML = badges.map(b => `<span class="compat-tag universal">🏅 ${b}</span>`).join('');
+          }
+
+          renderContactCard();
+          renderMatchedRequests();
+          renderLeaderboard();
+        } catch (err) {
+          console.error('Error in renderDonorDashboard:', err);
         }
-
-        document.getElementById('vital-hb').innerHTML = `${currentDonor.hemoglobin || 14.5} <small style="font-size: 12px; color: var(--text-muted);">g/dL</small>`;
-        document.getElementById('vital-bp').innerHTML = `${currentDonor.bloodPressure || '120/80'} <small style="font-size: 12px; color: var(--text-muted);">mmHg</small>`;
-        
-        const cooldownDays = currentDonor.cooldownDaysRemaining || 0;
-        document.getElementById('vital-cooldown').innerHTML = `${cooldownDays} <small style="font-size: 12px; color: var(--text-muted);">days left</small>`;
-        document.getElementById('vital-cooldown-sub').textContent = cooldownDays === 0 ? 'Eligible & Ready' : `Eligible after ${cooldownDays} days`;
-        document.getElementById('vital-total-donations').innerHTML = `${currentDonor.totalDonations || 0} <small style="font-size: 12px; color: var(--text-muted);">times</small>`;
-
-        const badgesList = document.getElementById('donor-badges-list');
-        const badges = currentDonor.badges || ['Life Saver Gold', 'Community Hero'];
-        badgesList.innerHTML = badges.map(b => `<span class="compat-tag universal">🏅 ${b}</span>`).join('');
-
-        // Render Contact & Residence Card
-        renderContactCard();
-
-        // Render Requests & Leaderboard
-        renderMatchedRequests();
-        renderLeaderboard();
       }
 
       function renderContactCard() {
         const grid = document.getElementById('donor-contact-details-grid');
+        if (!grid) return;
         
-        // Generate prefilled default messages
-        const defaultMsg = MatchingEngine.generateDefaultChatMessage(currentDonor, null, null, 'emergency');
-        const waUrl = MatchingEngine.generateWhatsAppUrl(currentDonor.phone, defaultMsg);
-
-        const emergMsg = `Hello ${currentDonor.emergencyContactPerson || 'Family'}, reaching out from BloodConnect regarding donor ${currentDonor.name} (${currentDonor.bloodGroup}).`;
-        const emergWaUrl = MatchingEngine.generateWhatsAppUrl(currentDonor.emergencyContactPhone || currentDonor.phone, emergMsg);
+        const defaultMsg = window.MatchingEngine ? MatchingEngine.generateDefaultChatMessage(currentDonor, null, null, 'emergency') : 'Emergency donor connect';
+        const waUrl = window.MatchingEngine ? MatchingEngine.generateWhatsAppUrl(currentDonor.phone, defaultMsg) : `https://wa.me/${currentDonor.phone.replace(/[^0-9]/g, '')}`;
 
         grid.innerHTML = `
           <div class="stat-box" style="text-align: left; padding: 16px;">
@@ -721,8 +673,8 @@
 
           <div class="stat-box" style="text-align: left; padding: 16px;">
             <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;">Emergency Contact</div>
-            <div style="font-size: 14px; font-weight: 700; color: #fff; margin: 4px 0;">${currentDonor.emergencyContactPerson || 'Pooja Varma (Sister)'}</div>
-            <div style="font-size: 13px; color: var(--accent-amber);">${currentDonor.emergencyContactPhone || '+91 98201 99887'}</div>
+            <div style="font-size: 14px; font-weight: 700; color: #fff; margin: 4px 0;">${currentDonor.emergencyContactPerson || 'Family Contact'}</div>
+            <div style="font-size: 13px; color: var(--accent-amber);">${currentDonor.emergencyContactPhone || currentDonor.phone}</div>
             <div style="margin-top: 8px;">
               <button class="contact-action-btn whatsapp" style="font-size: 11px;" onclick="openDonorChatModal('emergency_contact')">💬 Family Alert</button>
             </div>
@@ -742,6 +694,8 @@
 
       function renderMatchedRequests() {
         const feed = document.getElementById('donor-matched-requests-feed');
+        if (!feed || !window.MatchingEngine) return;
+
         const matches = MatchingEngine.findRequestsForDonor(currentDonor, { maxDistanceKm: 40 });
 
         if (matches.length === 0) {
@@ -794,6 +748,8 @@
 
       function renderLeaderboard() {
         const board = document.getElementById('community-leaderboard-list');
+        if (!board || !window.bloodData) return;
+
         const sorted = [...bloodData.getDonors()].sort((a, b) => (b.totalDonations || 0) - (a.totalDonations || 0)).slice(0, 5);
 
         board.innerHTML = sorted.map((d, idx) => `
@@ -816,12 +772,108 @@
         `).join('');
       }
 
-      // 4. Turn-by-Turn GPS Hospital Directions Action
+      // Initial Dashboard Render
+      renderDonorDashboard();
+
+      // 2. Initialize 3D Bio-Fitness Scanner
+      function startBioScanner() {
+        try {
+          if (window.BloodConnect3D && document.getElementById('bio-scan-canvas') && !bioScanInstance) {
+            bioScanInstance = BloodConnect3D.initBioFitnessScanner('bio-scan-canvas', currentDonor);
+          }
+        } catch (err) {
+          console.error('Error starting BioScanner:', err);
+        }
+      }
+      startBioScanner();
+      window.addEventListener('load', startBioScanner);
+
+      // 3. Audio & UI Control Buttons
+      const audioBtn = document.getElementById('audio-toggle-btn');
+      if (audioBtn && window.soundFX) {
+        audioBtn.textContent = window.soundFX.isMuted ? '🔇 Sound OFF' : '🔊 Sound ON';
+        audioBtn.addEventListener('click', () => {
+          const muted = window.soundFX.toggleMute();
+          audioBtn.textContent = muted ? '🔇 Sound OFF' : '🔊 Sound ON';
+        });
+      }
+
+      const scanVitalsBadge = document.getElementById('btn-heartbeat-sound');
+      if (scanVitalsBadge) {
+        scanVitalsBadge.style.cursor = 'pointer';
+        scanVitalsBadge.addEventListener('click', () => {
+          if (window.soundFX) window.soundFX.playHeartbeat();
+          if (bioScanInstance && bioScanInstance.triggerScanSurge) {
+            bioScanInstance.triggerScanSurge();
+          }
+        });
+      }
+
+      const surgeBtn = document.getElementById('btn-trigger-bio-surge');
+      if (surgeBtn) {
+        surgeBtn.addEventListener('click', () => {
+          if (bioScanInstance && bioScanInstance.triggerScanSurge) {
+            bioScanInstance.triggerScanSurge();
+          }
+        });
+      }
+
+      const heartSoundBtn = document.getElementById('btn-sound-heartbeat');
+      if (heartSoundBtn) {
+        heartSoundBtn.addEventListener('click', () => {
+          if (window.soundFX) window.soundFX.playHeartbeat();
+          if (bioScanInstance && bioScanInstance.triggerScanSurge) {
+            bioScanInstance.triggerScanSurge();
+          }
+        });
+      }
+
+      // 4. Populate Profile Selector
+      const profileSelect = document.getElementById('donor-profile-selector');
+      if (profileSelect && window.bloodData) {
+        const donors = bloodData.getDonors();
+        profileSelect.innerHTML = donors.map(d => `
+          <option value="${d.id}" ${d.id === currentDonor.id ? 'selected' : ''}>
+            ${d.name} (${d.bloodGroup}) — ${d.isMedicallyFit ? 'Fit' : 'Cooldown'}
+          </option>
+        `).join('');
+
+        profileSelect.addEventListener('change', (e) => {
+          currentDonor = bloodData.getDonorById(e.target.value);
+          bloodData.setCurrentUser({ role: 'donor', donorId: currentDonor.id });
+          renderDonorDashboard();
+          updateDeskHospital();
+        });
+      }
+
+      // 5. Live GPS Button
+      const gpsBtn = document.getElementById('btn-donor-gps');
+      if (gpsBtn) {
+        gpsBtn.addEventListener('click', () => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                const lat = Math.round(pos.coords.latitude * 10000) / 10000;
+                const lon = Math.round(pos.coords.longitude * 10000) / 10000;
+                bloodData.updateDonorLocation(currentDonor.id, lat, lon);
+                currentDonor = bloodData.getDonorById(currentDonor.id);
+                alert(`Your GPS coordinates have been calibrated to (${lat}, ${lon})! Nearby emergency matches updated.`);
+                renderDonorDashboard();
+              },
+              () => {
+                alert('GPS permission not granted. Keeping default registered city coordinates.');
+              }
+            );
+          }
+        });
+      }
+
+      // 6. Turn-by-Turn GPS Hospital Directions Action
       window.openDirectionsToHospital = (hospitalId) => {
-        const hospital = bloodData.getHospitalById(hospitalId) || bloodData.getHospitals()[0];
+        const hospital = (window.bloodData && bloodData.getHospitalById(hospitalId)) || (window.bloodData && bloodData.getHospitals()[0]) || { name: 'Apollo Hospitals Jubilee Hills', city: 'Hyderabad', lat: 17.4156, lon: 78.4116 };
         activeHospitalForDirections = hospital;
 
-        const route = MatchingEngine.generateRouteDirections(currentDonor, hospital);
+        const route = window.MatchingEngine ? MatchingEngine.generateRouteDirections(currentDonor, hospital) : { estimatedTimes: { car: '25 mins', twoWheeler: '18 mins', emergencyPriority: '12 mins' }, hospitalGate: 'Gate 2', steps: [], googleMapsUrl: '#', hospitalContact: '+91 40 2360 7777' };
 
         document.getElementById('dir-route-title').innerHTML = `${currentDonor.area || currentDonor.city} &rarr; ${hospital.name}`;
         document.getElementById('dir-time-car').textContent = route.estimatedTimes.car;
@@ -833,122 +885,147 @@
         document.getElementById('dir-hosp-gate').textContent = `🚪 ${route.hospitalGate}`;
 
         const stepsCont = document.getElementById('dir-steps-container');
-        stepsCont.innerHTML = route.steps.map(s => `
-          <div class="route-step-card">
-            <div class="route-step-icon">${s.icon}</div>
-            <div style="flex: 1;">
-              <div style="font-size: 13px; font-weight: 600; color: #fff;">${s.instruction}</div>
-              <div style="font-size: 11px; color: var(--text-dim);">${s.distance}</div>
+        if (stepsCont) {
+          stepsCont.innerHTML = (route.steps || []).map(s => `
+            <div class="route-step-card">
+              <div class="route-step-icon">${s.icon}</div>
+              <div style="flex: 1;">
+                <div style="font-size: 13px; font-weight: 600; color: #fff;">${s.instruction}</div>
+                <div style="font-size: 11px; color: var(--text-dim);">${s.distance}</div>
+              </div>
             </div>
-          </div>
-        `).join('');
+          `).join('');
+        }
 
-        document.getElementById('btn-open-google-maps').href = route.googleMapsUrl;
-        document.getElementById('btn-call-hospital').href = `tel:${route.hospitalContact}`;
+        const gmapsBtn = document.getElementById('btn-open-google-maps');
+        if (gmapsBtn) gmapsBtn.href = route.googleMapsUrl;
+
+        const callBtn = document.getElementById('btn-call-hospital');
+        if (callBtn) callBtn.href = `tel:${route.hospitalContact}`;
 
         if (window.soundFX) window.soundFX.playRadarPing();
         document.getElementById('modal-hospital-directions').classList.add('active');
       };
 
-      // 5. Generate Hospital Pass Action
+      // 7. Generate Hospital Pass Action
       window.generateHospitalPass = (reqId, hospName, pName, bGroup, units, hospitalId) => {
-        activeHospitalForDirections = bloodData.getHospitalById(hospitalId) || bloodData.getHospitals()[0];
+        activeHospitalForDirections = (window.bloodData && bloodData.getHospitalById(hospitalId)) || (window.bloodData && bloodData.getHospitals()[0]);
         if (window.soundFX) window.soundFX.playRadarPing();
         document.getElementById('pass-hosp-name').textContent = hospName;
         document.getElementById('pass-patient-meta').textContent = `Patient: ${pName} (${bGroup}) • ${units} Units Needed`;
         document.getElementById('pass-donor-name').textContent = `${currentDonor.name} (${currentDonor.bloodGroup})`;
         document.getElementById('pass-code').textContent = `BC-PASS-${reqId}-${currentDonor.id}`;
+        document.getElementById('pass-timestamp').textContent = new Date().toLocaleString();
         document.getElementById('modal-hospital-pass').classList.add('active');
       };
 
-      document.getElementById('btn-pass-directions-trigger').addEventListener('click', () => {
-        document.getElementById('modal-hospital-pass').classList.remove('active');
-        if (activeHospitalForDirections) {
-          openDirectionsToHospital(activeHospitalForDirections.id);
-        }
-      });
+      const passCloseBtn = document.getElementById('btn-close-pass');
+      if (passCloseBtn) {
+        passCloseBtn.addEventListener('click', () => {
+          document.getElementById('modal-hospital-pass').classList.remove('active');
+        });
+      }
 
-      // 6. Daily Fitness Modal Handling
+      const passDirectBtn = document.getElementById('btn-get-directions-pass');
+      if (passDirectBtn) {
+        passDirectBtn.addEventListener('click', () => {
+          document.getElementById('modal-hospital-pass').classList.remove('active');
+          if (activeHospitalForDirections) {
+            openDirectionsToHospital(activeHospitalForDirections.id);
+          }
+        });
+      }
+
+      // 8. Daily Fitness Modal
       const dailyBtn = document.getElementById('btn-open-daily-checkin');
-      dailyBtn.addEventListener('click', () => {
-        document.getElementById('modal-daily-fitness').classList.add('active');
-      });
+      if (dailyBtn) {
+        dailyBtn.addEventListener('click', () => {
+          document.getElementById('modal-daily-fitness').classList.add('active');
+        });
+      }
 
       const dailyForm = document.getElementById('daily-checkin-form');
-      dailyForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const sleep = parseFloat(document.getElementById('fit-sleep').value);
-        const water = parseFloat(document.getElementById('fit-water').value);
-        const energetic = document.getElementById('fit-energetic').value === 'yes';
-        const fever = document.getElementById('fit-fever').value === 'yes';
-        const meds = document.getElementById('fit-meds').value === 'yes';
-        const notes = document.getElementById('fit-notes').value.trim();
+      if (dailyForm) {
+        dailyForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const sleep = parseFloat(document.getElementById('fit-sleep').value);
+          const water = parseFloat(document.getElementById('fit-water').value);
+          const energetic = document.getElementById('fit-energetic').value === 'yes';
+          const fever = document.getElementById('fit-fever').value === 'yes';
+          const meds = document.getElementById('fit-meds').value === 'yes';
+          const notes = document.getElementById('fit-notes').value.trim();
 
-        const updated = bloodData.updateDailyFitness(currentDonor.id, {
-          sleepHours: sleep,
-          hydrationLiters: water,
-          feelingEnergetic: energetic,
-          hasFeverOrCold: fever,
-          takingMedication: meds,
-          vitalsNotes: notes
+          const updated = bloodData.updateDailyFitness(currentDonor.id, {
+            sleepHours: sleep,
+            hydrationLiters: water,
+            feelingEnergetic: energetic,
+            hasFeverOrCold: fever,
+            takingMedication: meds,
+            vitalsNotes: notes
+          });
+
+          document.getElementById('modal-daily-fitness').classList.remove('active');
+          currentDonor = updated;
+          alert(`Daily Fitness Log Saved! Medical readiness updated to ${updated.fitnessReadinessScore}%. +25 Streak Points Credited!`);
+          renderDonorDashboard();
         });
+      }
 
-        document.getElementById('modal-daily-fitness').classList.remove('active');
-        currentDonor = updated;
-        alert(`Daily Fitness Log Saved! Medical readiness updated to ${updated.fitnessReadinessScore}%. +25 Streak Points Credited!`);
-        renderDonorDashboard();
-      });
-
-      // 7. Registration Form
+      // 9. Registration Form Submission
       const regForm = document.getElementById('new-donor-registration-form');
-      regForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = document.getElementById('reg-name').value.trim();
-        const blood = document.getElementById('reg-blood').value;
-        const phone = document.getElementById('reg-phone').value.trim();
-        const email = document.getElementById('reg-email').value.trim();
-        const street = document.getElementById('reg-street').value.trim();
-        const area = document.getElementById('reg-area').value.trim();
-        const city = document.getElementById('reg-city').value.trim();
-        const pincode = document.getElementById('reg-pincode').value.trim();
-        const emergency = document.getElementById('reg-emergency').value.trim();
+      if (regForm) {
+        regForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const name = document.getElementById('reg-name').value.trim();
+          const bloodGroup = document.getElementById('reg-blood').value;
+          const phone = document.getElementById('reg-phone').value.trim();
+          const email = document.getElementById('reg-email').value.trim();
+          const street = document.getElementById('reg-street').value.trim();
+          const area = document.getElementById('reg-area').value.trim();
+          const city = document.getElementById('reg-city').value.trim();
+          const pin = document.getElementById('reg-pin').value.trim();
+          const prefHosp = document.getElementById('reg-hospital').value;
+          const emergPerson = document.getElementById('reg-emerg-name').value.trim();
+          const emergPhone = document.getElementById('reg-emerg-phone').value.trim();
 
-        const newDonor = bloodData.saveDonor({
-          name,
-          bloodGroup: blood,
-          phone,
-          email,
-          streetAddress: street,
-          area,
-          city,
-          pincode,
-          emergencyContactPerson: emergency,
-          emergencyContactPhone: phone,
-          lat: 17.4156 + (Math.random() - 0.5) * 0.08,
-          lon: 78.4116 + (Math.random() - 0.5) * 0.08,
-          cooldownDaysRemaining: 0,
-          isMedicallyFit: true,
-          fitnessReadinessScore: 95,
-          pointsBalance: 500,
-          totalDonations: 0,
-          dailyFitnessStatus: 'Newly Registered & Cleared'
+          const newDonor = bloodData.addDonor({
+            name,
+            bloodGroup,
+            phone,
+            email,
+            streetAddress: street,
+            area,
+            city,
+            pincode: pin,
+            preferredHospital: prefHosp,
+            emergencyContactPerson: emergPerson,
+            emergencyContactPhone: emergPhone,
+            lat: 17.4200,
+            lon: 78.4200,
+            isMedicallyFit: true,
+            fitnessReadinessScore: 95,
+            pointsBalance: 500,
+            totalDonations: 0,
+            dailyFitnessStatus: 'Newly Registered & Cleared'
+          });
+
+          if (window.soundFX) window.soundFX.playSuccessChime();
+          alert(`Welcome to BloodConnect, ${name}! Your contact details and address have been saved. +500 welcome points!`);
+          currentDonor = newDonor;
+          if (profileSelect) {
+            profileSelect.value = newDonor.id;
+          }
+          renderDonorDashboard();
+          regForm.reset();
         });
+      }
 
-        if (window.soundFX) window.soundFX.playSuccessChime();
-        alert(`Welcome to BloodConnect, ${name}! Your contact details and address have been saved. +500 welcome points!`);
-        currentDonor = newDonor;
-        populateProfiles();
-        profileSelect.value = newDonor.id;
-        renderDonorDashboard();
-        regForm.reset();
-      });
-
-      // 8. Donor Chat & Interactive Messaging System
+      // 10. Donor Chat Modal & Templates
       let donorChatTarget = { type: 'hospital', targetObj: null, request: null };
 
       window.openDonorChatModal = (targetType, targetId = null, reqId = null) => {
         if (targetType === 'hospital') {
-          const hosp = bloodData.getHospitalById(targetId) || bloodData.getHospitals()[0];
+          const hosp = (window.bloodData && bloodData.getHospitalById(targetId)) || (window.bloodData && bloodData.getHospitals()[0]);
           const req = reqId ? bloodData.getRequests().find(r => r.id === reqId) : null;
           donorChatTarget = { type: 'hospital', targetObj: hosp, request: req };
           document.getElementById('donor-chat-subtitle').innerHTML = `To: <strong>${hosp.name}</strong> &bull; ${hosp.emergencyGate || 'Emergency Desk'}`;
@@ -994,48 +1071,57 @@
         }
 
         const textarea = document.getElementById('donor-chat-message-text');
-        textarea.value = msg;
+        if (textarea) textarea.value = msg;
 
         const cleanPhone = phone.replace(/[^0-9]/g, '');
         const waPhone = cleanPhone.startsWith('91') ? cleanPhone : (cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone);
 
         const updateLinks = () => {
+          if (!textarea) return;
           const text = textarea.value;
-          document.getElementById('btn-donor-chat-whatsapp').href = `https://wa.me/${waPhone}?text=${encodeURIComponent(text)}`;
-          document.getElementById('btn-donor-chat-sms').href = `sms:${phone}?body=${encodeURIComponent(text)}`;
+          const waBtn = document.getElementById('btn-donor-chat-whatsapp');
+          if (waBtn) waBtn.href = `https://wa.me/${waPhone}?text=${encodeURIComponent(text)}`;
+          const smsBtn = document.getElementById('btn-donor-chat-sms');
+          if (smsBtn) smsBtn.href = `sms:${phone}?body=${encodeURIComponent(text)}`;
         };
 
         updateLinks();
-        textarea.oninput = updateLinks;
+        if (textarea) textarea.oninput = updateLinks;
       };
 
       window.copyDonorChatMessage = () => {
-        const text = document.getElementById('donor-chat-message-text').value;
-        navigator.clipboard.writeText(text).then(() => {
+        const textarea = document.getElementById('donor-chat-message-text');
+        if (!textarea) return;
+        navigator.clipboard.writeText(textarea.value).then(() => {
           if (window.soundFX) window.soundFX.playSuccessChime();
           alert('Message copied to clipboard!');
         });
       };
 
-      // 9. Inline Hospital Message Desk Terminal Logic
+      // 11. Hospital Message Desk Terminal Logic
       const deskSelect = document.getElementById('desk-hospital-select');
       const deskTextarea = document.getElementById('desk-message-textarea');
 
       function updateDeskHospital() {
         if (!deskSelect) return;
         const hospId = deskSelect.value;
-        const hosp = bloodData.getHospitalById(hospId) || bloodData.getHospitals()[0];
+        const hosp = (window.bloodData && bloodData.getHospitalById(hospId)) || (window.bloodData && bloodData.getHospitals()[0]) || { name: 'Apollo Hospitals Jubilee Hills', streetAddress: 'Road 36 Jubilee Hills, Hyderabad', emergencyGate: 'Gate 2', contact: '+91 40 2360 7777' };
 
-        document.getElementById('desk-info-addr').textContent = hosp.streetAddress || `${hosp.city}, Hyderabad`;
-        document.getElementById('desk-info-gate').textContent = `${hosp.emergencyGate || 'Emergency Gate'} • Blood Bank Reception`;
-        document.getElementById('desk-info-phone').textContent = hosp.contact || '+91 40 2360 7777';
+        const addrEl = document.getElementById('desk-info-addr');
+        if (addrEl) addrEl.textContent = hosp.streetAddress || `${hosp.city}, Hyderabad`;
+
+        const gateEl = document.getElementById('desk-info-gate');
+        if (gateEl) gateEl.textContent = `${hosp.emergencyGate || 'Emergency Gate'} • Blood Bank Reception`;
+
+        const phoneEl = document.getElementById('desk-info-phone');
+        if (phoneEl) phoneEl.textContent = hosp.contact || '+91 40 2360 7777';
 
         setDeskTemplate('on_way');
       }
 
       window.setDeskTemplate = (templateKey) => {
         if (!deskSelect || !deskTextarea) return;
-        const hosp = bloodData.getHospitalById(deskSelect.value) || bloodData.getHospitals()[0];
+        const hosp = (window.bloodData && bloodData.getHospitalById(deskSelect.value)) || (window.bloodData && bloodData.getHospitals()[0]) || { name: 'Apollo Hospitals Jubilee Hills', contact: '+91 40 2360 7777' };
         let msg = '';
 
         if (templateKey === 'on_way') {
@@ -1056,8 +1142,10 @@
 
         const updateDeskLinks = () => {
           const currentText = deskTextarea.value;
-          document.getElementById('btn-desk-whatsapp').href = `https://wa.me/${waPhone}?text=${encodeURIComponent(currentText)}`;
-          document.getElementById('btn-desk-sms').href = `sms:${phone}?body=${encodeURIComponent(currentText)}`;
+          const waBtn = document.getElementById('btn-desk-whatsapp');
+          if (waBtn) waBtn.href = `https://wa.me/${waPhone}?text=${encodeURIComponent(currentText)}`;
+          const smsBtn = document.getElementById('btn-desk-sms');
+          if (smsBtn) smsBtn.href = `sms:${phone}?body=${encodeURIComponent(currentText)}`;
         };
 
         updateDeskLinks();
@@ -1087,7 +1175,7 @@
         });
       }
 
-      // 10. Emergency Request Siren Audio Trigger
+      // 12. Emergency Request Siren Audio Trigger
       window.playRequestSiren = (hospName, patientName, bloodGroup) => {
         if (window.soundFX) {
           window.soundFX.playEmergencySiren(4);
@@ -1096,7 +1184,6 @@
         alert(`🚨 EMERGENCY SIREN ACTIVATED!\n\nHospital: ${hospName}\nPatient: ${patientName} (${bloodGroup})\nUrgent blood supply required immediately.`);
       };
 
-      renderDonorDashboard();
       updateDeskHospital();
     });
   </script>
