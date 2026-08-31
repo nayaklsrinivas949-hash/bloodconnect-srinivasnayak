@@ -26,6 +26,7 @@
           <li><a href="./index.html">Home</a></li>
           <li><a href="./radar.html">3D Match Radar 🛰️</a></li>
           <li><a href="./donor.html" class="active">Donor Hub & Fitness 🧬</a></li>
+          <li><a href="#donor-message-desk-card" style="color: var(--accent-emerald); font-weight: 700;">Message Desk 💬</a></li>
           <li><a href="./admin.html">Hospital Admin 🏥</a></li>
           <li><a href="./rewards.html">Medical Points Vault 🪙</a></li>
         </ul>
@@ -53,8 +54,14 @@
 
       <!-- Actions & Points Wallet Badge -->
       <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <button class="btn btn-primary" onclick="document.getElementById('donor-message-desk-card').scrollIntoView({behavior: 'smooth'})" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); font-size: 13px;">
+          <span>💬</span> Open Message Desk
+        </button>
+        <button class="btn btn-secondary" onclick="window.soundFX && (window.soundFX.playEmergencySiren(4), window.soundFX.playHeartbeat())" style="font-size: 13px; background: rgba(225,29,72,0.2); border-color: rgba(225,29,72,0.5); color: #ff4d6d;">
+          <span>🚨</span> Siren Alert
+        </button>
         <button class="btn btn-ghost" id="btn-donor-gps" style="font-size: 13px;">
-          <span>📍</span> Update My GPS Location
+          <span>📍</span> Update GPS
         </button>
         <div class="glass-card" style="padding: 10px 20px; display: flex; align-items: center; gap: 12px; border-color: rgba(245,158,11,0.4);">
           <div style="font-size: 24px;">🪙</div>
@@ -171,7 +178,7 @@
     </div>
 
     <!-- Hospital Message Desk & Communication Terminal -->
-    <div class="glass-card highlight" style="margin-bottom: 36px; border-color: rgba(37, 211, 102, 0.4); background: linear-gradient(135deg, rgba(37, 211, 102, 0.08) 0%, rgba(14, 165, 233, 0.08) 100%);">
+    <div class="glass-card highlight" id="donor-message-desk-card" style="margin-bottom: 36px; border-color: rgba(37, 211, 102, 0.4); background: linear-gradient(135deg, rgba(37, 211, 102, 0.08) 0%, rgba(14, 165, 233, 0.08) 100%);">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
         <div style="display: flex; align-items: center; gap: 12px;">
           <div class="brand-icon-3d" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); width: 42px; height: 42px; font-size: 22px;">💬</div>
