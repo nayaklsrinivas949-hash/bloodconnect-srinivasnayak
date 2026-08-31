@@ -472,37 +472,54 @@
     </div>
   </div>
 
-  <!-- Digital Hospital Admission Pass Modal -->
+  <!-- Digital Hospital Admission Pass Modal with Dynamic QR & Check-In PIN -->
   <div class="modal-backdrop" id="modal-hospital-pass">
-    <div class="modal-box">
+    <div class="modal-box" style="max-width: 560px;">
       <button class="modal-close-btn" onclick="document.getElementById('modal-hospital-pass').classList.remove('active')">&times;</button>
       
-      <div style="text-align: center; margin-bottom: 16px;">
-        <span class="status-badge fit">⚡ FAST-TRACK DONOR PASS</span>
-        <h3 style="font-size: 22px; font-weight: 800; color: #fff; margin-top: 8px;">Hospital Check-In Digital Pass</h3>
-        <p style="color: var(--text-muted); font-size: 13px;">Present this pass at the hospital blood bank for instant priority access</p>
+      <div style="text-align: center; margin-bottom: 14px;">
+        <span class="status-badge fit"><span class="pulse-dot" style="background: #10b981;"></span> FAST-TRACK HOSPITAL PASS</span>
+        <h3 style="font-size: 22px; font-weight: 800; color: #fff; margin-top: 6px;">Hospital Check-In Digital QR Pass</h3>
+        <p style="color: var(--text-muted); font-size: 13px;">Scan this QR code or show the 6-Digit PIN at the Blood Bank Counter for immediate admission</p>
       </div>
 
       <div class="digital-pass-card">
-        <div style="font-size: 12px; color: var(--text-dim); text-transform: uppercase;">Destination Hospital</div>
-        <div style="font-size: 18px; font-weight: 800; color: var(--secondary-glow);" id="pass-hosp-name">Apollo Super Specialty Hospital</div>
-        <div style="font-size: 13px; color: var(--text-muted);" id="pass-patient-meta">Patient: Karan Mehra (O+) &bull; 2 Units Needed</div>
+        <!-- Hospital Name & Reception Gate -->
+        <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px;">Destination Blood Bank</div>
+        <div style="font-size: 19px; font-weight: 800; color: var(--secondary-glow); margin: 2px 0;" id="pass-hosp-name">Apollo Super Specialty Hospital</div>
+        <div style="font-size: 12px; color: var(--accent-emerald); font-weight: 700;" id="pass-hosp-gate">🚪 Gate 2 • Blood Bank Reception Counter</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" id="pass-hosp-address">Road No. 72, Jubilee Hills, Hyderabad</div>
 
+        <!-- Real-Time Generated QR Code with Cyber Laser Scanner -->
         <div class="qr-box">
-          <div class="qr-mock"></div>
+          <img id="pass-qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=BLOODCONNECT-FASTTRACK-PASS" alt="BloodConnect Fast-Track Check-In QR Code" style="width: 100%; height: 100%; object-fit: contain;">
+          <div class="qr-scan-laser"></div>
+        </div>
+        <div style="font-size: 11px; color: var(--text-dim); margin-top: -6px; margin-bottom: 10px;">⚡ Live Encrypted Fast-Track Check-In QR</div>
+
+        <!-- 6-Digit Fast-Track Check-In PIN -->
+        <div style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.3); border-radius: var(--radius-md); padding: 10px; margin-bottom: 10px;">
+          <div style="font-size: 11px; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">🏥 Fast-Track Check-In Verification PIN</div>
+          <div style="font-size: 24px; font-weight: 900; color: #fff; letter-spacing: 3px; font-family: monospace; margin: 2px 0;" id="pass-pin-code">748-912</div>
+          <div style="font-size: 11px; color: var(--accent-emerald);">Show to Receptionist or Enter in Hospital Admin Terminal</div>
         </div>
 
-        <div style="background: rgba(0,0,0,0.5); padding: 12px; border-radius: var(--radius-md); font-size: 12px; text-align: left; margin-top: 10px; line-height: 1.6;">
-          <div><strong>Donor:</strong> <span id="pass-donor-name">Rahul Varma (O+)</span></div>
+        <!-- Pass Meta Details -->
+        <div style="background: rgba(0,0,0,0.5); padding: 12px; border-radius: var(--radius-md); font-size: 12px; text-align: left; line-height: 1.7;">
+          <div><strong>Donor:</strong> <span id="pass-donor-name" style="color: #fff; font-weight: 600;">Rahul Varma (O+)</span></div>
+          <div><strong>Patient Need:</strong> <span id="pass-patient-meta" style="color: var(--secondary-glow); font-weight: 600;">Patient: Karan Mehra (O+) • 2 Units Needed</span></div>
           <div><strong>Pass ID:</strong> <span id="pass-code" style="color: var(--secondary-glow); font-family: monospace; font-weight: 700;">BC-PASS-9901-O+</span></div>
           <div><strong>Issued At:</strong> <span id="pass-timestamp" style="color: var(--text-muted);">Just now</span></div>
-          <div><strong>Reward upon completion:</strong> <span style="color: var(--accent-amber); font-weight: 700;">+500 Medical Points</span></div>
+          <div><strong>Reward upon completion:</strong> <span style="color: var(--accent-amber); font-weight: 700;">+500 Medical Points Credited</span></div>
         </div>
       </div>
 
-      <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-        <button class="btn btn-secondary" onclick="window.print()">🖨️ Print Pass</button>
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+        <button class="btn btn-secondary" onclick="copyHospitalPassCode()">📋 Copy Check-In Code</button>
         <button class="btn btn-primary" id="btn-pass-directions-trigger">🚗 Direct to Hospital (GPS)</button>
+        <a class="btn btn-success" id="btn-pass-whatsapp" target="_blank" href="#" style="background: #25d366; border-color: #128c7e; color: #fff;">💬 WhatsApp Reception</a>
+        <button class="btn btn-ghost" onclick="window.print()">🖨️ Print Pass</button>
       </div>
     </div>
   </div>
@@ -908,15 +925,22 @@
         document.getElementById('modal-hospital-directions').classList.add('active');
       };
 
-      // 7. Generate Hospital Pass Action
+      // 7. Generate Hospital Pass Action with Dynamic QR and 6-Digit PIN
       window.generateHospitalPass = (reqId, hospName, pName, bGroup, units, hospitalId) => {
         try {
-          activeHospitalForDirections = (window.bloodData && bloodData.getHospitalById(hospitalId)) || (window.bloodData && bloodData.getHospitals()[0]) || { id: hospitalId, name: hospName, city: 'Hyderabad' };
+          const hosp = (window.bloodData && bloodData.getHospitalById(hospitalId)) || (window.bloodData && bloodData.getHospitals()[0]) || { id: hospitalId, name: hospName, city: 'Hyderabad', emergencyGate: 'Gate 2 (Trauma Center & Blood Bank Reception)', streetAddress: 'Road 36, Jubilee Hills, Hyderabad', contact: '+91 40 2360 7777' };
+          activeHospitalForDirections = hosp;
           
           if (window.soundFX) window.soundFX.playSuccessChime();
 
           const hospEl = document.getElementById('pass-hosp-name');
-          if (hospEl) hospEl.textContent = hospName;
+          if (hospEl) hospEl.textContent = hosp.name;
+
+          const gateEl = document.getElementById('pass-hosp-gate');
+          if (gateEl) gateEl.textContent = `🚪 ${hosp.emergencyGate || 'Emergency Gate 2 • Blood Bank Reception Counter'}`;
+
+          const addrEl = document.getElementById('pass-hosp-address');
+          if (addrEl) addrEl.textContent = `${hosp.streetAddress || ''}, ${hosp.city || 'Hyderabad'}`;
 
           const pMetaEl = document.getElementById('pass-patient-meta');
           if (pMetaEl) pMetaEl.textContent = `Patient: ${pName} (${bGroup}) • ${units} Units Needed`;
@@ -924,17 +948,53 @@
           const dNameEl = document.getElementById('pass-donor-name');
           if (dNameEl) dNameEl.textContent = `${currentDonor.name} (${currentDonor.bloodGroup})`;
 
+          const passCode = `BC-PASS-${reqId}-${currentDonor.id}`;
           const codeEl = document.getElementById('pass-code');
-          if (codeEl) codeEl.textContent = `BC-PASS-${reqId}-${currentDonor.id}`;
+          if (codeEl) codeEl.textContent = passCode;
+
+          // Generate 6-digit verification PIN
+          const randomPin = Math.floor(100000 + Math.random() * 900000);
+          const formattedPin = `${String(randomPin).slice(0, 3)}-${String(randomPin).slice(3)}`;
+          const pinEl = document.getElementById('pass-pin-code');
+          if (pinEl) pinEl.textContent = formattedPin;
 
           const timeEl = document.getElementById('pass-timestamp');
           if (timeEl) timeEl.textContent = new Date().toLocaleString();
+
+          // Generate real dynamic QR code image URL
+          const qrPayload = `BLOODCONNECT FAST-TRACK HOSPITAL PASS\nPass ID: ${passCode}\nCheck-In PIN: ${formattedPin}\nHospital: ${hosp.name}\nDonor: ${currentDonor.name} (${currentDonor.bloodGroup})\nPatient: ${pName} (${bGroup} - ${units} Units)\nIssued: ${new Date().toLocaleTimeString()}`;
+          const qrImg = document.getElementById('pass-qr-img');
+          if (qrImg) {
+            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(qrPayload)}`;
+          }
+
+          // Pre-populate WhatsApp Reception Link
+          const waBtn = document.getElementById('btn-pass-whatsapp');
+          if (waBtn) {
+            const phone = hosp.contact || '+91 40 2360 7777';
+            const cleanPhone = phone.replace(/[^0-9]/g, '');
+            const waPhone = cleanPhone.startsWith('91') ? cleanPhone : (cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone);
+            const waMsg = `Hello ${hosp.name} Blood Bank Reception, I am verified donor ${currentDonor.name} (${currentDonor.bloodGroup}). I have generated Fast-Track Check-In Pass: ${passCode} (PIN: ${formattedPin}) for patient ${pName}. I am on my way.`;
+            waBtn.href = `https://wa.me/${waPhone}?text=${encodeURIComponent(waMsg)}`;
+          }
 
           const modal = document.getElementById('modal-hospital-pass');
           if (modal) modal.classList.add('active');
         } catch (err) {
           console.error('Error generating hospital pass:', err);
         }
+      };
+
+      window.copyHospitalPassCode = () => {
+        const codeEl = document.getElementById('pass-code');
+        const pinEl = document.getElementById('pass-pin-code');
+        const hospEl = document.getElementById('pass-hosp-name');
+        const textToCopy = `BloodConnect Fast-Track Check-In Pass:\nPass ID: ${codeEl ? codeEl.textContent : 'BC-PASS'}\nCheck-In PIN: ${pinEl ? pinEl.textContent : '748-912'}\nHospital: ${hospEl ? hospEl.textContent : 'Hospital Reception'}\nDonor: ${currentDonor.name} (${currentDonor.bloodGroup})`;
+        
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          if (window.soundFX) window.soundFX.playSuccessChime();
+          alert('Check-In Pass Code & PIN copied to clipboard!\n\n' + textToCopy);
+        });
       };
 
       const passCloseBtn = document.getElementById('btn-close-pass');
