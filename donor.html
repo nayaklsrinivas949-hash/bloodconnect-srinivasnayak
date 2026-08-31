@@ -420,6 +420,47 @@
     </div>
   </div>
 
+  <!-- Direct Chat & WhatsApp Interactive Messaging Modal -->
+  <div class="modal-backdrop" id="modal-chat-donor">
+    <div class="modal-box" style="max-width: 620px;">
+      <button class="modal-close-btn" onclick="document.getElementById('modal-chat-donor').classList.remove('active')">&times;</button>
+      
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <div class="brand-icon-3d" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); width: 42px; height: 42px; font-size: 22px;">💬</div>
+        <div>
+          <h3 style="font-size: 22px; font-weight: 800; color: #fff;">Direct Interactive Message</h3>
+          <p style="color: var(--text-muted); font-size: 13px;" id="donor-chat-subtitle">To: Apollo Hospitals Jubilee Hills &bull; Blood Bank Reception</p>
+        </div>
+      </div>
+
+      <!-- Quick Template Pills -->
+      <div style="margin-bottom: 14px;">
+        <label class="form-label" style="font-size: 12px;">Choose Donor Response Template:</label>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-ghost" style="padding: 4px 10px; font-size: 11px; min-height: 28px;" onclick="setDonorChatTemplate('on_way')">🚗 On My Way (Confirm ETA)</button>
+          <button type="button" class="btn btn-ghost" style="padding: 4px 10px; font-size: 11px; min-height: 28px;" onclick="setDonorChatTemplate('directions')">📍 Entrance & Gate Info</button>
+          <button type="button" class="btn btn-ghost" style="padding: 4px 10px; font-size: 11px; min-height: 28px;" onclick="setDonorChatTemplate('fitness')">🩺 Fitness & Fasting Check</button>
+          <button type="button" class="btn btn-ghost" style="padding: 4px 10px; font-size: 11px; min-height: 28px;" onclick="setDonorChatTemplate('emergency_contact')">🚨 Family Alert</button>
+        </div>
+      </div>
+
+      <!-- Message Textarea -->
+      <div class="form-group" style="margin-bottom: 16px;">
+        <label class="form-label" for="donor-chat-message-text">Message Content (Pre-filled for WhatsApp & SMS):</label>
+        <textarea id="donor-chat-message-text" class="form-input" rows="5" style="resize: vertical; line-height: 1.5; font-size: 13px;"></textarea>
+      </div>
+
+      <!-- Launch Buttons -->
+      <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+        <button type="button" class="btn btn-ghost" onclick="copyDonorChatMessage()">📋 Copy</button>
+        <a id="btn-donor-chat-sms" href="#" class="btn btn-secondary" style="padding: 10px 16px;">📱 Send SMS</a>
+        <a id="btn-donor-chat-whatsapp" href="#" target="_blank" class="btn btn-success" style="padding: 10px 18px; background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);">
+          <span>💬</span> Open in WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="./scripts/audio-synth.js"></script>
   <script src="./scripts/blood-data.js"></script>
@@ -545,7 +586,7 @@
             <div style="font-size: 15px; font-weight: 700; color: #fff; margin: 4px 0;">${currentDonor.phone}</div>
             <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
               <a href="tel:${currentDonor.phone}" class="contact-action-btn call">📞 Call</a>
-              <a href="${waUrl}" target="_blank" class="contact-action-btn whatsapp">💬 WhatsApp (SOS Msg)</a>
+              <button class="contact-action-btn whatsapp" onclick="openDonorChatModal('self')">💬 WhatsApp Chat</button>
             </div>
           </div>
 
@@ -562,7 +603,7 @@
             <div style="font-size: 14px; font-weight: 700; color: #fff; margin: 4px 0;">${currentDonor.emergencyContactPerson || 'Pooja Varma (Sister)'}</div>
             <div style="font-size: 13px; color: var(--accent-amber);">${currentDonor.emergencyContactPhone || '+91 98201 99887'}</div>
             <div style="margin-top: 8px;">
-              <a href="${emergWaUrl}" target="_blank" class="contact-action-btn whatsapp" style="font-size: 11px;">💬 WhatsApp Contact</a>
+              <button class="contact-action-btn whatsapp" style="font-size: 11px;" onclick="openDonorChatModal('emergency_contact')">💬 Family Alert</button>
             </div>
           </div>
 
@@ -612,6 +653,9 @@
               </div>
               <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 ${urgencyBadge}
+                <button class="contact-action-btn whatsapp" style="padding: 8px 12px; font-size: 13px;" onclick="openDonorChatModal('hospital', '${hosp.id}', '${req.id}')">
+                  <span>💬</span> Message Desk
+                </button>
                 <button class="btn btn-secondary" style="padding: 8px 14px; font-size: 13px;" onclick="openDirectionsToHospital('${hosp.id}')">
                   <span>🚗</span> Direct to Hospital
                 </button>
@@ -774,6 +818,80 @@
         renderDonorDashboard();
         regForm.reset();
       });
+
+      // 8. Donor Chat & Interactive Messaging System
+      let donorChatTarget = { type: 'hospital', targetObj: null, request: null };
+
+      window.openDonorChatModal = (targetType, targetId = null, reqId = null) => {
+        if (targetType === 'hospital') {
+          const hosp = bloodData.getHospitalById(targetId) || bloodData.getHospitals()[0];
+          const req = reqId ? bloodData.getRequests().find(r => r.id === reqId) : null;
+          donorChatTarget = { type: 'hospital', targetObj: hosp, request: req };
+          document.getElementById('donor-chat-subtitle').innerHTML = `To: <strong>${hosp.name}</strong> &bull; ${hosp.emergencyGate || 'Emergency Desk'}`;
+          window.setDonorChatTemplate('on_way');
+        } else if (targetType === 'emergency_contact') {
+          donorChatTarget = { type: 'emergency_contact', targetObj: { name: currentDonor.emergencyContactPerson || 'Family', phone: currentDonor.emergencyContactPhone || currentDonor.phone } };
+          document.getElementById('donor-chat-subtitle').innerHTML = `To Family/Emergency: <strong>${donorChatTarget.targetObj.name}</strong> &bull; ${donorChatTarget.targetObj.phone}`;
+          window.setDonorChatTemplate('emergency_contact');
+        } else {
+          donorChatTarget = { type: 'self', targetObj: currentDonor };
+          document.getElementById('donor-chat-subtitle').innerHTML = `Donor Card: <strong>${currentDonor.name}</strong> &bull; ${currentDonor.phone}`;
+          window.setDonorChatTemplate('on_way');
+        }
+
+        if (window.soundFX) window.soundFX.playRadarPing();
+        document.getElementById('modal-chat-donor').classList.add('active');
+      };
+
+      window.setDonorChatTemplate = (templateKey) => {
+        let msg = '';
+        let phone = '';
+
+        if (donorChatTarget.type === 'hospital') {
+          const hosp = donorChatTarget.targetObj || { name: 'Apollo Hospitals Jubilee Hills', contact: '+91 40 2360 7777', emergencyGate: 'Gate 2', streetAddress: 'Road 36 Jubilee Hills, Hyderabad' };
+          phone = hosp.contact || '+91 40 2360 7777';
+          const patientStr = donorChatTarget.request ? ` for Patient ${donorChatTarget.request.patientName} (${donorChatTarget.request.bloodGroup})` : '';
+
+          if (templateKey === 'on_way') {
+            msg = `Hello ${hosp.name} Blood Bank Reception, I am ${currentDonor.name} (${currentDonor.bloodGroup} Donor). I have accepted the donation request${patientStr}. I am currently on my way from ${currentDonor.area || currentDonor.city}. Expected Arrival: 25-35 mins. Please keep the check-in desk ready.`;
+          } else if (templateKey === 'directions') {
+            msg = `Hello ${hosp.name}, I am ${currentDonor.name} (${currentDonor.bloodGroup} Donor). I am arriving shortly for blood donation. Could you please confirm which entrance/gate to report to? (Is it ${hosp.emergencyGate || 'Emergency Gate'}?)`;
+          } else if (templateKey === 'fitness') {
+            msg = `Hello Doctor / Blood Bank Coordinator at ${hosp.name}, I am ${currentDonor.name} (${currentDonor.bloodGroup} Donor, readiness score: ${currentDonor.fitnessReadinessScore}%). Are there any specific pre-donation dietary or fasting instructions before I report today?`;
+          } else if (templateKey === 'emergency_contact') {
+            msg = `Hello ${currentDonor.emergencyContactPerson || 'Family'}, I am going to ${hosp.name} (${hosp.streetAddress || 'Hyderabad'}) for urgent blood donation as a verified lifesaver. My contact number is active.`;
+          }
+        } else if (donorChatTarget.type === 'emergency_contact') {
+          phone = currentDonor.emergencyContactPhone || currentDonor.phone;
+          msg = `Hello ${currentDonor.emergencyContactPerson || 'Family'}, this is ${currentDonor.name}. I am registered and active on BloodConnect. In case of any urgent blood requirement or hospital alert, my BloodConnect verified donor ID is ${currentDonor.id} (${currentDonor.bloodGroup}).`;
+        } else {
+          phone = currentDonor.phone;
+          msg = `Hello, I am ${currentDonor.name}, a verified ${currentDonor.bloodGroup} donor in ${currentDonor.area || currentDonor.city}, Hyderabad on BloodConnect. I am available for emergency lifesaving calls.`;
+        }
+
+        const textarea = document.getElementById('donor-chat-message-text');
+        textarea.value = msg;
+
+        const cleanPhone = phone.replace(/[^0-9]/g, '');
+        const waPhone = cleanPhone.startsWith('91') ? cleanPhone : (cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone);
+
+        const updateLinks = () => {
+          const text = textarea.value;
+          document.getElementById('btn-donor-chat-whatsapp').href = `https://wa.me/${waPhone}?text=${encodeURIComponent(text)}`;
+          document.getElementById('btn-donor-chat-sms').href = `sms:${phone}?body=${encodeURIComponent(text)}`;
+        };
+
+        updateLinks();
+        textarea.oninput = updateLinks;
+      };
+
+      window.copyDonorChatMessage = () => {
+        const text = document.getElementById('donor-chat-message-text').value;
+        navigator.clipboard.writeText(text).then(() => {
+          if (window.soundFX) window.soundFX.playSuccessChime();
+          alert('Message copied to clipboard!');
+        });
+      };
 
       renderDonorDashboard();
     });
