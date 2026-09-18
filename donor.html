@@ -29,6 +29,7 @@
           <li><a href="#donor-message-desk-card" style="color: var(--accent-emerald); font-weight: 700;">Message Desk 💬</a></li>
           <li><a href="./admin.html">Hospital Admin 🏥</a></li>
           <li><a href="./rewards.html">Medical Points Vault 🪙</a></li>
+          <li><a href="javascript:void(0)" onclick="window.askBloodBot && window.askBloodBot()" style="color: var(--secondary-glow); font-weight: 700;">Ask AI 🤖</a></li>
         </ul>
       </nav>
 
@@ -571,6 +572,7 @@
   <script src="./scripts/matching-engine.js"></script>
   <script src="./scripts/three-scene.js"></script>
   <script src="./scripts/main.js"></script>
+  <script src="./scripts/ai-agent.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       let currentDonor = (window.bloodData && bloodData.getDonorById('DONOR-101')) || (window.bloodData && bloodData.getDonors()[0]) || {

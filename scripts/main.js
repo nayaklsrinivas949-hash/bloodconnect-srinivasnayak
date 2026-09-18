@@ -22,7 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // 3. Highlight Active Navigation Item
   const currentPage = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.nav-list a').forEach(link => {
-    const href = link.getAttribute('href').replace('./', '');
+    const rawHref = link.getAttribute('href');
+    if (!rawHref || rawHref.startsWith('javascript:') || rawHref.startsWith('#')) return;
+    const href = rawHref.replace('./', '');
     if (href === currentPage || (currentPage === '' && href === 'index.html')) {
       link.classList.add('active');
     }

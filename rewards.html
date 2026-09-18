@@ -27,6 +27,7 @@
           <li><a href="./donor.html">Donor Hub & Fitness 🧬</a></li>
           <li><a href="./admin.html">Hospital Admin 🏥</a></li>
           <li><a href="./rewards.html" class="active">Medical Points Vault 🪙</a></li>
+          <li><a href="javascript:void(0)" onclick="window.askBloodBot && window.askBloodBot()" style="color: var(--secondary-glow); font-weight: 700;">Ask AI 🤖</a></li>
         </ul>
       </nav>
 
@@ -144,6 +145,7 @@
   <script src="./scripts/matching-engine.js"></script>
   <script src="./scripts/three-scene.js"></script>
   <script src="./scripts/main.js"></script>
+  <script src="./scripts/ai-agent.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       let currentDonor = bloodData.getDonorById('DONOR-101') || bloodData.getDonors()[0];
