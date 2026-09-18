@@ -2034,31 +2034,232 @@ input[type="range"] {
   gap: 8px;
 }
 
-.bloodbot-mic-btn {
-  width: 34px;
-  height: 34px;
+/* Live Voice Listening Overlay Card */
+.bloodbot-listening-overlay {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1px solid rgba(6, 182, 212, 0.5);
+  border-radius: var(--radius-md);
+  margin: 6px 12px 0 12px;
+  padding: 10px 14px;
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.25);
+  backdrop-filter: blur(12px);
+  animation: fadeInSlideUp 0.25s ease-out;
+}
+
+.listening-overlay-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.listening-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.listening-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.listening-live-dot {
+  width: 10px;
+  height: 10px;
+  background: #e11d48;
   border-radius: 50%;
+  box-shadow: 0 0 10px #ff4d6d;
+  animation: listeningPulse 0.9s infinite alternate;
+}
+
+@keyframes listeningPulse {
+  0% { transform: scale(0.85); opacity: 0.7; }
+  100% { transform: scale(1.35); opacity: 1; box-shadow: 0 0 15px #ff4d6d; }
+}
+
+.listening-status-text {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--secondary-glow);
+}
+
+.listening-wave-bars {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 16px;
+}
+
+.listening-wave-bars span {
+  width: 3px;
+  height: 100%;
+  background: var(--secondary-glow);
+  border-radius: 2px;
+  animation: waveBarBounce 0.8s ease-in-out infinite alternate;
+}
+
+.listening-wave-bars span:nth-child(1) { animation-delay: 0.1s; height: 6px; }
+.listening-wave-bars span:nth-child(2) { animation-delay: 0.25s; height: 14px; }
+.listening-wave-bars span:nth-child(3) { animation-delay: 0.4s; height: 16px; }
+.listening-wave-bars span:nth-child(4) { animation-delay: 0.15s; height: 10px; }
+.listening-wave-bars span:nth-child(5) { animation-delay: 0.3s; height: 8px; }
+
+@keyframes waveBarBounce {
+  0% { transform: scaleY(0.3); }
+  100% { transform: scaleY(1.3); }
+}
+
+.listening-transcript {
+  font-size: 12.5px;
+  color: #94a3b8;
+  font-style: italic;
+  min-height: 22px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.listening-transcript.has-text {
+  color: #fff;
+  font-style: normal;
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+}
+
+.listening-footer-btns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.listening-btn {
+  padding: 4px 11px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.listening-btn.cancel {
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--border-glass);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+}
+
+.listening-btn.cancel:hover {
+  background: rgba(225, 29, 72, 0.2);
+  color: #ff4d6d;
+}
+
+.listening-btn.send {
+  background: linear-gradient(135deg, #06b6d4 0%, #0284c7 100%);
+  border: none;
+  color: #000;
+}
+
+.listening-btn.send:hover {
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+  transform: translateY(-1px);
+}
+
+/* Speaking Pill Banner */
+.bloodbot-speaking-banner {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%);
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  border-radius: var(--radius-full);
+  margin: 6px 12px 0 12px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  animation: fadeInSlideUp 0.25s ease-out;
+}
+
+.speaking-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.speaking-pulse-icon {
+  font-size: 13px;
+  animation: pulseSpeaking 1s infinite alternate;
+}
+
+@keyframes pulseSpeaking {
+  0% { transform: scale(0.9); }
+  100% { transform: scale(1.15); }
+}
+
+.speaking-banner-text {
+  font-size: 11.5px;
+  color: var(--secondary-glow);
+  font-weight: 600;
+}
+
+.speaking-stop-btn {
+  background: rgba(225, 29, 72, 0.2);
+  border: 1px solid rgba(225, 29, 72, 0.4);
+  color: #ff4d6d;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.speaking-stop-btn:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Enhanced Microphone Button */
+.bloodbot-mic-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.35);
   color: #fff;
   display: grid;
   place-items: center;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 15px;
   flex-shrink: 0;
   transition: all 0.2s ease;
 }
 
+.bloodbot-mic-btn:hover {
+  background: rgba(6, 182, 212, 0.25);
+  border-color: var(--secondary-glow);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.4);
+  transform: scale(1.05);
+}
+
 .bloodbot-mic-btn.listening {
-  background: rgba(225, 29, 72, 0.35);
+  background: rgba(225, 29, 72, 0.45);
   border-color: #ff4d6d;
-  animation: botMicPulse 1.2s infinite;
+  color: #fff;
+  box-shadow: 0 0 18px rgba(225, 29, 72, 0.8);
+  animation: botMicPulse 1s infinite alternate;
 }
 
 @keyframes botMicPulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  0% { transform: scale(1); box-shadow: 0 0 8px rgba(225, 29, 72, 0.4); }
+  100% { transform: scale(1.18); box-shadow: 0 0 22px rgba(225, 29, 72, 0.9); }
+}
+
+.bot-tool-card-btn.voice-trigger-btn {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.16) 0%, rgba(14, 165, 233, 0.08) 100%);
+  border-color: rgba(6, 182, 212, 0.4);
+}
+
+.bot-tool-card-btn.voice-trigger-btn:hover {
+  border-color: var(--secondary-glow);
+  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
 }
 
 .bloodbot-input-field {

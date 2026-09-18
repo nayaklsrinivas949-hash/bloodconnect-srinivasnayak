@@ -469,8 +469,10 @@
       .replace(/"/g, '&quot;');
   }
 
-  // 5. Voice Helpers & Equalizer Visualizer
+  // 5. Voice Helpers & Speech Engine
   let isSpeechEnabled = false;
+  let activeUtterance = null;
+
   function updateEqualizer(active) {
     const eq = document.getElementById('bloodbot-equalizer');
     if (eq) {
@@ -479,23 +481,128 @@
     }
   }
 
-  function speakResponse(text) {
-    if (!isSpeechEnabled || !window.speechSynthesis) return;
+  function showSpeakingBanner() {
+    const banner = document.getElementById('bloodbot-speaking-banner');
+    if (banner) banner.style.display = 'flex';
+  }
+
+  function hideSpeakingBanner() {
+    const banner = document.getElementById('bloodbot-speaking-banner');
+    if (banner) banner.style.display = 'none';
+  }
+
+  function stopSpeaking() {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch (e) {}
+    }
+    updateEqualizer(false);
+    hideSpeakingBanner();
+    activeUtterance = null;
+    window.__bloodbotUtterance = null;
+  }
+
+  function getBestVoice() {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return null;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return null;
+
+    const englishVoices = voices.filter(v => v.lang && v.lang.startsWith('en'));
+    const preferred = englishVoices.find(v =>
+      v.name.includes('Natural') ||
+      v.name.includes('Google') ||
+      v.name.includes('Samantha') ||
+      v.name.includes('Jenny') ||
+      v.name.includes('Aria') ||
+      v.name.includes('Guy')
+    );
+    return preferred || englishVoices[0] || voices[0] || null;
+  }
+
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = () => {
+      getBestVoice();
+    };
+  }
+
+  function speakResponse(text, forceSpeak = false) {
+    if ((!isSpeechEnabled && !forceSpeak) || typeof window === 'undefined' || !window.speechSynthesis) return;
+
     try {
       window.speechSynthesis.cancel();
-      const cleanText = text.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+      if (window.speechSynthesis.resume) {
+        window.speechSynthesis.resume();
+      }
+
+      // Clean HTML tags and markdown symbols for natural speech
+      let cleanText = text
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+        .replace(/<[^>]*>/g, ' ')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, ' and ')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/[•\*\#\-]/g, ' ')
+        .replace(/[\u{1F300}-\u{1FAFF}]/gu, '') // strip emojis for clean narration
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      // Read a natural summary (first 350 chars or first 2 sentences)
+      if (cleanText.length > 350) {
+        const sentenceBreak = cleanText.indexOf('.', 140);
+        if (sentenceBreak !== -1 && sentenceBreak < 350) {
+          cleanText = cleanText.substring(0, sentenceBreak + 1);
+        } else {
+          cleanText = cleanText.substring(0, 350) + '...';
+        }
+      }
+
       const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.rate = 1.05;
+      activeUtterance = utterance;
+      window.__bloodbotUtterance = utterance; // Prevent Chrome GC bug
+
+      utterance.rate = 1.0;
       utterance.pitch = 1.0;
 
-      utterance.onstart = () => updateEqualizer(true);
-      utterance.onend = () => updateEqualizer(false);
-      utterance.onerror = () => updateEqualizer(false);
+      const voice = getBestVoice();
+      if (voice) utterance.voice = voice;
 
-      window.speechSynthesis.speak(utterance);
+      utterance.onstart = () => {
+        updateEqualizer(true);
+        showSpeakingBanner();
+      };
+
+      utterance.onend = () => {
+        updateEqualizer(false);
+        hideSpeakingBanner();
+        activeUtterance = null;
+        window.__bloodbotUtterance = null;
+      };
+
+      utterance.onerror = () => {
+        updateEqualizer(false);
+        hideSpeakingBanner();
+        activeUtterance = null;
+        window.__bloodbotUtterance = null;
+      };
+
+      setTimeout(() => {
+        try {
+          window.speechSynthesis.speak(utterance);
+        } catch (e) {
+          console.warn('SpeechSynthesis speak error:', e);
+          updateEqualizer(false);
+          hideSpeakingBanner();
+        }
+      }, 60);
+
     } catch (err) {
       console.warn('Speech synthesis error:', err);
       updateEqualizer(false);
+      hideSpeakingBanner();
     }
   }
 
@@ -611,15 +718,52 @@
                     <span class="tool-icon">🏥</span>
                     <span class="tool-label">Hospital Desks<br><small style="color:var(--text-dim);">KIMS 9701516959 & Apollo</small></span>
                   </button>
+                  <button type="button" class="bot-tool-card-btn voice-trigger-btn" id="bot-welcome-voice-btn" onclick="window.startBloodBotVoice()">
+                    <span class="tool-icon">🎙️</span>
+                    <span class="tool-label">Voice Command Mode<br><small style="color:var(--text-dim);">Tap & speak your query</small></span>
+                  </button>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- Live Voice Listening Overlay Card -->
+        <div id="bloodbot-listening-overlay" class="bloodbot-listening-overlay" style="display: none;">
+          <div class="listening-overlay-inner">
+            <div class="listening-top-bar">
+              <div class="listening-indicator">
+                <span class="listening-live-dot"></span>
+                <span id="bloodbot-listening-status" class="listening-status-text">Listening... Speak now</span>
+              </div>
+              <div class="listening-wave-bars">
+                <span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <div id="bloodbot-listening-transcript" class="listening-transcript">
+              "Try asking: What is KIMS helpline? or How much ml blood is needed?"
+            </div>
+            <div class="listening-footer-btns">
+              <button type="button" class="listening-btn cancel" id="bloodbot-voice-cancel">✕ Cancel</button>
+              <button type="button" class="listening-btn send" id="bloodbot-voice-send">✓ Send Query</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Voice Speaking Audio Indicator Banner -->
+        <div id="bloodbot-speaking-banner" class="bloodbot-speaking-banner" style="display: none;">
+          <div class="speaking-banner-left">
+            <span class="speaking-pulse-icon">🔊</span>
+            <span class="speaking-banner-text">BloodBot is speaking...</span>
+          </div>
+          <button type="button" class="speaking-stop-btn" id="bloodbot-speaking-stop" title="Stop speaking">
+            ⏹️ Stop Audio
+          </button>
+        </div>
+
         <!-- Input Area -->
         <form class="bloodbot-input-form" id="bloodbot-input-form">
-          <button type="button" class="bloodbot-mic-btn" id="bloodbot-mic-btn" title="Voice Input (Speech-to-Text)" aria-label="Voice input">
+          <button type="button" class="bloodbot-mic-btn" id="bloodbot-mic-btn" title="Voice Command (Click to Speak)" aria-label="Voice input">
             🎤
           </button>
           <input type="text" class="bloodbot-input-field" id="bloodbot-input-field" placeholder="Ask about ml required, KIMS helpline, compatibility..." autocomplete="off" required>
@@ -1074,18 +1218,382 @@
       }
     });
 
-    // Voice Toggle
+    // Voice Output Toggle in Header
     voiceToggle.addEventListener('click', () => {
       isSpeechEnabled = !isSpeechEnabled;
       voiceIcon.textContent = isSpeechEnabled ? '🔊' : '🔇';
       voiceToggle.style.color = isSpeechEnabled ? 'var(--accent-emerald)' : '';
+      voiceToggle.title = isSpeechEnabled ? 'Voice Output: ON (Tap to mute)' : 'Voice Output: OFF (Tap to enable)';
       if (isSpeechEnabled) {
-        speakResponse('Voice output activated. I will read answers aloud.');
-      } else if (window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-        updateEqualizer(false);
+        speakResponse('Voice output activated. BloodBot will read answers aloud.', true);
+      } else {
+        stopSpeaking();
       }
     });
+
+    // Voice UI Element References
+    const listeningOverlay = document.getElementById('bloodbot-listening-overlay');
+    const listeningStatus = document.getElementById('bloodbot-listening-status');
+    const listeningTranscript = document.getElementById('bloodbot-listening-transcript');
+    const listeningCancel = document.getElementById('bloodbot-voice-cancel');
+    const listeningSend = document.getElementById('bloodbot-voice-send');
+    const speakingStop = document.getElementById('bloodbot-speaking-stop');
+
+    if (speakingStop) {
+      speakingStop.addEventListener('click', () => {
+        stopSpeaking();
+      });
+    }
+
+    // 8. Robust Speech-to-Text & Voice Command System
+    let recognizer = null;
+    let isListening = false;
+    let capturedTranscript = '';
+
+    const hasSpeechRecognition = typeof window !== 'undefined' && 
+      ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window);
+
+    function startListening() {
+      if (!hasSpeechRecognition) {
+        showVoiceUnsupportedCard();
+        return;
+      }
+
+      if (isListening) {
+        stopListening();
+        return;
+      }
+
+      // Stop any ongoing TTS audio
+      stopSpeaking();
+
+      try {
+        const SpeechRecClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognizer = new SpeechRecClass();
+        recognizer.continuous = false;
+        recognizer.interimResults = true;
+        recognizer.maxAlternatives = 1;
+
+        // Auto select English locale
+        const sysLang = navigator.language || 'en-US';
+        recognizer.lang = sysLang.startsWith('en') ? sysLang : 'en-US';
+
+        capturedTranscript = '';
+        isListening = true;
+
+        if (micBtn) {
+          micBtn.classList.add('listening');
+          micBtn.textContent = '⏹️';
+          micBtn.title = 'Stop listening';
+        }
+
+        if (listeningOverlay) {
+          listeningOverlay.style.display = 'block';
+        }
+        if (listeningStatus) {
+          listeningStatus.textContent = 'Listening... Speak your question now';
+        }
+        if (listeningTranscript) {
+          listeningTranscript.textContent = 'Listening... Say: "What is KIMS helpline?" or "How much ml to donate?"';
+          listeningTranscript.classList.remove('has-text');
+        }
+
+        if (window.soundFX && window.soundFX.playRadarPing) {
+          window.soundFX.playRadarPing();
+        }
+
+        recognizer.onstart = () => {
+          isListening = true;
+          if (listeningStatus) listeningStatus.textContent = 'Listening... Speak now';
+        };
+
+        recognizer.onresult = (event) => {
+          let interimTranscript = '';
+          let finalTranscript = '';
+
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            const part = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += part;
+            } else {
+              interimTranscript += part;
+            }
+          }
+
+          const currentWords = (finalTranscript || interimTranscript).trim();
+          if (currentWords) {
+            capturedTranscript = currentWords;
+            if (listeningTranscript) {
+              listeningTranscript.textContent = `"${currentWords}"`;
+              listeningTranscript.classList.add('has-text');
+            }
+            if (inputField) {
+              inputField.value = currentWords;
+            }
+          }
+
+          if (finalTranscript.trim()) {
+            const confirmedQuery = finalTranscript.trim();
+            stopListening();
+            handleVoiceCommandOrQuery(confirmedQuery);
+          }
+        };
+
+        recognizer.onerror = (event) => {
+          console.warn('SpeechRecognition error:', event.error);
+          stopListening();
+
+          if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+            showMicPermissionCard();
+          } else if (event.error === 'no-speech') {
+            showNoSpeechNotification();
+          } else if (event.error === 'network') {
+            showNetworkVoiceNotification();
+          }
+        };
+
+        recognizer.onend = () => {
+          stopListening();
+        };
+
+        recognizer.start();
+
+      } catch (err) {
+        console.warn('Error launching speech recognition:', err);
+        stopListening();
+        if (err.name === 'NotAllowedError') {
+          showMicPermissionCard();
+        }
+      }
+    }
+
+    function stopListening() {
+      isListening = false;
+      if (recognizer) {
+        try { recognizer.stop(); } catch (e) {}
+        recognizer = null;
+      }
+      if (micBtn) {
+        micBtn.classList.remove('listening');
+        micBtn.textContent = '🎤';
+        micBtn.title = 'Voice Command (Click to Speak)';
+      }
+      if (listeningOverlay) {
+        listeningOverlay.style.display = 'none';
+      }
+    }
+
+    // Voice Action Buttons
+    if (micBtn) {
+      micBtn.addEventListener('click', () => {
+        if (isListening) {
+          stopListening();
+        } else {
+          startListening();
+        }
+      });
+    }
+
+    if (listeningCancel) {
+      listeningCancel.addEventListener('click', () => {
+        stopListening();
+      });
+    }
+
+    if (listeningSend) {
+      listeningSend.addEventListener('click', () => {
+        const query = (capturedTranscript || (inputField ? inputField.value : '')).trim();
+        stopListening();
+        if (query) {
+          handleVoiceCommandOrQuery(query);
+        }
+      });
+    }
+
+    function showMicPermissionCard() {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'bloodbot-msg bloodbot-msg-bot';
+      msgDiv.innerHTML = `
+        <div class="bloodbot-msg-avatar">🎙️</div>
+        <div class="bloodbot-msg-content" style="border-left: 3px solid #f59e0b;">
+          <div class="bloodbot-msg-badge" style="background: rgba(245, 158, 11, 0.18); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);">
+            ⚠️ Microphone Permission Required
+          </div>
+          <div class="bloodbot-msg-title">How to Enable Voice Commands:</div>
+          <div class="bloodbot-msg-body">
+            Your browser blocked microphone access. To talk with BloodBot AI:<br><br>
+            <strong>1.</strong> Look at your browser address bar (top left next to the URL).<br>
+            <strong>2.</strong> Click the <strong>Site Settings / Lock 🔒 / Camera 📹</strong> icon.<br>
+            <strong>3.</strong> Change <strong>Microphone</strong> from "Block" to <strong>"Allow"</strong>.<br>
+            <strong>4.</strong> Tap the button below to retry speaking!
+          </div>
+          <div class="bloodbot-action-buttons">
+            <button type="button" class="bloodbot-action-btn" id="retry-voice-mic-btn">🎙️ Retry Microphone</button>
+            <button type="button" class="bloodbot-action-btn" data-query="What is the contact number for KIMS Hospital?">🏥 KIMS Helpline</button>
+            <button type="button" class="bloodbot-action-btn" data-query="How much ml of blood is required on a donation?">🩸 Blood Volume (ml)</button>
+          </div>
+        </div>
+      `;
+      messagesArea.appendChild(msgDiv);
+      scrollToBottom();
+
+      const retryBtn = msgDiv.querySelector('#retry-voice-mic-btn');
+      if (retryBtn) {
+        retryBtn.addEventListener('click', () => startListening());
+      }
+    }
+
+    function showNoSpeechNotification() {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'bloodbot-msg bloodbot-msg-bot';
+      msgDiv.innerHTML = `
+        <div class="bloodbot-msg-avatar">👂</div>
+        <div class="bloodbot-msg-content">
+          <div class="bloodbot-msg-badge">Voice Input</div>
+          <div class="bloodbot-msg-title">No Voice Detected</div>
+          <div class="bloodbot-msg-body">
+            I didn't hear your voice. Please check your microphone connection, tap <strong>🎙️ Speak Again</strong>, and speak clearly.
+          </div>
+          <div class="bloodbot-action-buttons">
+            <button type="button" class="bloodbot-action-btn" id="retry-voice-speech-btn">🎙️ Speak Again</button>
+            <button type="button" class="bloodbot-action-btn" data-query="How much ml of blood is required on a donation?">🩸 Ask ml required</button>
+            <button type="button" class="bloodbot-action-btn" data-query="What is the helpline for KIMS Hospital?">🏥 Ask KIMS Hospital</button>
+          </div>
+        </div>
+      `;
+      messagesArea.appendChild(msgDiv);
+      scrollToBottom();
+
+      const retryBtn = msgDiv.querySelector('#retry-voice-speech-btn');
+      if (retryBtn) {
+        retryBtn.addEventListener('click', () => startListening());
+      }
+    }
+
+    function showNetworkVoiceNotification() {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'bloodbot-msg bloodbot-msg-bot';
+      msgDiv.innerHTML = `
+        <div class="bloodbot-msg-avatar">🌐</div>
+        <div class="bloodbot-msg-content">
+          <div class="bloodbot-msg-badge">Network Notice</div>
+          <div class="bloodbot-msg-title">Voice Recognition Service Busy</div>
+          <div class="bloodbot-msg-body">
+            The browser speech recognition service timed out or had a temporary network connection issue. You can try speaking again or type your question below.
+          </div>
+          <div class="bloodbot-action-buttons">
+            <button type="button" class="bloodbot-action-btn" id="retry-voice-net-btn">🎙️ Try Again</button>
+          </div>
+        </div>
+      `;
+      messagesArea.appendChild(msgDiv);
+      scrollToBottom();
+
+      const retryBtn = msgDiv.querySelector('#retry-voice-net-btn');
+      if (retryBtn) {
+        retryBtn.addEventListener('click', () => startListening());
+      }
+    }
+
+    function showVoiceUnsupportedCard() {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'bloodbot-msg bloodbot-msg-bot';
+      msgDiv.innerHTML = `
+        <div class="bloodbot-msg-avatar">ℹ️</div>
+        <div class="bloodbot-msg-content">
+          <div class="bloodbot-msg-badge">Browser Compatibility</div>
+          <div class="bloodbot-msg-title">Speech-to-Text Notice</div>
+          <div class="bloodbot-msg-body">
+            Voice speech recognition is natively supported in <strong>Google Chrome</strong>, <strong>Microsoft Edge</strong>, and <strong>Safari</strong>.<br><br>
+            You can type your questions in the box below or click any of the 1-tap FAQ chips above!
+          </div>
+        </div>
+      `;
+      messagesArea.appendChild(msgDiv);
+      scrollToBottom();
+    }
+
+    // Voice Command Dispatcher & Intent Analyzer
+    function handleVoiceCommandOrQuery(rawQuery) {
+      const query = rawQuery.trim();
+      if (!query) return;
+
+      const lower = query.toLowerCase();
+
+      // Intent 1: Volume Calculator
+      if (lower.includes('volume') || lower.includes('calculator') || lower.includes('how much ml') || lower.includes('calculate blood') || lower.includes('calculate ml')) {
+        handleUserQuery(query, true);
+        setTimeout(() => executeTool('volume_calculator'), 300);
+        return;
+      }
+
+      // Intent 2: Eligibility Screener
+      if (lower.includes('eligib') || lower.includes('screener') || lower.includes('can i donate') || lower.includes('fit to donate') || lower.includes('am i eligible')) {
+        handleUserQuery(query, true);
+        setTimeout(() => executeTool('eligibility_wizard'), 300);
+        return;
+      }
+
+      // Intent 3: Blood Compatibility Matrix
+      if (lower.includes('compatib') || lower.includes('matrix') || lower.includes('who can donate') || lower.includes('universal donor') || lower.includes('universal recipient')) {
+        handleUserQuery(query, true);
+        setTimeout(() => executeTool('compat_matrix:all'), 300);
+        return;
+      }
+
+      // Intent 4: Hospital Emergency Desks
+      if (lower.includes('hospital') || lower.includes('dispatch') || lower.includes('emergency gate') || lower.includes('helpline')) {
+        handleUserQuery(query, true);
+        setTimeout(() => executeTool('hospital_dispatch'), 300);
+        return;
+      }
+
+      // Intent 5: Direct KIMS Hospital Inquiry
+      if (lower.includes('kims')) {
+        handleUserQuery('What is the contact number and helpline for KIMS Hospital Begumpet?', true);
+        return;
+      }
+
+      // Intent 6: Direct Apollo Hospital Inquiry
+      if (lower.includes('apollo')) {
+        handleUserQuery('What is the emergency helpline and gate for Apollo Hospital Jubilee Hills?', true);
+        return;
+      }
+
+      // Intent 7: Stop Audio / Mute Command
+      if (lower.includes('stop speaking') || lower.includes('mute') || lower.includes('stop audio') || lower.includes('stop talking') || lower.includes('be quiet') || lower.includes('shut up')) {
+        stopSpeaking();
+        appendBotResponse({
+          title: '🔇 Voice Audio Stopped',
+          badge: 'Voice Command',
+          answer: 'Speech narration has been muted. Voice read-aloud is paused.',
+          actions: [
+            { label: '🔊 Unmute Voice', query: 'Unmute voice' }
+          ]
+        }, false);
+        return;
+      }
+
+      // Intent 8: Clear Chat
+      if (lower.includes('clear') && (lower.includes('chat') || lower.includes('screen') || lower.includes('conversation') || lower.includes('reset'))) {
+        messagesArea.innerHTML = `
+          <div class="bloodbot-msg bloodbot-msg-bot">
+            <div class="bloodbot-msg-avatar">🤖</div>
+            <div class="bloodbot-msg-content">
+              <div class="bloodbot-msg-badge">Chat Reset via Voice</div>
+              <div class="bloodbot-msg-body">
+                Conversation cleared. How can I assist you with blood donation, ml required, or hospital information today?
+              </div>
+            </div>
+          </div>
+        `;
+        speakResponse('Chat reset. How can I assist you today?', true);
+        return;
+      }
+
+      // Standard query asked via voice -> automatic spoken narration!
+      handleUserQuery(query, true);
+    }
 
     // Handle Chip Clicks
     faqsList.addEventListener('click', (e) => {
@@ -1141,51 +1649,6 @@
         reactBtn.parentElement.innerHTML = '<span style="font-size: 11px; color: var(--accent-emerald);">Thanks for your feedback! ❤️</span>';
       }
     });
-
-    // Speech-to-Text Microphone Input
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognizer = new SpeechRecognition();
-      recognizer.continuous = false;
-      recognizer.interimResults = false;
-      recognizer.lang = 'en-IN';
-
-      let isListening = false;
-      micBtn.addEventListener('click', () => {
-        if (isListening) {
-          recognizer.stop();
-          return;
-        }
-        try {
-          recognizer.start();
-          isListening = true;
-          micBtn.classList.add('listening');
-          micBtn.textContent = '🔴';
-        } catch (err) {
-          console.warn('Speech recognition error:', err);
-        }
-      });
-
-      recognizer.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        inputField.value = transcript;
-        handleUserQuery(transcript);
-      };
-
-      recognizer.onend = () => {
-        isListening = false;
-        micBtn.classList.remove('listening');
-        micBtn.textContent = '🎤';
-      };
-
-      recognizer.onerror = () => {
-        isListening = false;
-        micBtn.classList.remove('listening');
-        micBtn.textContent = '🎤';
-      };
-    } else {
-      micBtn.style.display = 'none';
-    }
 
     // Form Submit
     form.addEventListener('submit', (e) => {
@@ -1251,23 +1714,24 @@
       }, 350);
     }
 
-    function handleUserQuery(userText) {
-      appendUserMessage(userText);
+    function handleUserQuery(userText, isVoiceTrigger = false) {
+      appendUserMessage(userText, isVoiceTrigger);
       if (window.soundFX) window.soundFX.playSuccessChime();
       const typingId = appendTypingIndicator();
 
       setTimeout(() => {
         removeTypingIndicator(typingId);
         const match = BloodBotBrain.matchQuery(userText);
-        appendBotResponse(match);
+        appendBotResponse(match, isVoiceTrigger);
       }, 400);
     }
 
-    function appendUserMessage(text) {
+    function appendUserMessage(text, isVoice = false) {
       const msgDiv = document.createElement('div');
       msgDiv.className = 'bloodbot-msg bloodbot-msg-user';
       msgDiv.innerHTML = `
         <div class="bloodbot-msg-content">
+          ${isVoice ? '<div class="bloodbot-msg-badge" style="background:rgba(255,255,255,0.2);color:#fff;border-color:rgba(255,255,255,0.3);margin-bottom:3px;">🎙️ Voice Query</div>' : ''}
           <div class="bloodbot-msg-body">${escapeHtml(text)}</div>
         </div>
         <div class="bloodbot-msg-avatar">👤</div>
@@ -1299,7 +1763,7 @@
       if (el) el.remove();
     }
 
-    function appendBotResponse(data) {
+    function appendBotResponse(data, isVoiceTrigger = false) {
       const msgDiv = document.createElement('div');
       msgDiv.className = 'bloodbot-msg bloodbot-msg-bot';
 
@@ -1336,13 +1800,28 @@
       messagesArea.appendChild(msgDiv);
       scrollToBottom();
 
-      // Read aloud if voice enabled
-      speakResponse(data.title + '. ' + data.answer);
+      // Read aloud if general voice output is enabled OR if query was initiated by voice command!
+      if (isSpeechEnabled || isVoiceTrigger) {
+        speakResponse(data.title + '. ' + data.answer, true);
+      }
     }
 
     function scrollToBottom() {
       messagesArea.scrollTop = messagesArea.scrollHeight;
     }
+
+    window.startBloodBotVoice = () => {
+      toggleChat(true);
+      setTimeout(() => startListening(), 250);
+    };
+
+    window.stopBloodBotVoice = () => {
+      stopListening();
+    };
+
+    window.stopBloodBotSpeech = () => {
+      stopSpeaking();
+    };
 
     window.askBloodBot = (presetQuery) => {
       toggleChat(true);
