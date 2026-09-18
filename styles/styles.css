@@ -1521,6 +1521,43 @@ input[type="range"] {
   color: #fff;
 }
 
+/* Language Selector Dropdown */
+.bloodbot-lang-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.bloodbot-lang-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  color: #fff;
+  border-radius: var(--radius-full);
+  padding: 4px 22px 4px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%2306b6d4' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 6px center;
+  background-size: 8px 5px;
+}
+
+.bloodbot-lang-select:hover {
+  background-color: rgba(6, 182, 212, 0.25);
+  border-color: var(--secondary-glow);
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.4);
+}
+
+.bloodbot-lang-select option {
+  background: #0f172a;
+  color: #fff;
+}
+
 /* Categorized FAQ Tabs & Chips Area */
 .bloodbot-faqs-container {
   padding: 8px 12px 10px;

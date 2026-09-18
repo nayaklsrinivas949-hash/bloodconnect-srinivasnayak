@@ -1,21 +1,83 @@
 /**
- * BloodConnect — BloodBot AI Medical & Donation Assistant 2.0
- * Advanced Interactive Natural Language Processing, Medical Knowledge Engine,
+ * BloodConnect — BloodBot AI Medical & Donation Assistant 2.0 (Multilingual)
+ * Advanced Interactive Natural Language Processing, Multilingual Medical Knowledge Engine,
  * Embedded Calculators, Visual Eligibility Wizard, Compatibility Matrix,
- * Proactive Teaser Pill, and Hospital Emergency Dispatch.
+ * Proactive Teaser Pill, Hospital Emergency Dispatch, and Multi-Language Voice Assistant.
+ * 
+ * Supported Languages: English (EN), తెలుగు (Telugu), हिंदी (Hindi), தமிழ் (Tamil), ಕನ್ನಡ (Kannada), Español (Spanish)
  */
 
 (function () {
   'use strict';
 
-  // 1. Comprehensive Medical Knowledge Base
+  // 1. Language Definitions & Configuration
+  const LANGUAGES = {
+    en: { name: 'English', flag: '🌐', label: 'English', code: 'en-US' },
+    te: { name: 'Telugu', flag: '🇮🇳', label: 'తెలుగు (Telugu)', code: 'te-IN' },
+    hi: { name: 'Hindi', flag: '🇮🇳', label: 'हिंदी (Hindi)', code: 'hi-IN' },
+    ta: { name: 'Tamil', flag: '🇮🇳', label: 'தமிழ் (Tamil)', code: 'ta-IN' },
+    kn: { name: 'Kannada', flag: '🇮🇳', label: 'ಕನ್ನಡ (Kannada)', code: 'kn-IN' },
+    es: { name: 'Spanish', flag: '🇪🇸', label: 'Español (Spanish)', code: 'es-ES' }
+  };
+
+  let currentLanguage = 'en';
+
+  function detectLanguage(text) {
+    if (!text) return currentLanguage || 'en';
+    // Telugu script \u0C00-\u0C7F
+    if (/[\u0C00-\u0C7F]/.test(text)) return 'te';
+    // Devanagari (Hindi) \u0900-\u097F
+    if (/[\u0900-\u097F]/.test(text)) return 'hi';
+    // Tamil \u0B80-\u0BFF
+    if (/[\u0B80-\u0BFF]/.test(text)) return 'ta';
+    // Kannada \u0C80-\u0CFF
+    if (/[\u0C80-\u0CFF]/.test(text)) return 'kn';
+
+    const lower = text.toLowerCase();
+
+    // Spanish keywords
+    if (/[áéíóúñ¿¡]/.test(lower) || /\b(hola|donar|sangre|cuanto|cuantos|hospitales|requisitos|compatibilidad|gracias|por favor)\b/i.test(lower)) {
+      return 'es';
+    }
+
+    // Tenglish (Telugu in Latin characters)
+    if (/\b(entha|raktam|raktha|evaru|cheyochu|cheyavachu|cheppandi|ivvochu|kavali|undi|telugulo|ivvali|enni|haaspital)\b/i.test(lower)) {
+      return 'te';
+    }
+
+    // Hinglish (Hindi in Latin characters)
+    if (/\b(kitna|kya|kaise|kaun|khoon|chahiye|sakta|sakte|hoga|batao|bataiye|hindime|karo|aspatal|madat)\b/i.test(lower)) {
+      return 'hi';
+    }
+
+    // Explicit English phrasing patterns
+    if (/\b(what is|where is|how much|how many|can i|who can|tell me|explain|give to|receive from|eligib|helpline|contact number)\b/i.test(lower)) {
+      return 'en';
+    }
+
+    return currentLanguage || 'en';
+  }
+
+  // 2. Comprehensive Multilingual Medical Knowledge Base
   const KNOWLEDGE_BASE = {
     // A. Blood Donation Volume (ml)
     volume: {
-      keywords: ['volume', 'ml', 'how much ml', 'quantity', 'amount of blood', 'how many ml', 'how much blood', 'packet size', 'unit size', 'how many units', 'calculator', 'calculate volume'],
+      keywords: [
+        'volume', 'ml', 'how much ml', 'quantity', 'amount of blood', 'how many ml', 'how much blood', 'packet size', 'unit size', 'how many units', 'calculator', 'calculate volume',
+        // Telugu
+        'ఎన్ని ml', 'ఎంత రక్తం', 'రక్త పరిమాణం', 'రక్తదానంలో ఎంత', 'రక్తం ml', 'entha ml', 'raktam', 'raktha ml', 'రక్తం ఎంత తీసుకుంటారు',
+        // Hindi
+        'कितने ml', 'कितना ml', 'खून की मात्रा', 'रक्त की मात्रा', 'रक्तदान में कितना', 'kitna ml', 'khoon ml', 'kitna khoon', 'रक्तदान में कितने ml',
+        // Tamil
+        'எத்தனை ml', 'எவ்வளவு ml', 'இரத்த அளவு', 'ethanai ml',
+        // Kannada
+        'ಎಷ್ಟು ml', 'ರಕ್ತದ ಪ್ರಮಾಣ', 'eshtu ml', 'ರಕ್ತದಾನ ಎಷ್ಟು ml',
+        // Spanish
+        'cuantos ml', 'volumen de sangre', 'cuanta sangre', 'mililitros', 'volumen'
+      ],
+      isTool: 'volume_calculator',
       title: '🩸 Standard Blood Donation Volume (ml)',
       badge: '350 ml – 450 ml Standard',
-      isTool: 'volume_calculator',
       answer: `
         <strong>Standard Whole Blood Donation Volumes:</strong><br>
         • <strong>350 ml</strong>: Collected from donors weighing <strong>45 kg to 55 kg</strong>.<br>
@@ -30,16 +92,105 @@
         { label: '🧮 Open Volume Calculator', tool: 'volume_calculator' },
         { label: '🩺 Check Eligibility', tool: 'eligibility_wizard' },
         { label: '⏱️ Donation Gap', query: 'What is the time gap between blood donations?' }
-      ]
+      ],
+      translations: {
+        te: {
+          title: '🩸 రక్తదానంలో ప్రామాణిక రక్త పరిమాణం (ml)',
+          badge: '350 ml – 450 ml ప్రామాణికం',
+          answer: `
+            <strong>రక్తదాన పరిమాణ వివరాలు:</strong><br>
+            • <strong>350 ml</strong>: <strong>45 kg నుండి 55 kg</strong> శరీర బరువు ఉన్న దాతల నుండి సేకరిస్తారు.<br>
+            • <strong>450 ml</strong>: <strong>55 kg లేదా అంతకంటే ఎక్కువ</strong> బరువు ఉన్న దాతల నుండి సేకరిస్తారు.<br>
+            • HIV, హెపటైటిస్ వంటి పరీక్షల కోసం అదనంగా <strong>~30 ml</strong> నమూనా రక్తం సేకరిస్తారు.<br><br>
+            <strong>రక్షణ & పునరుద్ధరణ:</strong><br>
+            ఒక పెద్దవారి శరీరంలో సుమారు 4,500 నుండి 5,500 ml రక్తం ఉంటుంది. రక్తదానంలో కేవలం <strong>8% నుండి 10%</strong> మాత్రమే తీసుకుంటారు.<br>
+            • <strong>ప్లాస్మా ద్రవం:</strong> పుష్కలంగా నీరు, ద్రవాలు తాగితే <strong>24 నుండి 48 గంటల్లో</strong> భర్తీ అవుతుంది.<br>
+            • <strong>ఎర్ర రక్త కణాలు (హిమోగ్లోబిన్):</strong> <strong>4 నుండి 8 వారాల్లో</strong> పూర్తిగా పునరుద్ధరించబడతాయి.
+          `,
+          actions: [
+            { label: '🧮 వాల్యూమ్ కాలిక్యులేటర్ ఓపెన్ చేయండి', tool: 'volume_calculator' },
+            { label: '🩺 అర్హత చెక్ చేసుకోండి', tool: 'eligibility_wizard' },
+            { label: '⏱️ రక్తదాన సమయ గ్యాప్', query: 'రక్తదానానికి ఎంత సమయం గ్యాప్ ఉండాలి?' }
+          ]
+        },
+        hi: {
+          title: '🩸 रक्तदान में मानक रक्त की मात्रा (ml)',
+          badge: '350 ml – 450 ml मानक',
+          answer: `
+            <strong>रक्तदान की मानक मात्रा:</strong><br>
+            • <strong>350 ml</strong>: <strong>45 kg से 55 kg</strong> वजन वाले रक्तदाताओं से लिया जाता है।<br>
+            • <strong>450 ml</strong>: <strong>55 kg या उससे अधिक</strong> वजन वाले रक्तदाताओं से लिया जाता है।<br>
+            • सुरक्षा जांच (HIV, हेपेटाइटिस, मलेरिया आदि) के लिए अतिरिक्त <strong>~30 ml</strong> का नमूना लिया जाता है।<br><br>
+            <strong>सुरक्षा और रिकवरी:</strong><br>
+            एक सामान्य वयस्क के शरीर में 4,500 से 5,500 ml रक्त होता है। दान में सिर्फ <strong>8% से 10%</strong> रक्त ही जाता है।<br>
+            • <strong>प्लाज्मा द्रव:</strong> पानी और तरल पदार्थों के सेवन से <strong>24 से 48 घंटों</strong> में वापस बन जाता है।<br>
+            • <strong>लाल रक्त कोशिकाएं (RBC):</strong> <strong>4 से 8 हफ्तों</strong> में पूरी तरह से फिर से बन जाती हैं।
+          `,
+          actions: [
+            { label: '🧮 वॉल्यूम कैलकुलेटर खोलें', tool: 'volume_calculator' },
+            { label: '🩺 पात्रता की जांच करें', tool: 'eligibility_wizard' },
+            { label: '⏱️ रक्तदान का समय अंतराल', query: 'रक्तदान के बीच कितना समय अंतराल होना चाहिए?' }
+          ]
+        },
+        ta: {
+          title: '🩸 இரத்த தான அளவு (ml)',
+          badge: '350 ml – 450 ml',
+          answer: `
+            <strong>இரத்த தானத்தின் நிலையான அளவு:</strong><br>
+            • <strong>350 ml</strong>: 45 முதல் 55 கிலோ எடை உள்ளவர்களிடம் இருந்து எடுக்கப்படுகிறது.<br>
+            • <strong>450 ml</strong>: 55 கிலோவுக்கு மேல் எடை உள்ளவர்களிடம் எடுக்கப்படுகிறது.<br>
+            • பாதுகாப்பு சோதனைகளுக்காக ~30 ml தனியாக எடுக்கப்படுகிறது.<br><br>
+            உடலின் பிளாஸ்மா திரவம் <strong>24 முதல் 48 மணி நேரத்தில்</strong> மீண்டும் உற்பத்தியாகிறது.
+          `,
+          actions: [
+            { label: '🧮 இரத்த அளவு கணக்கீடு', tool: 'volume_calculator' },
+            { label: '🩺 தகுதி சரிபார்ப்பு', tool: 'eligibility_wizard' }
+          ]
+        },
+        kn: {
+          title: '🩸 ರಕ್ತದಾನದ ಪ್ರಮಾಣ (ml)',
+          badge: '350 ml – 450 ml',
+          answer: `
+            <strong>ರಕ್ತದಾನದ ಪ್ರಮಾಣ ವಿವರ:</strong><br>
+            • <strong>350 ml</strong>: 45 ರಿಂದ 55 ಕೆಜಿ ತೂಕವಿರುವ ದಾನಿಗಳಿಂದ ಸಂಗ್ರಹಿಸಲಾಗುತ್ತದೆ.<br>
+            • <strong>450 ml</strong>: 55 ಕೆಜಿ ಅಥವಾ ಹೆಚ್ಚಿನ ತೂಕವಿರುವವರಿಂದ ಸಂಗ್ರಹಿಸಲಾಗುತ್ತದೆ.<br>
+            ದೇಹದ ಪ್ಲಾಸ್ಮಾ ದ್ರವವು <strong>24 ರಿಂದ 48 ಗಂಟೆಗಳಲ್ಲಿ</strong> ಪುನಃ ತುಂಬಿಕೊಳ್ಳುತ್ತದೆ.
+          `,
+          actions: [
+            { label: '🧮 ಪ್ರಮಾಣ ಕ್ಯಾಲ್ಕುಲೇಟರ್', tool: 'volume_calculator' },
+            { label: '🩺 ಅರ್ಹತೆ ಪರಿಶೀಲನೆ', tool: 'eligibility_wizard' }
+          ]
+        },
+        es: {
+          title: '🩸 Volumen estándar de donación de sangre (ml)',
+          badge: '350 ml – 450 ml Estándar',
+          answer: `
+            <strong>Volúmenes estándar de donación:</strong><br>
+            • <strong>350 ml</strong>: Donantes con peso entre <strong>45 kg y 55 kg</strong>.<br>
+            • <strong>450 ml</strong>: Donantes con peso de <strong>55 kg o más</strong>.<br>
+            • Se extraen ~30 ml adicionales para pruebas de laboratorio de seguridad.<br><br>
+            <strong>Recuperación:</strong> El plasma se repone en 24 a 48 horas y los glóbulos rojos en 4 a 8 semanas.
+          `,
+          actions: [
+            { label: '🧮 Abrir Calculadora de Volumen', tool: 'volume_calculator' },
+            { label: '🩺 Chequear Elegibilidad', tool: 'eligibility_wizard' }
+          ]
+        }
+      }
     },
 
     // B. Donation Intervals & Frequency Gap
     intervals: {
-      keywords: ['gap', 'interval', 'how often', 'frequency', 'time period', 'how many months', 'gap between', 'when can i donate again', 'next donation', 'cooldown'],
+      keywords: [
+        'gap', 'interval', 'how often', 'frequency', 'time period', 'how many months', 'gap between', 'when can i donate again', 'next donation', 'cooldown',
+        'గ్యాప్', 'సమయం గ్యాప్', 'ఎన్ని నెలలు', 'మళ్ళీ ఎప్పుడు', 'వ్యవధి', 'gap entha', 'enni nelalu',
+        'अंतराल', 'समय अंतराल', 'कितने महीने बाद', 'कितने दिन बाद', 'दोबारा कब', 'gap kitna', 'kitne mahine',
+        'இடைவெளி', 'எத்தனை மாதம்', 'அಂತರ', 'ಎಷ್ಟು ತಿಂಗಳ', 'intervalo', 'frecuencia', 'cuanto tiempo'
+      ],
       title: '⏱️ Recommended Time Gap Between Donations',
       badge: 'Men: 3 Months • Women: 4 Months',
       answer: `
-        <strong>Mandatory Donation Intervals (India National Blood Transfusion Council):</strong><br>
+        <strong>Mandatory Donation Intervals:</strong><br>
         • <strong>👨 Male Donors:</strong> Every <strong>90 Days (3 Months)</strong> for Whole Blood.<br>
         • <strong>👩 Female Donors:</strong> Every <strong>120 Days (4 Months)</strong> for Whole Blood (to safeguard iron stores).<br>
         • <strong>🧬 Platelet Donors (Apheresis):</strong> Every <strong>14 Days (2 Weeks)</strong>, up to 24 times/year.<br>
@@ -50,12 +201,66 @@
         { label: '🩸 Volume in ml', query: 'How much ml of blood is required in a donation?' },
         { label: '🩺 10s Eligibility Check', tool: 'eligibility_wizard' },
         { label: '🧬 Open Donor Hub', href: './donor.html' }
-      ]
+      ],
+      translations: {
+        te: {
+          title: '⏱️ రక్తదానాల మధ్య సిఫార్సు చేసిన సమయ వ్యవధి (గ్యాప్)',
+          badge: 'పురుషులు: 3 నెలలు • మహిళలు: 4 నెలలు',
+          answer: `
+            <strong>రక్తదాన విరామ నిబంధనలు:</strong><br>
+            • <strong>👨 పురుష దాతలు:</strong> ప్రతి <strong>90 రోజులకు (3 నెలలకు)</strong> ఒకసారి హోల్ బ్లడ్ దానం చేయవచ్చు.<br>
+            • <strong>👩 మహిళా దాతలు:</strong> ఐరన్ నిల్వల రక్షణ కోసం ప్రతి <strong>120 రోజులకు (4 నెలలకు)</strong> ఒకసారి దానం చేయవచ్చు.<br>
+            • <strong>🧬 ప్లేట్‌లెట్ దాతలు (అఫెరిసిస్):</strong> ప్రతి <strong>14 రోజులకు (2 వారాలకు)</strong> ఒకసారి దానం చేయవచ్చు.<br><br>
+            <strong>ఈ విరామం ఎందుకు?</strong> ఎముక మజ్జలో ఐరన్ (ఫెర్రిటిన్) నిల్వలు మరియు హిమోగ్లోబిన్ పూర్తిగా భర్తీ కావడానికి ఈ సమయం అవసరం.
+          `,
+          actions: [
+            { label: '🩸 రక్త పరిమాణం (ml)', query: 'రక్తదానంలో ఎన్ని ml రక్తం తీసుకుంటారు?' },
+            { label: '🩺 10s అర్హత పరీక్ష', tool: 'eligibility_wizard' },
+            { label: '🧬 డోనర్ హబ్ చూడండి', href: './donor.html' }
+          ]
+        },
+        hi: {
+          title: '⏱️ रक्तदान के बीच अनुशंसित समय अंतराल',
+          badge: 'पुरुष: 3 महीने • महिलाएं: 4 महीने',
+          answer: `
+            <strong>रक्तदान का अनिवार्य अंतराल:</strong><br>
+            • <strong>👨 पुरुष रक्तदाता:</strong> हर <strong>90 दिन (3 महीने)</strong> में एक बार संपूर्ण रक्त दान कर सकते हैं।<br>
+            • <strong>👩 महिला रक्तदाता:</strong> आयरन सुरक्षित रखने के लिए हर <strong>120 दिन (4 महीने)</strong> में एक बार दान कर सकती हैं।<br>
+            • <strong>🧬 प्लेटलेट दाता:</strong> हर <strong>14 दिन (2 सप्ताह)</strong> में दान कर सकते हैं।<br><br>
+            <strong>यह अंतराल क्यों जरूरी है?</strong> ताकि आपके शरीर में हीमोग्लोबिन और आयरन की मात्रा पूरी तरह से फिर से सामान्य हो सके।
+          `,
+          actions: [
+            { label: '🩸 रक्त की मात्रा (ml)', query: 'रक्तदान में कितने ml खून लिया जाता है?' },
+            { label: '🩺 10s पात्रता जांच', tool: 'eligibility_wizard' },
+            { label: '🧬 डोनर हब खोलें', href: './donor.html' }
+          ]
+        },
+        ta: {
+          title: '⏱️ இரத்த தான இடைவெளி',
+          badge: 'ஆண்கள்: 3 மாதம் • பெண்கள்: 4 மாதம்',
+          answer: `ஆண்கள் 3 மாதத்திற்கு ஒருமுறையும், பெண்கள் 4 மாதத்திற்கு ஒருமுறையும் முழு இரத்த தானம் செய்யலாம்.`
+        },
+        kn: {
+          title: '⏱️ ರಕ್ತದಾನದ ಸಮಯದ ಅಂತರ',
+          badge: 'ಪುರುಷರು: 3 ತಿಂಗಳು • ಮಹಿಳೆಯರು: 4 ತಿಂಗಳು',
+          answer: `ಪುರುಷರು 3 ತಿಂಗಳಿಗೊಮ್ಮೆ ಮತ್ತು ಮಹಿಳೆಯರು 4 ತಿಂಗಳಿಗೊಮ್ಮೆ ರಕ್ತದಾನ ಮಾಡಬಹುದು.`
+        },
+        es: {
+          title: '⏱️ Intervalo recomendado entre donaciones',
+          badge: 'Hombres: 3 meses • Mujeres: 4 meses',
+          answer: `Los hombres pueden donar cada 3 meses y las mujeres cada 4 meses para reponer sus reservas de hierro.`
+        }
+      }
     },
 
-    // C. KIMS Hospitals Secunderabad
+    // C. KIMS Hospitals Secunderabad (Begumpet)
     kims_hospital: {
-      keywords: ['kims', 'kims hospital', 'kims secunderabad', 'kims number', 'kims helpline', 'kims contact', 'kims phone', 'begumpet hospital'],
+      keywords: [
+        'kims', 'kims hospital', 'kims secunderabad', 'kims number', 'kims helpline', 'kims contact', 'kims phone', 'begumpet hospital', '9701516959',
+        'కిమ్స్', 'కిమ్స్ హాస్పిటల్', 'కిమ్స్ నంబర్', 'కిమ్స్ ఫోన్', 'సికింద్రాబాద్ కిమ్స్', 'kims phone cheppandi',
+        'किम्स', 'किम्स अस्पताल', 'किम्स का नंबर', 'किम्स फोन नंबर', 'kims ka number', 'kims hospital number',
+        'கிம்ஸ்', 'கிம்ஸ் மருத்துவமனை', 'ಕಿಮ್ಸ್', 'ಕಿಮ್ಸ್ ಆಸ್ಪತ್ರೆ', 'hospital kims', 'telefono kims'
+      ],
       title: '🏥 KIMS Hospitals Secunderabad (Begumpet)',
       badge: '📞 +91 97015 16959 (Active)',
       answer: `
@@ -70,12 +275,69 @@
         { label: '📞 Call KIMS (+91 97015 16959)', href: 'tel:+919701516959' },
         { label: '💬 WhatsApp Desk', href: 'https://wa.me/919701516959?text=Hello%20KIMS%20Blood%20Bank%20Reception%2C%20I%20am%20inquiring%20about%20blood%20donation%20availability.' },
         { label: '🧭 GPS Route', href: 'https://www.google.com/maps/dir/?api=1&destination=17.4375,78.4878' }
-      ]
+      ],
+      translations: {
+        te: {
+          title: '🏥 KIMS ఆసుపత్రి సికింద్రాబాద్ (బేగంపేట)',
+          badge: '📞 +91 97015 16959 (యాక్టివ్ హెల్ప్‌లైన్)',
+          answer: `
+            <strong>KIMS హాస్పిటల్ బేగంపేట వివరాలు:</strong><br>
+            • 📞 <strong>ఎమర్జెన్సీ హెల్ప్‌లైన్ & బ్లడ్ బ్యాంక్:</strong> <a href="tel:+919701516959" style="color: var(--accent-emerald); font-weight: 700;">+91 97015 16959</a><br>
+            • 📍 <strong>చిరునామా:</strong> 1-8-31/1, మినిస్టర్ రోడ్, కృష్ణా నగర్ కాలనీ, బేగంపేట్, సికింద్రాబాద్ - 500003<br>
+            • 🚪 <strong>ఎంట్రన్స్ గేట్:</strong> <strong>గేట్ A (మెయిన్ క్యాజువాలిటీ వింగ్, మొదటి అంతస్తు బ్లడ్ బ్యాంక్)</strong><br>
+            • 🩺 <strong>బ్లడ్ బ్యాంక్ ఇన్-ఛార్జ్:</strong> డా. రాధికా రెడ్డి (ఎమర్జెన్సీ & సర్జరీ విభాగం)
+          `,
+          actions: [
+            { label: '📞 KIMS కి కాల్ చేయండి (+91 97015 16959)', href: 'tel:+919701516959' },
+            { label: '💬 వాట్సాప్ డెస్క్', href: 'https://wa.me/919701516959?text=Hello%20KIMS%20Blood%20Bank' },
+            { label: '🧭 గూగుల్ మ్యాప్స్ రూట్', href: 'https://www.google.com/maps/dir/?api=1&destination=17.4375,78.4878' }
+          ]
+        },
+        hi: {
+          title: '🏥 KIMS अस्पताल सिकंदराबाद (बेगमपेट)',
+          badge: '📞 +91 97015 16959 (सक्रिय हेल्पलाइन)',
+          answer: `
+            <strong>KIMS अस्पताल सिकंदराबाद विवरण:</strong><br>
+            • 📞 <strong>आपातकालीन हेल्पलाइन एवं ब्लड बैंक:</strong> <a href="tel:+919701516959" style="color: var(--accent-emerald); font-weight: 700;">+91 97015 16959</a><br>
+            • 📍 <strong>पता:</strong> 1-8-31/1, मिनिस्टर रोड, कृष्णा नगर कॉलोनी, बेगमपेट, सिकंदराबाद - 500003<br>
+            • 🚪 <strong>प्रवेश द्वार:</strong> <strong>गेट A (मुख्य कैजुअल्टी विंग, पहली मंजिल ब्लड बैंक)</strong><br>
+            • 🩺 <strong>ब्लड बैंक प्रमुख:</strong> डॉ. राधिका रेड्डी
+          `,
+          actions: [
+            { label: '📞 KIMS को कॉल करें (+91 97015 16959)', href: 'tel:+919701516959' },
+            { label: '💬 व्हाट्सएप संपर्क', href: 'https://wa.me/919701516959?text=Hello%20KIMS%20Blood%20Bank' },
+            { label: '🧭 गूगल मैप्स रास्ता', href: 'https://www.google.com/maps/dir/?api=1&destination=17.4375,78.4878' }
+          ]
+        },
+        ta: {
+          title: '🏥 KIMS மருத்துவமனை செகந்திராபாத் (பேகம்பேட்டை)',
+          badge: '📞 +91 97015 16959',
+          answer: `KIMS மருத்துவமனை இரத்த வங்கி மற்றும் அவசர உதவி எண்: <strong>+91 97015 16959</strong> (கேட் A, முதல் தளம்).`,
+          actions: [{ label: '📞 KIMS அழையுங்கள் (+91 97015 16959)', href: 'tel:+919701516959' }]
+        },
+        kn: {
+          title: '🏥 KIMS ಆಸ್ಪತ್ರೆ ಸಿಕಂದರಾಬಾದ್ (ಬೇಗಂಪೇಟ್)',
+          badge: '📞 +91 97015 16959',
+          answer: `KIMS ಆಸ್ಪತ್ರೆಯ ರಕ್ತನಿಧಿ ಮತ್ತು ತುರ್ತು ಸಹಾಯವಾಣಿ ಸಂಖ್ಯೆ: <strong>+91 97015 16959</strong> (ಗೇಟ್ A, ಮೊದಲ ಮಹಡಿ).`,
+          actions: [{ label: '📞 KIMS ಕರೆ ಮಾಡಿ (+91 97015 16959)', href: 'tel:+919701516959' }]
+        },
+        es: {
+          title: '🏥 KIMS Hospitals Secunderabad (Begumpet)',
+          badge: '📞 +91 97015 16959 (Activo)',
+          answer: `Línea de emergencia y banco de sangre del Hospital KIMS: <strong>+91 97015 16959</strong> (Puerta A, 1er piso).`,
+          actions: [{ label: '📞 Llamar a KIMS (+91 97015 16959)', href: 'tel:+919701516959' }]
+        }
+      }
     },
 
     // D. Apollo Hospitals Jubilee Hills
     apollo_hospital: {
-      keywords: ['apollo', 'apollo hospital', 'apollo jubilee hills', 'apollo number', 'apollo contact', 'apollo helpline', 'apollo phone'],
+      keywords: [
+        'apollo', 'apollo hospital', 'apollo jubilee hills', 'apollo number', 'apollo contact', 'apollo helpline', 'apollo phone', '8712125287',
+        'అపోలో', 'అపోలో హాస్పిటల్', 'అపోలో నంబర్', 'జూబ్లీహిల్స్ అపోలో',
+        'अपोलो', 'अपोलो अस्पताल', 'अपोलो का नंबर', 'जुबली हिल्स अपोलो',
+        'அப்பல்லோ', 'அப்பல்லோ மருத்துவமனை', 'ಅಪೊಲೊ', 'ಅಪೊಲೊ ಆಸ್ಪತ್ರೆ', 'hospital apollo'
+      ],
       title: '🏥 Apollo Hospitals Jubilee Hills',
       badge: '📞 +91 87121 27287 (Active)',
       answer: `
@@ -88,14 +350,359 @@
       `,
       actions: [
         { label: '📞 Call Apollo (+91 87121 27287)', href: 'tel:+918712127287' },
-        { label: '💬 WhatsApp Desk', href: 'https://wa.me/918712127287?text=Hello%20Apollo%20Hospitals%20Blood%20Bank%20Reception%2C%20I%20am%20ready%20to%20donate%20blood.' },
+        { label: '💬 WhatsApp Desk', href: 'https://wa.me/918712127287?text=Hello%20Apollo%20Hospitals%20Blood%20Bank' },
         { label: '🧭 GPS Route', href: 'https://www.google.com/maps/dir/?api=1&destination=17.4156,78.4116' }
-      ]
+      ],
+      translations: {
+        te: {
+          title: '🏥 అపోలో ఆసుపత్రి జూబ్లీహిల్స్',
+          badge: '📞 +91 87121 27287 (యాక్టివ్ హెల్ప్‌లైన్)',
+          answer: `
+            <strong>అపోలో హాస్పిటల్ జూబ్లీహిల్స్ వివరాలు:</strong><br>
+            • 📞 <strong>ఎమర్జెన్సీ హెల్ప్‌లైన్:</strong> <a href="tel:+918712127287" style="color: var(--accent-emerald); font-weight: 700;">+91 87121 27287</a><br>
+            • 📍 <strong>చిరునామా:</strong> రోడ్ నెం. 72, భారతీయ విద్యాభవన్ ఎదురుగా, జూబ్లీహిల్స్, హైదరాబాద్ - 500033<br>
+            • 🚪 <strong>ఎంట్రన్స్ గేట్:</strong> <strong>గేట్ 2 (ట్రామా సెంటర్ & బ్లడ్ బ్యాంక్, గ్రౌండ్ ఫ్లోర్)</strong>
+          `,
+          actions: [
+            { label: '📞 అపోలోకి కాల్ చేయండి (+91 87121 27287)', href: 'tel:+918712127287' },
+            { label: '🧭 గూగుల్ మ్యాప్స్ రూట్', href: 'https://www.google.com/maps/dir/?api=1&destination=17.4156,78.4116' }
+          ]
+        },
+        hi: {
+          title: '🏥 अपोलो अस्पताल जुबली हिल्स',
+          badge: '📞 +91 87121 27287 (सक्रिय हेल्पलाइन)',
+          answer: `
+            <strong>अपोलो अस्पताल जुबली हिल्स विवरण:</strong><br>
+            • 📞 <strong>आपातकालीन हेल्पलाइन:</strong> <a href="tel:+918712127287" style="color: var(--accent-emerald); font-weight: 700;">+91 87121 27287</a><br>
+            • 📍 <strong>पता:</strong> रोड नं. 72, भारतीय विद्या भवन के सामने, जुबली हिल्स, हैदराबाद - 500033<br>
+            • 🚪 <strong>प्रवेश द्वार:</strong> <strong>गेट 2 (ट्रॉमा सेंटर और ब्लड बैंक, भूतल)</strong>
+          `,
+          actions: [
+            { label: '📞 अपोलो को कॉल करें (+91 87121 27287)', href: 'tel:+918712127287' },
+            { label: '🧭 गूगल मैप्स रास्ता', href: 'https://www.google.com/maps/dir/?api=1&destination=17.4156,78.4116' }
+          ]
+        }
+      }
     },
 
-    // E. Other Network Hospitals (Yashoda, CARE, Continental)
+    // E. Blood Group Compatibility (O+, O-, AB+, etc.)
+    compat_all: {
+      keywords: [
+        'compatibility', 'blood group', 'universal donor', 'universal recipient', 'who can donate to', 'can receive from', 'blood match',
+        'రక్త వర్గాలు', 'అనుకూలత', 'సార్వత్రిక దాత', 'విశ్వ దాత', 'సార్వత్రిక గ్రహీత', 'రక్తం గ్రూప్',
+        'रक्त समूह', 'अनुकूलता', 'सर्वदाता', 'सर्वग्राही', 'कौन किसे रक्त दे सकता है', 'ब्लड ग्रुप',
+        'இரத்த வகை பொருத்தம்', 'பொதுக் கொடையாளர்', 'ರಕ್ತದ ಹೊಂದಾಣಿಕೆ', 'compatibilidad de sangre', 'donante universal'
+      ],
+      isTool: 'compat_matrix:all',
+      title: '🧬 Blood Group Compatibility Matrix',
+      badge: 'Universal Donor: O- • Universal Recipient: AB+',
+      answer: `
+        <strong>Universal Blood Compatibility Rules:</strong><br>
+        • <strong>🅾️ O Negative (O-):</strong> <strong>Universal Red Blood Cell Donor</strong> — can safely donate red cells to ANY patient (O+, O-, A+, A-, B+, B-, AB+, AB-).<br>
+        • <strong>👑 AB Positive (AB+):</strong> <strong>Universal Recipient</strong> — can safely receive red blood cells from ANY blood group.<br>
+        • <strong>👑 AB Negative (AB-):</strong> <strong>Universal Plasma Donor</strong> — can donate plasma to all groups.
+      `,
+      actions: [
+        { label: '🧬 Test Interactive Compatibility Matrix', tool: 'compat_matrix:all' },
+        { label: '👥 Who can donate to O+?', query: 'Who can donate to O+ blood?' },
+        { label: '🧮 Calculate Safe Volume', tool: 'volume_calculator' }
+      ],
+      translations: {
+        te: {
+          title: '🧬 రక్త వర్గాల అనుకూలత పట్టిక (బ్లడ్ గ్రూప్ మ్యాచ్)',
+          badge: 'సార్వత్రిక దాత: O- • సార్వత్రిక గ్రహీత: AB+',
+          answer: `
+            <strong>రక్త గ్రూపుల అనుకూలత నియమాలు:</strong><br>
+            • <strong>🅾️ O నెగటివ్ (O-):</strong> <strong>సార్వత్రిక రక్త దాత (Universal Red Cell Donor)</strong> — అన్ని గ్రూపుల వారికి (O+, O-, A+, A-, B+, B-, AB+, AB-) రక్తం ఇవ్వగలరు.<br>
+            • <strong>👑 AB పాజిటివ్ (AB+):</strong> <strong>సార్వత్రిక గ్రహీత (Universal Recipient)</strong> — అన్ని రక్త వర్గాల వారి నుండి రక్తాన్ని స్వీకరించగలరు.<br>
+            • <strong>🧪 AB నెగటివ్ (AB-):</strong> <strong>సార్వత్రిక ప్లాస్మా దాత</strong> — అన్ని గ్రూపులకు ప్లాస్మా ఇవ్వగలరు.
+          `,
+          actions: [
+            { label: '🧬 ఇంటరాక్టివ్ అనుకూలత మ్యాట్రిక్స్', tool: 'compat_matrix:all' },
+            { label: '👥 O+ కి ఎవరు రక్తం ఇవ్వవచ్చు?', query: 'O+ కి ఎవరు రక్తం ఇవ్వవచ్చు?' }
+          ]
+        },
+        hi: {
+          title: '🧬 रक्त समूह अनुकूलता चार्ट (Blood Group Compatibility)',
+          badge: 'सर्वदाता: O- • सर्वग्राही: AB+',
+          answer: `
+            <strong>रक्त अनुकूलता के सार्वभौमिक नियम:</strong><br>
+            • <strong>🅾️ O नेगेटिव (O-):</strong> <strong>सर्वदाता (Universal Donor)</strong> — यह रक्त समूह किसी भी मरीज (O+, O-, A+, A-, B+, B-, AB+, AB-) को सुरक्षित रूप से दिया जा सकता है।<br>
+            • <strong>👑 AB पॉजिटिव (AB+):</strong> <strong>सर्वग्राही (Universal Recipient)</strong> — यह रक्त समूह किसी भी ग्रुप से रक्त ग्रहण कर सकता है।<br>
+            • <strong>🧪 AB नेगेटिव (AB-):</strong> <strong>सर्वदाता प्लाज्मा</strong> दाता होता है।
+          `,
+          actions: [
+            { label: '🧬 इंटरैक्टिव अनुकूलता मैट्रिक्स खोलें', tool: 'compat_matrix:all' },
+            { label: '👥 O+ को कौन रक्त दे सकता है?', query: 'O+ ब्लड ग्रुप को कौन रक्तदान कर सकता है?' }
+          ]
+        }
+      }
+    },
+
+    // F. O+ Specific Query
+    compat_o_pos: {
+      keywords: ['o+', 'o positive', 'who can donate to o+', 'can donate to o+', 'o+ blood', 'o+ కి ఎవరు', 'o పాజిటివ్', 'o+ को कौन', 'o पॉजिटिव'],
+      title: '🩸 O Positive (O+) Compatibility Profile',
+      badge: 'Most Common Blood Group (~38% of Population)',
+      answer: `
+        <strong>O Positive (O+) Compatibility:</strong><br>
+        • 📥 <strong>Can RECEIVE red blood cells from:</strong> <strong>O+</strong> and <strong>O-</strong> only.<br>
+        • 📤 <strong>Can DONATE red blood cells to:</strong> <strong>O+</strong>, <strong>A+</strong>, <strong>B+</strong>, and <strong>AB+</strong> (any Rh-positive group).<br><br>
+        Because O+ is the most prevalent blood type, it is constantly in the highest emergency demand across hospitals!
+      `,
+      actions: [
+        { label: '🧬 Test Interactive Matrix', tool: 'compat_matrix:O+' },
+        { label: '🧮 Check Safe Volume (ml)', tool: 'volume_calculator' }
+      ],
+      translations: {
+        te: {
+          title: '🩸 O పాజిటివ్ (O+) రక్త వర్గం అనుకూలత',
+          badge: 'అత్యధికంగా ఉండే రక్త వర్గం (~38% జనాభా)',
+          answer: `
+            <strong>O పాజిటివ్ (O+) వివరాలు:</strong><br>
+            • 📥 <strong>రక్తం ఎవరి నుండి తీసుకోవచ్చు:</strong> కేవలం <strong>O+</strong> మరియు <strong>O-</strong> ల నుండి మాత్రమే.<br>
+            • 📤 <strong>ఎవరికి రక్తం ఇవ్వవచ్చు:</strong> <strong>O+, A+, B+, AB+</strong> (అన్ని పాజిటివ్ గ్రూపులకు).<br><br>
+            భారతదేశంలో అత్యధిక రోగులకు O+ రక్తం అవసరమవుతుంది కాబట్టి దీనికి ఎల్లప్పుడూ అత్యధిక డిమాండ్ ఉంటుంది.
+          `,
+          actions: [
+            { label: '🧬 O+ అనుకూలత మ్యాట్రిక్స్', tool: 'compat_matrix:O+' },
+            { label: '🧮 రక్త పరిమాణం లెక్కించండి', tool: 'volume_calculator' }
+          ]
+        },
+        hi: {
+          title: '🩸 O पॉजिटिव (O+) रक्त समूह अनुकूलता',
+          badge: 'सर्वाधिक प्रचलित रक्त समूह (~38% आबादी)',
+          answer: `
+            <strong>O पॉजिटिव (O+) अनुकूलता:</strong><br>
+            • 📥 <strong>किससे रक्त ले सकते हैं:</strong> केवल <strong>O+</strong> और <strong>O-</strong> से।<br>
+            • 📤 <strong>किसे रक्त दे सकते हैं:</strong> <strong>O+, A+, B+, और AB+</strong> (सभी पॉजिटिव ग्रुप्स को)।<br><br>
+            O+ सबसे अधिक पाया जाने वाला ब्लड ग्रुप है, इसलिए अस्पतालों में इसकी मांग हमेशा सबसे अधिक रहती है।
+          `,
+          actions: [
+            { label: '🧬 O+ अनुकूलता मैट्रिक्स', tool: 'compat_matrix:O+' },
+            { label: '🧮 सुरक्षित मात्रा कैलकुलेटर', tool: 'volume_calculator' }
+          ]
+        }
+      }
+    },
+
+    // G. Eligibility & Screener
+    eligibility: {
+      keywords: [
+        'eligible', 'eligibility', 'can i donate', 'qualify', 'criteria', 'rules', 'age limit', 'weight limit', 'hemoglobin', 'who can donate',
+        'అర్హత', 'అర్హతలు', 'నేను రక్తదానం చేయవచ్చా', 'వయోపరిమితి', 'కనీస బరువు', 'evaru donate cheyochu', 'నిబంధనలు',
+        'पात्रता', 'नियम', 'क्या मैं रक्तदान कर सकता हूँ', 'उम्र सीमा', 'वजन सीमा', 'kaun donate kar sakta hai', 'शर्तें'
+      ],
+      isTool: 'eligibility_wizard',
+      title: '🩺 Blood Donation Eligibility Criteria',
+      badge: 'Age: 18–65 Yrs • Min Weight: 45 kg',
+      answer: `
+        <strong>Key Medical Eligibility Rules:</strong><br>
+        • 🎂 <strong>Age:</strong> 18 to 65 years.<br>
+        • ⚖️ <strong>Body Weight:</strong> Minimum <strong>45 kg</strong> (for 350 ml) or <strong>55 kg</strong> (for 450 ml).<br>
+        • 🩸 <strong>Hemoglobin (Hb):</strong> Minimum <strong>12.5 g/dL</strong>.<br>
+        • 💓 <strong>Pulse & Blood Pressure:</strong> Pulse 60–100 bpm; BP 100–140 systolic / 60–90 diastolic.<br>
+        • 🌡️ <strong>Temperature:</strong> Normal body temperature (free from fever, cold, or infection for 7 days).
+      `,
+      actions: [
+        { label: '🩺 10s Eligibility Check', tool: 'eligibility_wizard' },
+        { label: '💊 Alcohol & Tattoo Rules', query: 'Can I donate if I got a tattoo or drank alcohol?' }
+      ],
+      translations: {
+        te: {
+          title: '🩺 రక్తదాన అర్హత నిబంధనలు (Eligibility)',
+          badge: 'వయస్సు: 18–65 సం. • కనీస బరువు: 45 kg',
+          answer: `
+            <strong>ముఖ్య వైద్య అర్హత నియమాలు:</strong><br>
+            • 🎂 <strong>వయస్సు:</strong> 18 నుండి 65 సంవత్సరాలు.<br>
+            • ⚖️ <strong>శరీర బరువు:</strong> కనీసం <strong>45 kg</strong> (350 ml కోసం) లేదా <strong>55 kg</strong> (450 ml కోసం).<br>
+            • 🩸 <strong>హిమోగ్లోబిన్ (Hb):</strong> కనీసం <strong>12.5 g/dL</strong> ఉండాలి.<br>
+            • 💓 <strong>రక్తపోటు (BP):</strong> సిస్టోలిక్ 100-140 / డయాస్టోలిక్ 60-90 మధ్య ఉండాలి.<br>
+            • 🌡️ జ్వరం, దగ్గు లేదా ఇన్ఫెక్షన్లు లేకుండా గత 7 రోజులుగా ఆరోగ్యంగా ఉండాలి.
+          `,
+          actions: [
+            { label: '🩺 10 సెకన్ల అర్హత చెక్', tool: 'eligibility_wizard' },
+            { label: '🎨 టాటూ మరియు ఆల్కహాల్ నిబంధనలు', query: 'టాటూ లేదా ఆల్కహాల్ తీసుకుంటే రక్తదానం చేయవచ్చా?' }
+          ]
+        },
+        hi: {
+          title: '🩺 रक्तदान के लिए पात्रता और नियम',
+          badge: 'उम्र: 18–65 वर्ष • न्यूनतम वजन: 45 kg',
+          answer: `
+            <strong>मुख्य चिकित्सीय पात्रता नियम:</strong><br>
+            • 🎂 <strong>उम्र:</strong> 18 से 65 वर्ष के बीच।<br>
+            • ⚖️ <strong>शारीरिक वजन:</strong> कम से कम <strong>45 kg</strong> (350 ml के लिए) या <strong>55 kg</strong> (450 ml के लिए)।<br>
+            • 🩸 <strong>हीमोग्लोबिन (Hb):</strong> न्यूनतम <strong>12.5 g/dL</strong> होना चाहिए।<br>
+            • 💓 <strong>रक्तचाप (BP):</strong> 100-140 / 60-90 सामान्य सीमा में होना चाहिए।<br>
+            • 🌡️ पिछले 7 दिनों से बुखार, सर्दी या किसी संक्रमण से मुक्त होना चाहिए।
+          `,
+          actions: [
+            { label: '🩺 10 सेकंड पात्रता जांच', tool: 'eligibility_wizard' },
+            { label: '🎨 टैटू और शराब नियम', query: 'क्या टैटू या शराब के बाद रक्तदान कर सकते हैं?' }
+          ]
+        }
+      }
+    },
+
+    // H. Tattoos, Piercings, Alcohol & Medicines
+    tattoos_alcohol: {
+      keywords: [
+        'tattoo', 'piercing', 'alcohol', 'smoking', 'medicine', 'antibiotics', 'beer', 'whiskey', 'drugs', 'drunk',
+        'టాటూ', 'పచ్చబొట్టు', 'ఆల్కహాల్', 'మద్యం', 'మందులు', 'స్మోకింగ్', 'టాటూ వేయించుకుంటే',
+        'टैटू', 'शराब', 'अल्कोहल', 'दवा', 'धूम्रपान', 'दवाइयां', 'एंटीबायोटिक'
+      ],
+      title: '🎨 Tattoos, Alcohol & Medicine Guidelines',
+      badge: 'Tattoos: 6–12 Mos • Alcohol: 24 Hours',
+      answer: `
+        <strong>Deferral Guidelines:</strong><br>
+        • 🎨 <strong>Tattoos & Piercings:</strong> Must wait <strong>6 to 12 months</strong> (prevents transmission of Hepatitis B/C).<br>
+        • 🍷 <strong>Alcohol:</strong> Avoid alcohol consumption for at least <strong>24 hours</strong> prior to donation.<br>
+        • 🚬 <strong>Smoking:</strong> Avoid smoking <strong>2 hours before</strong> and <strong>2 hours after</strong> donation.<br>
+        • 💊 <strong>Antibiotics:</strong> Must complete course and be infection-free for at least <strong>72 hours</strong>.
+      `,
+      actions: [
+        { label: '🩺 Check 10s Eligibility', tool: 'eligibility_wizard' },
+        { label: '🩸 Safe Volume (ml)', tool: 'volume_calculator' }
+      ],
+      translations: {
+        te: {
+          title: '🎨 టాటూలు, ఆల్కహాల్ మరియు మందుల నిబంధనలు',
+          badge: 'టాటూ: 6–12 నెలలు • ఆల్కహాల్: 24 గంటలు',
+          answer: `
+            <strong>ముఖ్య మార్గదర్శకాలు:</strong><br>
+            • 🎨 <strong>టాటూలు & పచ్చబొట్లు:</strong> టాటూ వేయించుకున్న తర్వాత <strong>6 నుండి 12 నెలలు</strong> ఆగాలి (హెపటైటిస్ వ్యాప్తి నివారణకు).<br>
+            • 🍷 <strong>ఆల్కహాల్ (మద్యం):</strong> రక్తదానానికి కనీసం <strong>24 గంటల ముందు</strong> మద్యం సేవించకూడదు.<br>
+            • 🚬 <strong>ధూమపానం (స్మోకింగ్):</strong> రక్తదానానికి 2 గంటల ముందు, తర్వాత స్మోకింగ్ చేయకూడదు.<br>
+            • 💊 <strong>యాంటీబయోటిక్స్:</strong> కోర్సు పూర్తయిన తర్వాత కనీసం 72 గంటలు ఆగాలి.
+          `,
+          actions: [
+            { label: '🩺 10s అర్హత చెక్', tool: 'eligibility_wizard' }
+          ]
+        },
+        hi: {
+          title: '🎨 टैटू, शराब और दवाओं के नियम',
+          badge: 'टैटू: 6–12 महीने • शराब: 24 घंटे',
+          answer: `
+            <strong>सुरक्षा दिशानिर्देश:</strong><br>
+            • 🎨 <strong>टैटू और पियर्सिंग:</strong> टैटू बनवाने के बाद <strong>6 से 12 महीने</strong> का इंतजार करना अनिवार्य है।<br>
+            • 🍷 <strong>शराब:</strong> रक्तदान से कम से कम <strong>24 घंटे पहले</strong> शराब का सेवन न करें।<br>
+            • 🚬 <strong>धूम्रपान:</strong> रक्तदान से 2 घंटे पहले और 2 घंटे बाद तक बीड़ी/सिगरेट न पिएं।<br>
+            • 💊 <strong>दवाएं:</strong> एंटीबायोटिक का कोर्स खत्म होने के 72 घंटे बाद ही रक्तदान करें।
+          `,
+          actions: [
+            { label: '🩺 पात्रता जांचें', tool: 'eligibility_wizard' }
+          ]
+        }
+      }
+    },
+
+    // I. Rewards & Medical Health Points
+    rewards: {
+      keywords: [
+        'rewards', 'points', 'health points', 'bonus points', '500 points', 'coins', 'medical points', 'earn points',
+        'పాయింట్లు', 'రివార్డులు', 'మెడికల్ పాయింట్లు', '500 పాయింట్లు', 'పాయింట్స్ ఎలా వస్తాయి',
+        'पॉइंट्स', 'रिवॉर्ड', 'मेडिकल पॉइंट्स', '500 बोनस', 'पॉइंट्स कैसे कमाएं'
+      ],
+      title: '🪙 Medical Points & Donor Rewards System',
+      badge: '+500 Pts on Sign Up • +500 Pts / Donation',
+      answer: `
+        <strong>BloodConnect Rewards Program:</strong><br>
+        • 🎁 <strong>Welcome Bonus:</strong> Earn <strong>+500 Medical Points</strong> immediately upon verified donor registration.<br>
+        • 🩸 <strong>Donation Reward:</strong> Earn <strong>+500 Points</strong> every time you complete a blood donation at partner hospitals.<br>
+        • 🏥 <strong>Redemption Benefits:</strong> Points can be redeemed for free health checkups, discounted diagnostic scans, pharmacy cashback, and wellness perks!
+      `,
+      actions: [
+        { label: '🪙 Open Points Vault', href: './rewards.html' },
+        { label: '🧬 Register as Donor', href: './donor.html' }
+      ],
+      translations: {
+        te: {
+          title: '🪙 మెడికల్ హెల్త్ పాయింట్లు & రివార్డులు',
+          badge: 'రిజిస్ట్రేషన్‌పై +500 పాయింట్లు • రక్తదానానికి +500 పాయింట్లు',
+          answer: `
+            <strong>బ్లడ్‌కనెక్ట్ రివార్డుల విధానం:</strong><br>
+            • 🎁 <strong>స్వాగత బోనస్:</strong> రిజిస్టర్ కాగానే <strong>+500 ఉచిత మెడికల్ పాయింట్లు</strong> లభిస్తాయి.<br>
+            • 🩸 <strong>రక్తదాన రివార్డ్:</strong> భాగస్వామ్య ఆసుపత్రులలో రక్తదానం చేసిన ప్రతిసారీ <strong>+500 పాయింట్లు</strong> లభిస్తాయి.<br>
+            • 🏥 <strong>ఉపయోగాలు:</strong> ఈ పాయింట్లతో ఉచిత డయాగ్నస్టిక్ టెస్టులు, హెల్త్ చెకప్‌లు, మందులపై క్యాష్‌బ్యాక్ పొందవచ్చు!
+          `,
+          actions: [
+            { label: '🪙 రివార్డ్స్ వాల్ట్ చూడండి', href: './rewards.html' },
+            { label: '🧬 డోనర్‌గా నమోదు చేసుకోండి', href: './donor.html' }
+          ]
+        },
+        hi: {
+          title: '🪙 मेडिकल हेल्थ पॉइंट्स एवं रिवॉर्ड सिस्टम',
+          badge: 'रजिस्ट्रेशन पर +500 पॉइंट्स • प्रत्येक दान पर +500 पॉइंट्स',
+          answer: `
+            <strong>ब्लडकनेक्ट रिवॉर्ड प्रोग्राम:</strong><br>
+            • 🎁 <strong>वेलकम बोनस:</strong> पंजीकरण करने पर तुरंत <strong>+500 मेडिकल पॉइंट्स</strong> मिलते हैं।<br>
+            • 🩸 <strong>रक्तदान रिवॉर्ड:</strong> पार्टनर अस्पतालों में रक्तदान करने पर हर बार <strong>+500 पॉइंट्स</strong> मिलते हैं।<br>
+            • 🏥 <strong>उपयोग:</strong> इन पॉइंट्स का उपयोग मुफ्त स्वास्थ्य जांच, डायग्नोस्टिक टेस्ट और दवाइयों पर छूट के लिए किया जा सकता है।
+          `,
+          actions: [
+            { label: '🪙 पॉइंट्स वॉल्ट खोलें', href: './rewards.html' },
+            { label: '🧬 डोनर बनें', href: './donor.html' }
+          ]
+        }
+      }
+    },
+
+    // J. Digital QR Check-In Pass
+    checkin_pass: {
+      keywords: [
+        'qr', 'qr code', 'check in', 'pass', 'digital pass', 'hospital check in', 'hospital pass', 'checkin',
+        'qr కోడ్', 'డిజిటల్ పాస్', 'చెక్ ఇన్', 'హాస్పిటల్ పాస్', 'పాస్ ఎలా వస్తుంది',
+        'qr कोड', 'डिजिटल पास', 'चेक इन', 'अस्पताल पास', 'पास कैसे पाएं'
+      ],
+      title: '📱 Digital QR Hospital Check-In Pass',
+      badge: 'Express Zero-Wait Hospital Admission',
+      answer: `
+        <strong>Digital Check-In Pass Instructions:</strong><br>
+        • ⚡ <strong>Instant Generation:</strong> When you accept a donation request, BloodConnect generates a secure encrypted QR Pass and 6-character Alpha-Check code.<br>
+        • 🏥 <strong>At Hospital Desk:</strong> Scan your QR Pass at the hospital blood bank tablet (e.g. KIMS Gate A or Apollo Gate 2) for immediate VIP zero-wait priority check-in.<br>
+        • 🪙 <strong>Automatic Points Credit:</strong> Points are instantly credited to your account upon scan!
+      `,
+      actions: [
+        { label: '🧬 Go to Donor Hub to Generate Pass', href: './donor.html' },
+        { label: '🏥 View Hospital Desks', tool: 'hospital_dispatch' }
+      ],
+      translations: {
+        te: {
+          title: '📱 డిజిటల్ QR హాస్పిటల్ చెక్-ఇన్ పాస్',
+          badge: 'ఎక్స్‌ప్రెస్ జీరో-వెయిట్ అడ్మిషన్',
+          answer: `
+            <strong>డిజిటల్ పాస్ మార్గదర్శకాలు:</strong><br>
+            • ⚡ <strong>తక్షణ సృష్టి:</strong> మీరు డొనేషన్ అభ్యర్థనను ఆమోదించగానే బ్లడ్‌కనెక్ట్ ఒక సురక్షిత QR పాస్ మరియు 6-అక్షరాల కోడ్‌ను అందిస్తుంది.<br>
+            • 🏥 <strong>ఆసుపత్రిలో:</strong> KIMS గేట్ A లేదా అపోలో గేట్ 2 వద్ద ఉన్న స్కానర్‌లో ఈ QR కోడ్ చూపించగానే ఎలాంటి లైన్ లేకుండా నేరుగా లోపలికి అనుమతిస్తారు.<br>
+            • 🪙 స్కాన్ పూర్తవగానే మీ ఖాతాలో పాయింట్లు జమ చేయబడతాయి!
+          `,
+          actions: [
+            { label: '🧬 డోనర్ హబ్‌లో పాస్ పొందండి', href: './donor.html' }
+          ]
+        },
+        hi: {
+          title: '📱 डिजिटल QR अस्पताल चेक-इन पास',
+          badge: 'बिना कतार त्वरित प्रवेश',
+          answer: `
+            <strong>डिजिटल चेक-इन पास विवरण:</strong><br>
+            • ⚡ <strong>तुरंत पास:</strong> जब आप रक्तदान स्वीकार करते हैं, तो आपको एक सुरक्षित QR पास और कोड मिलता है।<br>
+            • 🏥 <strong>अस्पताल में:</strong> KIMS गेट A या अपोलो गेट 2 के काउंटर पर इस QR को स्कैन कराएं और बिना लाइन के प्राथमिकता से रक्तदान करें।<br>
+            • 🪙 स्कैन होते ही पॉइंट्स आपके खाते में जुड़ जाते हैं!
+          `,
+          actions: [
+            { label: '🧬 डोनर हब में पास देखें', href: './donor.html' }
+          ]
+        }
+      }
+    },
+
+    // K. All Hospitals Directory
     all_hospitals: {
-      keywords: ['hospitals', 'all hospitals', 'hospital list', 'hospital numbers', 'yashoda', 'care hospital', 'continental', 'blood bank numbers', 'helpline', 'emergency desks'],
+      keywords: [
+        'hospitals', 'all hospitals', 'hospital list', 'hospital numbers', 'yashoda', 'care hospital', 'continental', 'blood bank numbers', 'helpline', 'emergency desks',
+        'ఆసుపత్రులు', 'అన్ని ఆసుపత్రులు', 'హాస్పిటల్ నంబర్లు', 'హెల్ప్‌లైన్లు',
+        'अस्पताल', 'सभी अस्पताल', 'अस्पताल के नंबर', 'हेल्पलाइन सूची'
+      ],
       title: '🏥 Hyderabad Partner Hospital Directory',
       badge: '5 Verified Hospitals Active',
       isTool: 'hospital_dispatch',
@@ -116,296 +723,202 @@
         { label: '🏥 Hospital Quick Dispatch Cards', tool: 'hospital_dispatch' },
         { label: '📞 Call KIMS (+91 97015 16959)', href: 'tel:+919701516959' },
         { label: '📞 Call Apollo (+91 87121 27287)', href: 'tel:+918712127287' }
-      ]
-    },
-
-    // F. Blood Group Compatibility (General + Specifics)
-    compatibility_o_plus: {
-      keywords: ['o+', 'o positive', 'donate to o+', 'who can receive o+', 'o+ can give to', 'o+ blood'],
-      title: '🩸 O+ (O Positive) Compatibility Profile',
-      badge: 'Most Common Lifesaver Blood Group',
-      isTool: 'compat_matrix:O+',
-      answer: `
-        <strong>O+ (O Positive) Blood Compatibility:</strong><br>
-        • <strong>Can GIVE Blood To:</strong> <span class="ai-tag">O+</span>, <span class="ai-tag">A+</span>, <span class="ai-tag">B+</span>, <span class="ai-tag">AB+</span><br>
-        • <strong>Can RECEIVE Blood From:</strong> <span class="ai-tag">O+</span>, <span class="ai-tag">O-</span><br><br>
-        <strong>Importance:</strong> O+ is the most transfused blood type because ~38% of patients are O+. It can save over 80% of positive-type recipients!
-      `,
-      actions: [
-        { label: '🧬 Open Interactive Compatibility Matrix', tool: 'compat_matrix:O+' },
-        { label: '🩸 O- (Universal Donor)', query: 'Tell me about O- universal donor' }
-      ]
-    },
-
-    compatibility_o_minus: {
-      keywords: ['o-', 'o negative', 'universal donor', 'who is universal donor', 'who can o- donate to', 'o negative blood'],
-      title: '🩸 O- (O Negative) — Universal Red Blood Cell Donor',
-      badge: '🚨 Critical Emergency Universal Donor',
-      isTool: 'compat_matrix:O-',
-      answer: `
-        <strong>O- (O Negative) Blood Compatibility:</strong><br>
-        • <strong>Can GIVE Blood To:</strong> <strong>EVERYONE!</strong> (<span class="ai-tag">O+</span>, <span class="ai-tag">O-</span>, <span class="ai-tag">A+</span>, <span class="ai-tag">A-</span>, <span class="ai-tag">B+</span>, <span class="ai-tag">B-</span>, <span class="ai-tag">AB+</span>, <span class="ai-tag">AB-</span>)<br>
-        • <strong>Can RECEIVE Blood From:</strong> <span class="ai-tag">O- ONLY</span><br><br>
-        <strong>Why is O- essential?</strong> Lacks A, B, and Rh antigens, meaning any patient accepts it without hemolytic reaction. Loaded in trauma ambulances before blood typing is done.
-      `,
-      actions: [
-        { label: '🧬 Open Interactive Compatibility Matrix', tool: 'compat_matrix:O-' },
-        { label: '🩸 AB+ (Universal Recipient)', query: 'Tell me about AB+ universal recipient' },
-        { label: '⚡ Emergency Requests', href: './donor.html' }
-      ]
-    },
-
-    compatibility_ab_plus: {
-      keywords: ['ab+', 'ab positive', 'universal recipient', 'who is universal recipient', 'ab+ receive from', 'ab+ blood'],
-      title: '🩸 AB+ (AB Positive) — Universal Recipient',
-      badge: '👑 Can Receive From All Blood Groups',
-      isTool: 'compat_matrix:AB+',
-      answer: `
-        <strong>AB+ (AB Positive) Blood Compatibility:</strong><br>
-        • <strong>Can RECEIVE Blood From:</strong> <strong>ALL 8 GROUPS!</strong> (<span class="ai-tag">O+</span>, <span class="ai-tag">O-</span>, <span class="ai-tag">A+</span>, <span class="ai-tag">A-</span>, <span class="ai-tag">B+</span>, <span class="ai-tag">B-</span>, <span class="ai-tag">AB+</span>, <span class="ai-tag">AB-</span>)<br>
-        • <strong>Can GIVE Red Blood Cells To:</strong> <span class="ai-tag">AB+ ONLY</span><br>
-        • <strong>Plasma Superpower:</strong> AB+ individuals are <strong>Universal Plasma Donors</strong> — their plasma can be given to all blood groups!
-      `,
-      actions: [
-        { label: '🧬 Open Interactive Compatibility Matrix', tool: 'compat_matrix:AB+' },
-        { label: '🪙 Medical Points Vault', href: './rewards.html' }
-      ]
-    },
-
-    compatibility_all: {
-      keywords: ['compatibility', 'matrix', 'blood group chart', 'who can give to who', 'blood matching', 'blood types', 'a+', 'a-', 'b+', 'b-', 'ab-'],
-      title: '🧬 Complete Blood Compatibility Matrix',
-      badge: '8 Blood Group Profiles',
-      isTool: 'compat_matrix:all',
-      answer: `
-        <strong>Summary of Blood Type Compatibility:</strong><br><br>
-        • <strong>O-</strong>: Gives to <strong>All Groups</strong> | Receives only from <strong>O-</strong><br>
-        • <strong>O+</strong>: Gives to <strong>O+, A+, B+, AB+</strong> | Receives from <strong>O+, O-</strong><br>
-        • <strong>A-</strong>: Gives to <strong>A+, A-, AB+, AB-</strong> | Receives from <strong>A-, O-</strong><br>
-        • <strong>A+</strong>: Gives to <strong>A+, AB+</strong> | Receives from <strong>A+, A-, O+, O-</strong><br>
-        • <strong>B-</strong>: Gives to <strong>B+, B-, AB+, AB-</strong> | Receives from <strong>B-, O-</strong><br>
-        • <strong>B+</strong>: Gives to <strong>B+, AB+</strong> | Receives from <strong>B+, B-, O+, O-</strong><br>
-        • <strong>AB-</strong>: Gives to <strong>AB+, AB-</strong> | Receives from <strong>AB-, A-, B-, O-</strong><br>
-        • <strong>AB+</strong>: Gives only to <strong>AB+</strong> | Receives from <strong>All Groups (Universal)</strong>
-      `,
-      actions: [
-        { label: '🧬 Test Interactive Matrix', tool: 'compat_matrix:all' },
-        { label: '🩸 Volume in ml', query: 'How much ml of blood is required in a donation?' },
-        { label: '🧭 3D Radar Match', href: './radar.html' }
-      ]
-    },
-
-    // G. Medical Eligibility & Health Criteria
-    eligibility: {
-      keywords: ['eligible', 'eligibility', 'can i donate', 'criteria', 'age limit', 'weight', 'hemoglobin', 'who can donate', 'requirements', 'rules', 'screener', 'test eligibility'],
-      title: '🩺 General Blood Donation Eligibility Criteria',
-      badge: 'Age 18–65 • Weight 45kg+',
-      isTool: 'eligibility_wizard',
-      answer: `
-        <strong>Who is medically eligible to donate blood?</strong><br>
-        1. <strong>Age:</strong> Between <strong>18 and 65 years</strong>.<br>
-        2. <strong>Weight:</strong> Minimum <strong>45 kg</strong> (for 350ml) or <strong>50+ kg</strong> (for 450ml).<br>
-        3. <strong>Hemoglobin:</strong> Minimum <strong>12.5 g/dL</strong> (tested on-site for free before donation).<br>
-        4. <strong>Blood Pressure:</strong> Systolic: 100–140 mmHg, Diastolic: 60–90 mmHg.<br>
-        5. <strong>Pulse:</strong> 60 to 100 beats per minute, regular.<br>
-        6. <strong>Body Temperature:</strong> Normal (no cold, fever, cough, or infections in the past 48 hours).
-      `,
-      actions: [
-        { label: '🩺 Run 10-Second Eligibility Screener', tool: 'eligibility_wizard' },
-        { label: '💊 Medicine / Alcohol Rules', query: 'Can I donate after taking medicine or alcohol?' },
-        { label: '🎨 Tattoo & Piercing Rules', query: 'Can I donate if I got a tattoo or piercing?' }
-      ]
-    },
-
-    // H. Medications, Alcohol, Smoking, Lifestyle
-    medications_lifestyle: {
-      keywords: ['medicine', 'medication', 'alcohol', 'drinking', 'smoking', 'cigarette', 'antibiotics', 'aspirin', 'paracetamol', 'coffee', 'beer'],
-      title: '💊 Lifestyle & Medication Guidelines Before Donation',
-      badge: 'Safe Donation Protocols',
-      answer: `
-        <strong>Before You Donate Blood:</strong><br>
-        • <strong>🍺 Alcohol:</strong> Must NOT consume alcohol for at least <strong>24 hours</strong> prior to donation.<br>
-        • <strong>🚬 Smoking:</strong> Avoid smoking for at least <strong>2 hours before</strong> and <strong>2 hours after</strong> donation.<br>
-        • <strong>💊 Antibiotics:</strong> Wait until course is finished + at least <strong>48 hours symptom-free</strong>.<br>
-        • <strong>💊 Aspirin / Painkillers:</strong> For platelets, avoid aspirin for 48h. Mild paracetamol is fine for whole blood if fever-free.<br>
-        • <strong>🩺 Blood Pressure / Thyroid Meds:</strong> If your BP or Thyroid is well-controlled on daily medication, you CAN donate!<br>
-        • <strong>☕ Coffee / Tea:</strong> Allowed, but drink plenty of water as caffeine is a mild diuretic.
-      `,
-      actions: [
-        { label: '🥗 Pre-Donation Diet', query: 'What should I eat before donating blood?' },
-        { label: '🎨 Tattoo / Piercing', query: 'Can I donate if I got a tattoo or piercing?' },
-        { label: '🩺 10s Screener', tool: 'eligibility_wizard' }
-      ]
-    },
-
-    // I. Tattoos, Piercings, Dental, Pregnancy
-    tattoo_special_cases: {
-      keywords: ['tattoo', 'piercing', 'dental', 'teeth', 'pregnancy', 'pregnant', 'breastfeeding', 'surgery', 'period', 'menstruation'],
-      title: '🎨 Tattoos, Piercings, Surgeries & Special Conditions',
-      badge: 'Safety Deferral Periods',
-      answer: `
-        <strong>Medical Deferral Guidelines:</strong><br>
-        • <strong>🎨 Tattoos & Body Piercings:</strong> Must wait <strong>6 to 12 months</strong> after getting inked or pierced.<br>
-        • <strong>🦷 Dental Treatment:</strong> Wait <strong>24 hours</strong> after minor cleaning/filling; wait <strong>72 hours</strong> after extraction/root canal.<br>
-        • <strong>🤰 Pregnancy & Breastfeeding:</strong> Deferred during pregnancy and for <strong>6 to 12 months</strong> postpartum.<br>
-        • <strong>🩸 Menstruation (Periods):</strong> You CAN donate if you feel energetic and hemoglobin is ≥ 12.5 g/dL.<br>
-        • <strong>🏥 Major Surgery:</strong> Wait <strong>6 months</strong> after major surgery with full recovery.
-      `,
-      actions: [
-        { label: '🩺 Test Eligibility', tool: 'eligibility_wizard' },
-        { label: '⏱️ Donation Gap', query: 'What is the time gap between blood donations?' }
-      ]
-    },
-
-    // J. Pre- and Post-Donation Diet & Recovery
-    diet_guidelines: {
-      keywords: ['food', 'diet', 'eat', 'drink', 'what to eat', 'fasting', 'empty stomach', 'after donation', 'care', 'recovery'],
-      title: '🥗 Pre & Post-Donation Diet and Care',
-      badge: 'Optimal Recovery Tips',
-      answer: `
-        <strong>Pre-Donation (Before You Go):</strong><br>
-        1. <strong>Do NOT donate on an empty stomach!</strong> Eat a wholesome, iron-rich light meal (rice, dal, fruits, idli, oats) 2–3 hours before.<br>
-        2. Drink <strong>500 ml (2 large glasses) of water</strong> 30 minutes before donating.<br>
-        3. Avoid fatty or fried foods.<br><br>
-        <strong>Post-Donation (After Donating):</strong><br>
-        1. Rest at the donor station for <strong>10 to 15 minutes</strong> with elevated feet.<br>
-        2. Enjoy the complimentary juice and snacks provided.<br>
-        3. Keep the bandage dry and intact for <strong>4 to 6 hours</strong>.<br>
-        4. Avoid heavy weight lifting, strenuous gym workouts, or running for <strong>24 hours</strong>.
-      `,
-      actions: [
-        { label: '🧮 Calculate Fluid Recovery', tool: 'volume_calculator' },
-        { label: '🪙 Medical Points Vault', href: './rewards.html' }
-      ]
-    },
-
-    // K. Digital QR Check-In Pass & Fast-Track Code
-    checkin_pass: {
-      keywords: ['pass', 'qr', 'qr code', 'check in', 'hospital pass', 'pin', 'code', 'fast track', 'how to get pass', 'verification code'],
-      title: '📱 Fast-Track Digital Hospital Check-In Pass & QR',
-      badge: 'Instant QR & 6-Digit PIN',
-      answer: `
-        <strong>How the Digital Check-In Pass Works:</strong><br>
-        1. Open the <strong><a href="./donor.html" style="color: var(--secondary-glow); text-decoration: underline;">Donor Hub</a></strong>.<br>
-        2. Under "Live Emergency Matches", click <strong>"Accept & Generate Pass"</strong> on any patient request.<br>
-        3. The system generates a <strong>Dynamic Cyber QR Code</strong> + a <strong>6-digit Fast-Track Verification PIN</strong> (e.g., <code>748-912</code>).<br>
-        4. When you arrive at the hospital entrance (e.g. KIMS Gate A or Apollo Gate 2), show this pass for priority bypass entry without long queue forms!<br>
-        5. You can also click <strong>"💬 WhatsApp Reception"</strong> to dispatch your ETA in advance.
-      `,
-      actions: [
-        { label: '🧬 Open Donor Hub', href: './donor.html' },
-        { label: '🏥 Hospital Numbers', query: 'What are the helpline numbers for partner hospitals?' }
-      ]
-    },
-
-    // L. Medical Benefit Points Vault & Rewards
-    rewards_vault: {
-      keywords: ['points', 'rewards', 'reward', 'vault', 'redeem', 'coins', 'benefits', 'streak', 'earn points', 'how to redeem', 'discount'],
-      title: '🪙 Medical Reward Points & Health Vault',
-      badge: '100% Free Health Benefits',
-      answer: `
-        <strong>Earn & Redeem Medical Benefit Points:</strong><br><br>
-        <strong>How to Earn Points:</strong><br>
-        • 🎁 <strong>+500 Points</strong>: Instant Welcome Bonus on new donor registration.<br>
-        • 🔥 <strong>+25 Points</strong>: Daily medical fitness check-in streak on the Donor Hub.<br>
-        • 🩸 <strong>+500 to +1000 Points</strong>: Credited for every successful hospital blood donation.<br><br>
-        <strong>How to Redeem:</strong><br>
-        Visit the <strong><a href="./rewards.html" style="color: var(--accent-emerald); text-decoration: underline;">Medical Points Vault</a></strong> to redeem points for:<br>
-        • 🧪 <em>Full Body Blood & Lipid Profile (400 pts)</em><br>
-        • 💊 <em>Apollo / MedPlus Pharmacy 25% Discount Voucher (250 pts)</em><br>
-        • 🚑 <em>1-Year 24/7 Emergency Ambulance Priority Cover (500 pts)</em><br>
-        • 👁️ <em>Comprehensive Vision & Dental Checkup (350 pts)</em>
-      `,
-      actions: [
-        { label: '🪙 Go to Points Vault', href: './rewards.html' },
-        { label: '🧬 Daily Fitness Check-in', href: './donor.html' }
-      ]
+      ],
+      translations: {
+        te: {
+          title: '🏥 హైదరాబాద్ భాగస్వామ్య ఆసుపత్రుల డైరెక్టరీ',
+          badge: '5 ధృవీకరించబడిన ఆసుపత్రులు',
+          answer: `
+            <strong>హైదరాబాద్ బ్లడ్ బ్యాంక్ & ఎమర్జెన్సీ డెస్కులు:</strong><br><br>
+            1. <strong>KIMS హాస్పిటల్స్ సికింద్రాబాద్ (బేగంపేట)</strong><br>
+            &bull; 📞 <strong>+91 97015 16959</strong> &bull; 🚪 గేట్ A క్యాజువాలిటీ, 1వ అంతస్తు<br><br>
+            2. <strong>అపోలో హాస్పిటల్స్ జూబ్లీహిల్స్</strong><br>
+            &bull; 📞 <strong>+91 87121 27287</strong> &bull; 🚪 గేట్ 2 ట్రామా సెంటర్<br><br>
+            3. <strong>యశోద హాస్పిటల్స్ సోమాజిగూడ</strong><br>
+            &bull; 📞 <strong>+91 87121 27287</strong> &bull; 🚪 క్యాజువాలిటీ గేట్ 3<br><br>
+            4. <strong>కేర్ హాస్పిటల్స్ బంజారాహిల్స్</strong><br>
+            &bull; 📞 <strong>+91 87121 27287</strong> &bull; 🚪 మెయిన్ టవర్ గేట్ 1<br><br>
+            5. <strong>కాంటినెంటల్ హాస్పిటల్స్ గచ్చిబౌలి</strong><br>
+            &bull; 📞 <strong>+91 87121 27287</strong> &bull; 🚪 క్యాజువాలిటీ గేట్ 4
+          `,
+          actions: [
+            { label: '🏥 ఆసుపత్రుల డెస్కులు చూడండి', tool: 'hospital_dispatch' },
+            { label: '📞 KIMS కి కాల్ చేయండి (+91 97015 16959)', href: 'tel:+919701516959' },
+            { label: '📞 అపోలో కి కాల్ చేయండి (+91 87121 27287)', href: 'tel:+918712127287' }
+          ]
+        },
+        hi: {
+          title: '🏥 हैदराबाद पार्टनर अस्पताल निर्देशिका',
+          badge: '5 सत्यापित अस्पताल सक्रिय',
+          answer: `
+            <strong>हैदराबाद के प्रमुख ब्लड बैंक एवं आपातकालीन नंबर:</strong><br><br>
+            1. <strong>KIMS अस्पताल सिकंदराबाद (बेगमपेट)</strong><br>
+            &bull; 📞 <strong>+91 97015 16959</strong> &bull; 🚪 गेट A कैजुअल्टी, पहली मंजिल<br><br>
+            2. <strong>अपोलो अस्पताल जुबली हिल्स</strong><br>
+            &bull; 📞 <strong>+91 87121 27287</strong> &bull; 🚪 गेट 2 ट्रॉमा सेंटर<br><br>
+            3. <strong>यशोदा अस्पताल सोमाजीगुडा</strong><br>
+            &bull; 📞 <strong>+91 87121 27287</strong> &bull; 🚪 गेट 3 कैजुअल्टी<br><br>
+            4. <strong>केयर अस्पताल बंजारा हिल्स</strong><br>
+            &bull; 📞 <strong>+91 87121 27287</strong> &bull; 🚪 मुख्य टावर गेट 1<br><br>
+            5. <strong>कॉन्टिनेंटल अस्पताल गाचीबाउली</strong><br>
+            &bull; 📞 <strong>+91 87121 27287</strong> &bull; 🚪 गेट 4 कैजुअल्टी
+          `,
+          actions: [
+            { label: '🏥 अस्पताल कार्ड खोलें', tool: 'hospital_dispatch' },
+            { label: '📞 KIMS को कॉल करें (+91 97015 16959)', href: 'tel:+919701516959' },
+            { label: '📞 अपोलो को कॉल करें (+91 87121 27287)', href: 'tel:+918712127287' }
+          ]
+        }
+      }
     }
   };
 
-  // 2. Categorized FAQ Tabs & Chips
+  // 3. Multilingual Quick FAQ Categories & Chips
   const FAQ_CATEGORIES = {
-    popular: {
-      label: '🔥 Top FAQs',
-      chips: [
-        { label: '🩸 How much ml is required on a donation?', query: 'How much ml of blood is required in a donation?' },
-        { label: '🏥 What is the helpline for KIMS Hospital?', query: 'What is the contact number for KIMS Hospital?' },
-        { label: '👥 Who can donate to O+ blood?', query: 'Who can donate to O+ blood?' },
-        { label: '⏱️ What is the time gap between donations?', query: 'What is the time gap between blood donations?' }
-      ]
+    top: {
+      label: { en: '🔥 Top FAQs', te: '🔥 ముఖ్యమైనవి', hi: '🔥 शीर्ष प्रश्न', ta: '🔥 முக்கிய', kn: '🔥 ಮುಖ್ಯ', es: '🔥 Top FAQs' },
+      chips: {
+        en: [
+          { label: '🩸 How much ml is required on a donation?', query: 'How much ml of blood is required in a donation?' },
+          { label: '🏥 What is the helpline for KIMS Hospital?', query: 'What is the contact number for KIMS Hospital?' },
+          { label: '👥 Who can donate to O+ blood?', query: 'Who can donate to O+ blood?' },
+          { label: '⏱️ What is the time gap between donations?', query: 'What is the time gap between blood donations?' }
+        ],
+        te: [
+          { label: '🩸 రక్తదానంలో ఎన్ని ml రక్తం తీసుకుంటారు?', query: 'రక్తదానంలో ఎన్ని ml రక్తం తీసుకుంటారు?' },
+          { label: '🏥 KIMS హాస్పిటల్ హెల్ప్‌లైన్ నంబర్ ఎంత?', query: 'KIMS హాస్పిటల్ ఫోన్ నంబర్ ఏమిటి?' },
+          { label: '👥 O+ రక్తానికి ఎవరు రక్తం ఇవ్వగలరు?', query: 'O+ కి ఎవరు రక్తం ఇవ్వవచ్చు?' },
+          { label: '⏱️ రక్తదానాల మధ్య ఎంత గ్యాప్ ఉండాలి?', query: 'రక్తదానానికి ఎంత సమయం గ్యాప్ ఉండాలి?' }
+        ],
+        hi: [
+          { label: '🩸 रक्तदान में कितने ml खून लिया जाता है?', query: 'रक्तदान में कितने ml खून लिया जाता है?' },
+          { label: '🏥 KIMS अस्पताल का हेल्पलाइन नंबर क्या है?', query: 'KIMS अस्पताल का फोन नंबर क्या है?' },
+          { label: '👥 O+ रक्त समूह को कौन दान कर सकता है?', query: 'O+ ब्लड ग्रुप को कौन रक्तदान कर सकता है?' },
+          { label: '⏱️ रक्तदान के बीच कितना समय अंतराल चाहिए?', query: 'रक्तदान के बीच कितना समय अंतराल होना चाहिए?' }
+        ]
+      }
     },
     volume: {
-      label: '🩸 Volume & ML',
-      chips: [
-        { label: '🧮 Calculate My Volume (ml)', tool: 'volume_calculator' },
-        { label: '🩸 Is 350ml or 450ml taken from me?', query: 'How much ml of blood is required in a donation?' },
-        { label: '💧 How fast does plasma fluid recover?', query: 'How fast does body fluid and plasma recover after blood donation?' },
-        { label: '🥗 What to eat before donating blood?', query: 'What should I eat before donating blood?' }
-      ]
+      label: { en: '🩸 Volume & ML', te: '🩸 రక్తం ml', hi: '🩸 रक्त ml', ta: '🩸 இரத்த அளவு', kn: '🩸 ಪ್ರಮಾಣ ml', es: '🩸 Volumen ml' },
+      chips: {
+        en: [
+          { label: '🧮 Calculate My Volume (ml)', tool: 'volume_calculator' },
+          { label: '🩸 Is 350ml or 450ml taken from me?', query: 'How much ml of blood is required in a donation?' },
+          { label: '💧 How fast does plasma fluid recover?', query: 'How fast does body fluid and plasma recover after blood donation?' }
+        ],
+        te: [
+          { label: '🧮 నా బరువుకు ఎన్ని ml రక్తం పడుతుంది?', tool: 'volume_calculator' },
+          { label: '🩸 350 ml తీసుకుంటారా లేక 450 ml ఆ?', query: 'రక్తదానంలో ఎన్ని ml రక్తం తీసుకుంటారు?' },
+          { label: '💧 శరీరంలో రక్తం ఎంత త్వరగా భర్తీ అవుతుంది?', query: 'రక్తం ఎంత త్వరగా మళ్ళీ తయారవుతుంది?' }
+        ],
+        hi: [
+          { label: '🧮 मेरे वजन के अनुसार रक्त की मात्रा', tool: 'volume_calculator' },
+          { label: '🩸 350 ml या 450 ml लिया जाता है?', query: 'रक्तदान में कितने ml खून लिया जाता है?' },
+          { label: '💧 खून वापस बनने में कितना समय लगता है?', query: 'रक्तदान के बाद खून कितनी जल्दी बनता है?' }
+        ]
+      }
     },
     hospitals: {
-      label: '🏥 Hospitals',
-      chips: [
-        { label: '🏥 KIMS Secunderabad (9701516959)', query: 'What is the contact number for KIMS Hospital?' },
-        { label: '🏥 Apollo Jubilee Hills (8712125287)', query: 'Where is Apollo Jubilee Hills emergency gate?' },
-        { label: '🚑 All 5 Partner Hospitals Directory', query: 'What are the helpline numbers for partner hospitals?' },
-        { label: '⚡ Open Hospital Dispatch Cards', tool: 'hospital_dispatch' }
-      ]
+      label: { en: '🏥 Hospitals', te: '🏥 ఆసుపత్రులు', hi: '🏥 अस्पताल', ta: '🏥 மருத்துவமனை', kn: '🏥 ಆಸ್ಪತ್ರೆಗಳು', es: '🏥 Hospitales' },
+      chips: {
+        en: [
+          { label: '🏥 KIMS Secunderabad (9701516959)', query: 'What is the contact number for KIMS Hospital?' },
+          { label: '🏥 Apollo Jubilee Hills (8712125287)', query: 'Where is Apollo Jubilee Hills emergency gate?' },
+          { label: '⚡ Open Hospital Dispatch Cards', tool: 'hospital_dispatch' }
+        ],
+        te: [
+          { label: '🏥 KIMS సికింద్రాబాద్ (9701516959)', query: 'KIMS హాస్పిటల్ ఫోన్ నంబర్ ఏమిటి?' },
+          { label: '🏥 అపోలో జూబ్లీహిల్స్ (8712125287)', query: 'అపోలో జూబ్లీహిల్స్ నంబర్ ఎంత?' },
+          { label: '⚡ ఆసుపత్రుల వివరాలు చూడండి', tool: 'hospital_dispatch' }
+        ],
+        hi: [
+          { label: '🏥 KIMS सिकंदराबाद (9701516959)', query: 'KIMS अस्पताल का फोन नंबर क्या है?' },
+          { label: '🏥 अपोलो जुबली हिल्स (8712125287)', query: 'अपोलो जुबली हिल्स आपातकालीन नंबर' },
+          { label: '⚡ सभी अस्पताल निर्देशिका', tool: 'hospital_dispatch' }
+        ]
+      }
     },
     compatibility: {
-      label: '🧬 Compatibility',
-      chips: [
-        { label: '🧬 Test Interactive Compatibility Matrix', tool: 'compat_matrix:all' },
-        { label: '🩸 Who is the Universal Donor (O-)?', query: 'Tell me about O- universal donor' },
-        { label: '👑 Who is the Universal Recipient (AB+)?', query: 'Tell me about AB+ universal recipient' },
-        { label: '👥 Who can donate to O+?', query: 'Who can donate to O+ blood?' }
-      ]
+      label: { en: '🧬 Compatibility', te: '🧬 అనుకూలత', hi: '🧬 अनुकूलता', ta: '🧬 பொருத்தம்', kn: '🧬 ಹೊಂದಾಣಿಕೆ', es: '🧬 Compatibilidad' },
+      chips: {
+        en: [
+          { label: '🧬 Test Interactive Compatibility Matrix', tool: 'compat_matrix:all' },
+          { label: '🩸 Who is the Universal Donor (O-)?', query: 'Tell me about O- universal donor' },
+          { label: '👑 Who is the Universal Recipient (AB+)?', query: 'Tell me about AB+ universal recipient' }
+        ],
+        te: [
+          { label: '🧬 రక్త వర్గాల అనుకూలత పట్టిక', tool: 'compat_matrix:all' },
+          { label: '🩸 సార్వత్రిక దాత (O-) ఎవరు?', query: 'O- సార్వత్రిక దాత గురించి చెప్పండి' },
+          { label: '👑 సార్వత్రిక గ్రహీత (AB+) ఎవరు?', query: 'AB+ సార్వత్రిక గ్రహీత గురించి చెప్పండి' }
+        ],
+        hi: [
+          { label: '🧬 रक्त समूह अनुकूलता मैट्रिक्स', tool: 'compat_matrix:all' },
+          { label: '🩸 सर्वदाता (O-) कौन है?', query: 'सर्वदाता O नेगेटिव के बारे में बताएं' },
+          { label: '👑 सर्वग्राही (AB+) कौन है?', query: 'सर्वग्राही AB पॉजिटिव के बारे में बताएं' }
+        ]
+      }
     },
     eligibility: {
-      label: '🩺 Eligibility',
-      chips: [
-        { label: '🩺 10-Second Eligibility Screener', tool: 'eligibility_wizard' },
-        { label: '💊 Can I donate after medicine or alcohol?', query: 'Can I donate after taking medicine or alcohol?' },
-        { label: '🎨 Tattoo and piercing rules', query: 'Can I donate if I got a tattoo or piercing?' },
-        { label: '⏱️ How many months gap for women & men?', query: 'What is the time gap between blood donations?' }
-      ]
-    },
-    rewards: {
-      label: '🪙 Rewards & Pass',
-      chips: [
-        { label: '🪙 How do medical reward points work?', query: 'How do medical reward points work?' },
-        { label: '📱 How to get Digital QR Check-In Pass?', query: 'How does the digital QR check in pass work?' },
-        { label: '🎁 How to get 500 welcome bonus points?', query: 'How to earn medical points' },
-        { label: '🪙 Open Points Vault', href: './rewards.html' }
-      ]
+      label: { en: '🩺 Eligibility', te: '🩺 అర్హత', hi: '🩺 पात्रता', ta: '🩺 தகுதி', kn: '🩺 ಅರ್ಹತೆ', es: '🩺 Elegibilidad' },
+      chips: {
+        en: [
+          { label: '🩺 10-Second Eligibility Screener', tool: 'eligibility_wizard' },
+          { label: '💊 Can I donate after medicine or alcohol?', query: 'Can I donate after taking medicine or alcohol?' },
+          { label: '🎨 Tattoo and piercing rules', query: 'Can I donate if I got a tattoo or piercing?' }
+        ],
+        te: [
+          { label: '🩺 10 సెకన్ల అర్హత చెకర్', tool: 'eligibility_wizard' },
+          { label: '💊 మందులు లేదా మద్యం తీసుకున్న తర్వాత రక్తదానం చేయవచ్చా?', query: 'ఆల్కహాల్ లేదా మందుల తర్వాత రక్తదానం చేయవచ్చా?' },
+          { label: '🎨 టాటూ నియమాలు', query: 'టాటూ వేయించుకుంటే రక్తదానం చేయవచ్చా?' }
+        ],
+        hi: [
+          { label: '🩺 10 सेकंड पात्रता जांच', tool: 'eligibility_wizard' },
+          { label: '💊 दवा या शराब के बाद रक्तदान?', query: 'क्या दवा या शराब के बाद रक्तदान कर सकते हैं?' },
+          { label: '🎨 टैटू बनवाने के नियम', query: 'क्या टैटू के बाद रक्तदान कर सकते हैं?' }
+        ]
+      }
     }
   };
 
-  // 3. Proactive Rotating Teaser Facts for the Public
-  const TEASER_FACTS = [
-    { text: '💡 350–450ml of blood can save up to 3 lives! Ask me how →', query: 'How much ml of blood is required in a donation?' },
-    { text: '🏥 Need KIMS (9701516959) or Apollo helpline? Tap to ask!', query: 'What is the contact number for KIMS Hospital?' },
-    { text: '🧬 Wondering who can receive O+ blood? Ask me!', query: 'Who can donate to O+ blood?' },
-    { text: '🩺 Are you eligible to donate today? Check in 10s →', tool: 'eligibility_wizard' },
-    { text: '🪙 Earn 500 free medical points on registration! Ask how →', query: 'How do medical reward points work?' },
-    { text: '⏱️ Men can donate every 3 months, women every 4! Learn why →', query: 'What is the time gap between blood donations?' }
-  ];
+  // 4. Proactive Multilingual Teaser Facts
+  const TEASER_FACTS = {
+    en: [
+      { text: '💡 350–450ml of blood can save up to 3 lives! Ask me how →', query: 'How much ml of blood is required in a donation?' },
+      { text: '🏥 Need KIMS (9701516959) or Apollo helpline? Tap to ask!', query: 'What is the contact number for KIMS Hospital?' },
+      { text: '🧬 Wondering who can receive O+ blood? Ask me!', query: 'Who can donate to O+ blood?' },
+      { text: '🩺 Are you eligible to donate today? Check in 10s →', tool: 'eligibility_wizard' }
+    ],
+    te: [
+      { text: '💡 350–450ml రక్తం 3 ప్రాణాలను కాపాడుతుంది! తెలుసుకోండి →', query: 'రక్తదానంలో ఎన్ని ml రక్తం తీసుకుంటారు?' },
+      { text: '🏥 KIMS హెల్ప్‌లైన్: +91 97015 16959! అడగండి →', query: 'KIMS హాస్పిటల్ ఫోన్ నంబర్ ఏమిటి?' },
+      { text: '🧬 O+ రక్తం ఎవరికి సరిపోతుంది? అడగండి!', query: 'O+ కి ఎవరు రక్తం ఇవ్వవచ్చు?' },
+      { text: '🩺 మీరు రక్తదానానికి అర్హులా? 10 సెకన్లలో చెక్ చేయండి →', tool: 'eligibility_wizard' }
+    ],
+    hi: [
+      { text: '💡 350–450ml रक्त 3 जिंदगियां बचा सकता है! पूछें कैसे →', query: 'रक्तदान में कितने ml खून लिया जाता है?' },
+      { text: '🏥 KIMS हेल्पलाइन: +91 97015 16959! अभी पूछें →', query: 'KIMS अस्पताल का फोन नंबर क्या है?' },
+      { text: '🧬 O+ रक्त किसे दिया जा सकता है? अभी पूछें!', query: 'O+ ब्लड ग्रुप को कौन रक्तदान कर सकता है?' },
+      { text: '🩺 क्या आप आज रक्तदान के लिए योग्य हैं? 10s में जांचें →', tool: 'eligibility_wizard' }
+    ]
+  };
 
-  // 4. NLP Query Matcher Engine
+  // 5. NLP Multilingual Query Matcher Engine
   class BloodBotBrain {
-    static matchQuery(queryText) {
+    static matchQuery(queryText, forceLang = null) {
       const q = (queryText || '').toLowerCase().trim();
       if (!q) return null;
 
-      // Check for calculator / screener intents directly
-      if (q.includes('calculator') || (q.includes('calculate') && (q.includes('volume') || q.includes('ml')))) {
-        return KNOWLEDGE_BASE.volume;
+      const lang = forceLang || detectLanguage(queryText);
+
+      // Direct intent checks
+      if (q.includes('calculator') || q.includes('కాలిక్యులేటర్') || q.includes('कैलकुलेटर') || (q.includes('calculate') && (q.includes('volume') || q.includes('ml')))) {
+        return BloodBotBrain.getLocalized(KNOWLEDGE_BASE.volume, lang);
       }
-      if (q.includes('screener') || q.includes('check eligibility') || q.includes('am i eligible')) {
-        return KNOWLEDGE_BASE.eligibility;
+      if (q.includes('screener') || q.includes('check eligibility') || q.includes('am i eligible') || q.includes('అర్హత') || q.includes('पात्रता')) {
+        return BloodBotBrain.getLocalized(KNOWLEDGE_BASE.eligibility, lang);
       }
-      if (q.includes('dispatch') || q.includes('call hospital') || q.includes('all hospitals')) {
-        return KNOWLEDGE_BASE.all_hospitals;
+      if (q.includes('dispatch') || q.includes('call hospital') || q.includes('all hospitals') || q.includes('అన్ని ఆసుపత్రులు') || q.includes('सभी अस्पताल')) {
+        return BloodBotBrain.getLocalized(KNOWLEDGE_BASE.all_hospitals, lang);
       }
 
       let bestMatch = null;
@@ -415,8 +928,9 @@
         let score = 0;
 
         for (const kw of item.keywords) {
-          if (q.includes(kw)) {
-            score += kw.length * 3;
+          const kwLower = kw.toLowerCase();
+          if (q.includes(kwLower)) {
+            score += Math.max(kwLower.length * 2.5, 4);
           }
         }
 
@@ -424,7 +938,7 @@
         for (const word of qWords) {
           if (word.length > 2) {
             for (const kw of item.keywords) {
-              if (kw.includes(word)) score += 1;
+              if (kw.toLowerCase().includes(word)) score += 1.5;
             }
           }
         }
@@ -436,28 +950,120 @@
       }
 
       if (highestScore >= 3 && bestMatch) {
-        return bestMatch;
+        return BloodBotBrain.getLocalized(bestMatch, lang);
       }
 
-      // Helpful fallback
+      // Helpful multilingual fallback
+      return BloodBotBrain.getFallback(queryText, lang);
+    }
+
+    static getLocalized(item, lang) {
+      if (!item) return null;
+      const trans = (item.translations && item.translations[lang]) || null;
       return {
-        title: '🤖 BloodBot Medical Assistant',
-        badge: 'General Assistance',
-        answer: `
-          I understand you are asking: <em>"${escapeHtml(queryText)}"</em>.<br><br>
-          While I might not have the exact medical answer for that specific phrasing, here are the most frequently requested topics I can instantly help you with:<br><br>
-          • 🩸 <strong>Donation Volume:</strong> Standard donation is <strong>350 ml to 450 ml</strong> (~8-10% of total volume).<br>
-          • ⏱️ <strong>Interval:</strong> 3 months for men, 4 months for women.<br>
-          • 🏥 <strong>Helplines:</strong> KIMS Secunderabad (<code>+91 97015 16959</code>), Apollo Jubilee Hills (<code>+91 87121 27287</code>).<br>
-          • 🧬 <strong>Compatibility:</strong> O- is Universal Donor, AB+ is Universal Recipient.
-        `,
-        actions: [
-          { label: '🧮 Open Volume Calculator', tool: 'volume_calculator' },
-          { label: '🩺 10s Eligibility Check', tool: 'eligibility_wizard' },
-          { label: '🏥 KIMS Number', query: 'What is the contact number for KIMS Hospital?' },
-          { label: '👥 Compatibility', tool: 'compat_matrix:all' }
-        ]
+        title: trans?.title || item.title,
+        badge: trans?.badge || item.badge,
+        answer: trans?.answer || item.answer,
+        actions: trans?.actions || item.actions || [],
+        isTool: item.isTool
       };
+    }
+
+    static getFallback(queryText, lang) {
+      const fallbacks = {
+        te: {
+          title: '🤖 బ్లడ్‌బాట్ వైద్య సహాయకుడు',
+          badge: 'సాధారణ సహాయం',
+          answer: `మీరు అడిగారు: <em>"${escapeHtml(queryText)}"</em>.<br><br>
+                   తరచుగా అడిగే ముఖ్య సమాచారం:<br><br>
+                   • 🩸 <strong>రక్త పరిమాణం:</strong> సాధారణంగా <strong>350 ml నుండి 450 ml</strong> (~8-10% రక్తం).<br>
+                   • ⏱️ <strong>వ్యవధి:</strong> పురుషులకు 3 నెలలు, మహిళలకు 4 నెలలు.<br>
+                   • 🏥 <strong>హెల్ప్‌లైన్లు:</strong> KIMS సికింద్రాబాద్ (<code>+91 97015 16959</code>), అపోలో జూబ్లీహిల్స్ (<code>+91 87121 27287</code>).<br>
+                   • 🧬 <strong>అనుకూలత:</strong> O- విశ్వ దాత, AB+ విశ్వ గ్రహీత.`,
+          actions: [
+            { label: '🧮 వాల్యూమ్ కాలిక్యులేటర్', tool: 'volume_calculator' },
+            { label: '🩺 అర్హత పరీక్ష (10s)', tool: 'eligibility_wizard' },
+            { label: '🏥 KIMS నంబర్', query: 'KIMS హాస్పిటల్ ఫోన్ నంబర్ ఏమిటి?' },
+            { label: '👥 రక్త వర్గాలు', tool: 'compat_matrix:all' }
+          ]
+        },
+        hi: {
+          title: '🤖 ब्लडबॉट मेडिकल सहायक',
+          badge: 'सामान्य सहायता',
+          answer: `आपकी जिज्ञासा: <em>"${escapeHtml(queryText)}"</em>.<br><br>
+                   यहाँ मुख्य विषयों की जानकारी उपलब्ध है:<br><br>
+                   • 🩸 <strong>रक्त की मात्रा:</strong> <strong>350 ml से 450 ml</strong> (शरीर के कुल रक्त का ~8-10%).<br>
+                   • ⏱️ <strong>समय अंतराल:</strong> पुरुषों के लिए 3 माह, महिलाओं के लिए 4 माह.<br>
+                   • 🏥 <strong>हेल्पलाइन:</strong> KIMS सिकंदराबाद (<code>+91 97015 16959</code>), अपोलो जुबली हिल्स (<code>+91 87121 27287</code>).<br>
+                   • 🧬 <strong>रक्त अनुकूलता:</strong> O- सर्वदाता है, AB+ सर्वग्राही है।`,
+          actions: [
+            { label: '🧮 वॉल्यूम कैलकुलेटर', tool: 'volume_calculator' },
+            { label: '🩺 10s पात्रता जांच', tool: 'eligibility_wizard' },
+            { label: '🏥 KIMS हेल्पलाइन', query: 'KIMS अस्पताल का फोन नंबर क्या है?' },
+            { label: '👥 अनुकूलता चार्ट', tool: 'compat_matrix:all' }
+          ]
+        },
+        ta: {
+          title: '🤖 பிளட்பாட் மருத்துவ உதவியாளர்',
+          badge: 'பொது உதவி',
+          answer: `உங்கள் கேள்வி: <em>"${escapeHtml(queryText)}"</em>.<br><br>
+                   முக்கிய தகவல்கள்:<br><br>
+                   • 🩸 <strong>இரத்த அளவு:</strong> <strong>350 ml - 450 ml</strong>.<br>
+                   • ⏱️ <strong>இடைவெளி:</strong> ஆண்களுக்கு 3 மாதம், பெண்களுக்கு 4 மாதம்.<br>
+                   • 🏥 <strong>உதவி எண்:</strong> KIMS (<code>+91 97015 16959</code>), அப்பல்லோ (<code>+91 87121 27287</code>).`,
+          actions: [
+            { label: '🧮 இரத்த அளவு கணக்கீடு', tool: 'volume_calculator' },
+            { label: '🩺 தகுதி சரிபார்ப்பு', tool: 'eligibility_wizard' },
+            { label: '🏥 KIMS உதவி எண்', query: 'KIMS மருத்துவமனை உதவி எண்' }
+          ]
+        },
+        kn: {
+          title: '🤖 ಬ್ಲಡ್‌ಬಾಟ್ ವೈದ್ಯಕೀಯ ಸಹಾಯಕ',
+          badge: 'ಸಾಮಾನ್ಯ ಮಾಹಿತಿ',
+          answer: `ನಿಮ್ಮ ಪ್ರಶ್ನೆ: <em>"${escapeHtml(queryText)}"</em>.<br><br>
+                   ಮುಖ್ಯ ವಿವರಗಳು:<br><br>
+                   • 🩸 <strong>ರಕ್ತದ ಪ್ರಮಾಣ:</strong> <strong>350 ml ರಿಂದ 450 ml</strong>.<br>
+                   • ⏱️ <strong>ಅಂತರ:</strong> ಪುರುಷರಿಗೆ 3 ತಿಂಗಳು, ಮಹಿಳೆಯರಿಗೆ 4 ತಿಂಗಳು.<br>
+                   • 🏥 <strong>ಸಹಾಯವಾಣಿ:</strong> KIMS (<code>+91 97015 16959</code>), ಅಪೊಲೊ (<code>+91 87121 27287</code>).`,
+          actions: [
+            { label: '🧮 ಪ್ರಮಾಣ ಕ್ಯಾಲ್ಕುಲೇಟರ್', tool: 'volume_calculator' },
+            { label: '🩺 ಅರ್ಹತೆ ಪರಿಶೀಲನೆ', tool: 'eligibility_wizard' },
+            { label: '🏥 KIMS ಸಂಖ್ಯೆ', query: 'KIMS ಆಸ್ಪತ್ರೆ ಸಹಾಯವಾಣಿ' }
+          ]
+        },
+        es: {
+          title: '🤖 Asistente Médico BloodBot',
+          badge: 'Asistencia General',
+          answer: `Entiendo su consulta: <em>"${escapeHtml(queryText)}"</em>.<br><br>
+                   Temas más frecuentes:<br><br>
+                   • 🩸 <strong>Volumen:</strong> <strong>350 ml a 450 ml</strong> (~8-10% del volumen corporal).<br>
+                   • ⏱️ <strong>Intervalo:</strong> 3 meses hombres, 4 meses mujeres.<br>
+                   • 🏥 <strong>Hospitales:</strong> KIMS (<code>+91 97015 16959</code>), Apollo (<code>+91 87121 27287</code>).<br>
+                   • 🧬 <strong>Compatibilidad:</strong> O- Donante Universal, AB+ Receptor Universal.`,
+          actions: [
+            { label: '🧮 Calculadora de Volumen', tool: 'volume_calculator' },
+            { label: '🩺 Chequeo de Elegibilidad', tool: 'eligibility_wizard' },
+            { label: '🏥 Teléfono KIMS', query: 'Teléfono de KIMS Hospital' }
+          ]
+        },
+        en: {
+          title: '🤖 BloodBot Medical Assistant',
+          badge: 'General Assistance',
+          answer: `I understand you are asking: <em>"${escapeHtml(queryText)}"</em>.<br><br>
+                   Frequently requested topics:<br><br>
+                   • 🩸 <strong>Donation Volume:</strong> Standard donation is <strong>350 ml to 450 ml</strong> (~8-10% of total volume).<br>
+                   • ⏱️ <strong>Interval:</strong> 3 months for men, 4 months for women.<br>
+                   • 🏥 <strong>Helplines:</strong> KIMS Secunderabad (<code>+91 97015 16959</code>), Apollo Jubilee Hills (<code>+91 87121 27287</code>).<br>
+                   • 🧬 <strong>Compatibility:</strong> O- is Universal Donor, AB+ is Universal Recipient.`,
+          actions: [
+            { label: '🧮 Open Volume Calculator', tool: 'volume_calculator' },
+            { label: '🩺 10s Eligibility Check', tool: 'eligibility_wizard' },
+            { label: '🏥 KIMS Number', query: 'What is the contact number for KIMS Hospital?' },
+            { label: '👥 Compatibility', tool: 'compat_matrix:all' }
+          ]
+        }
+      };
+      return fallbacks[lang] || fallbacks.en;
     }
   }
 
@@ -469,7 +1075,7 @@
       .replace(/"/g, '&quot;');
   }
 
-  // 5. Voice Helpers & Speech Engine
+  // 6. Multilingual Voice Helpers & Speech Engine
   let isSpeechEnabled = false;
   let activeUtterance = null;
 
@@ -503,30 +1109,39 @@
     window.__bloodbotUtterance = null;
   }
 
-  function getBestVoice() {
+  function getBestVoice(targetLang = null) {
     if (typeof window === 'undefined' || !window.speechSynthesis) return null;
     const voices = window.speechSynthesis.getVoices() || [];
     if (!voices.length) return null;
 
+    const lang = targetLang || currentLanguage;
+    const langPrefix = lang === 'en' ? 'en' : (LANGUAGES[lang]?.code?.split('-')[0] || lang);
+
+    // Try matching specific language first
+    const langVoices = voices.filter(v => v.lang && v.lang.toLowerCase().startsWith(langPrefix));
+    if (langVoices.length > 0) {
+      const preferred = langVoices.find(v =>
+        v.name.includes('Natural') ||
+        v.name.includes('Google') ||
+        v.name.includes('Samantha') ||
+        v.name.includes('Jenny') ||
+        v.name.includes('Aria')
+      );
+      return preferred || langVoices[0];
+    }
+
+    // Fallback to English
     const englishVoices = voices.filter(v => v.lang && v.lang.startsWith('en'));
-    const preferred = englishVoices.find(v =>
-      v.name.includes('Natural') ||
-      v.name.includes('Google') ||
-      v.name.includes('Samantha') ||
-      v.name.includes('Jenny') ||
-      v.name.includes('Aria') ||
-      v.name.includes('Guy')
-    );
-    return preferred || englishVoices[0] || voices[0] || null;
+    return englishVoices[0] || voices[0] || null;
   }
 
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
     window.speechSynthesis.onvoiceschanged = () => {
-      getBestVoice();
+      getBestVoice(currentLanguage);
     };
   }
 
-  function speakResponse(text, forceSpeak = false) {
+  function speakResponse(text, forceSpeak = false, speakLang = null) {
     if ((!isSpeechEnabled && !forceSpeak) || typeof window === 'undefined' || !window.speechSynthesis) return;
 
     try {
@@ -535,7 +1150,8 @@
         window.speechSynthesis.resume();
       }
 
-      // Clean HTML tags and markdown symbols for natural speech
+      const lang = speakLang || currentLanguage;
+
       let cleanText = text
         .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
         .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
@@ -546,11 +1162,10 @@
         .replace(/&gt;/g, '>')
         .replace(/&quot;/g, '"')
         .replace(/[•\*\#\-]/g, ' ')
-        .replace(/[\u{1F300}-\u{1FAFF}]/gu, '') // strip emojis for clean narration
+        .replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
         .replace(/\s+/g, ' ')
         .trim();
 
-      // Read a natural summary (first 350 chars or first 2 sentences)
       if (cleanText.length > 350) {
         const sentenceBreak = cleanText.indexOf('.', 140);
         if (sentenceBreak !== -1 && sentenceBreak < 350) {
@@ -562,12 +1177,13 @@
 
       const utterance = new SpeechSynthesisUtterance(cleanText);
       activeUtterance = utterance;
-      window.__bloodbotUtterance = utterance; // Prevent Chrome GC bug
+      window.__bloodbotUtterance = utterance;
 
-      utterance.rate = 1.0;
+      utterance.rate = 0.98;
       utterance.pitch = 1.0;
+      utterance.lang = LANGUAGES[lang]?.code || 'en-US';
 
-      const voice = getBestVoice();
+      const voice = getBestVoice(lang);
       if (voice) utterance.voice = voice;
 
       utterance.onstart = () => {
@@ -593,7 +1209,6 @@
         try {
           window.speechSynthesis.speak(utterance);
         } catch (e) {
-          console.warn('SpeechSynthesis speak error:', e);
           updateEqualizer(false);
           hideSpeakingBanner();
         }
@@ -606,7 +1221,8 @@
     }
   }
 
-  // 6. Build and Inject Floating Widget
+
+  // 7. Build and Inject Floating Widget
   function createBloodBotWidget() {
     if (document.getElementById('bloodbot-floating-container')) return;
 
@@ -665,6 +1281,17 @@
             </div>
           </div>
           <div class="bloodbot-header-actions">
+            <!-- Language Selector Dropdown -->
+            <div class="bloodbot-lang-wrap">
+              <select id="bloodbot-lang-select" class="bloodbot-lang-select" aria-label="Select Assistant Language" title="Change Language / భాష మార్చండి / भाषा बदलें">
+                <option value="en">🌐 English</option>
+                <option value="te">🇮🇳 తెలుగు</option>
+                <option value="hi">🇮🇳 हिंदी</option>
+                <option value="ta">🇮🇳 தமிழ்</option>
+                <option value="kn">🇮🇳 ಕನ್ನಡ</option>
+                <option value="es">🇪🇸 Español</option>
+              </select>
+            </div>
             <button type="button" class="bloodbot-btn-icon" id="bloodbot-voice-toggle" title="Toggle Voice Read-Aloud (TTS)" aria-label="Toggle Voice Read Aloud">
               <span id="bloodbot-voice-icon">🔇</span>
             </button>
@@ -680,14 +1307,10 @@
         <!-- Categorized FAQ Tabs & Chips Area -->
         <div class="bloodbot-faqs-container">
           <div class="bloodbot-tabs-scroll" id="bloodbot-tabs-scroll">
-            ${Object.keys(FAQ_CATEGORIES).map((key, idx) => `
-              <button type="button" class="bloodbot-category-tab ${idx === 0 ? 'active' : ''}" data-cat="${key}">
-                ${FAQ_CATEGORIES[key].label}
-              </button>
-            `).join('')}
+            <!-- Populated dynamically based on active language -->
           </div>
           <div class="bloodbot-faqs-scroll" id="bloodbot-faqs-list">
-            <!-- Populated dynamically based on active tab -->
+            <!-- Populated dynamically based on active category -->
           </div>
         </div>
 
@@ -697,9 +1320,10 @@
           <div class="bloodbot-msg bloodbot-msg-bot">
             <div class="bloodbot-msg-avatar">🤖</div>
             <div class="bloodbot-msg-content">
-              <div class="bloodbot-msg-badge">✨ Interactive Health Companion</div>
+              <div class="bloodbot-msg-badge">✨ Multilingual Health Companion</div>
               <div class="bloodbot-msg-body">
-                Hello! I am your <strong>BloodConnect AI Assistant</strong>.<br><br>
+                Hello! I am your <strong>BloodConnect AI Assistant</strong>.<br>
+                <span style="font-size: 11.5px; color: var(--secondary-glow);">నమస్కారం! నేను తెలుగులో కూడా సమాధానం చెప్పగలను • नमस्ते! मैं हिंदी में भी सहायता कर सकता हूँ</span><br><br>
                 What would you like to explore today?
                 <div class="bot-quick-tools-grid">
                   <button type="button" class="bot-tool-card-btn" onclick="window.launchBloodBotTool('volume_calculator')">
@@ -728,47 +1352,53 @@
           </div>
         </div>
 
-        <!-- Live Voice Listening Overlay Card -->
+        <!-- Live Audio Equalizer Waveform & Voice Listening Overlay Card -->
         <div id="bloodbot-listening-overlay" class="bloodbot-listening-overlay" style="display: none;">
           <div class="listening-overlay-inner">
             <div class="listening-top-bar">
               <div class="listening-indicator">
                 <span class="listening-live-dot"></span>
-                <span id="bloodbot-listening-status" class="listening-status-text">Listening... Speak now</span>
+                <span class="listening-status-text" id="bloodbot-listening-status">Listening... Speak now</span>
               </div>
               <div class="listening-wave-bars">
                 <span></span><span></span><span></span><span></span><span></span>
               </div>
             </div>
-            <div id="bloodbot-listening-transcript" class="listening-transcript">
-              "Try asking: What is KIMS helpline? or How much ml blood is needed?"
+            <div class="listening-transcript" id="bloodbot-listening-transcript">
+              Listening... Say: "What is KIMS helpline?" or "How much ml to donate?"
             </div>
             <div class="listening-footer-btns">
-              <button type="button" class="listening-btn cancel" id="bloodbot-voice-cancel">✕ Cancel</button>
-              <button type="button" class="listening-btn send" id="bloodbot-voice-send">✓ Send Query</button>
+              <button type="button" class="listening-btn cancel" id="bloodbot-voice-cancel">Cancel</button>
+              <button type="button" class="listening-btn send" id="bloodbot-voice-send">Done</button>
             </div>
           </div>
         </div>
 
-        <!-- Voice Speaking Audio Indicator Banner -->
+        <!-- Speaking Banner Pill -->
         <div id="bloodbot-speaking-banner" class="bloodbot-speaking-banner" style="display: none;">
           <div class="speaking-banner-left">
             <span class="speaking-pulse-icon">🔊</span>
-            <span class="speaking-banner-text">BloodBot is speaking...</span>
+            <span class="speaking-banner-text">Reading answer aloud...</span>
           </div>
-          <button type="button" class="speaking-stop-btn" id="bloodbot-speaking-stop" title="Stop speaking">
-            ⏹️ Stop Audio
-          </button>
+          <button type="button" class="speaking-stop-btn" id="bloodbot-speaking-stop" title="Stop Audio Narration">Stop ⏹️</button>
         </div>
 
-        <!-- Input Area -->
-        <form class="bloodbot-input-form" id="bloodbot-input-form">
-          <button type="button" class="bloodbot-mic-btn" id="bloodbot-mic-btn" title="Voice Command (Click to Speak)" aria-label="Voice input">
+        <!-- Chat Input Form with Enhanced Mic Button -->
+        <form id="bloodbot-input-form" class="bloodbot-input-form" autocomplete="off">
+          <input 
+            type="text" 
+            id="bloodbot-input-field" 
+            class="bloodbot-input-field" 
+            placeholder="Ask in English, తెలుగు, हिंदी... (e.g., KIMS helpline, ml required)" 
+            aria-label="Ask a medical or donation question"
+          />
+          <!-- Interactive Voice Input Microphone Trigger -->
+          <button type="button" id="bloodbot-mic-btn" class="bloodbot-mic-btn" title="Voice Command (Click to Speak)" aria-label="Speak Question via Microphone">
             🎤
           </button>
-          <input type="text" class="bloodbot-input-field" id="bloodbot-input-field" placeholder="Ask about ml required, KIMS helpline, compatibility..." autocomplete="off" required>
-          <button type="submit" class="bloodbot-send-btn" id="bloodbot-send-btn" title="Send message" aria-label="Send message">
-            <span>Ask AI</span> ➔
+          <button type="submit" id="bloodbot-send-btn" class="bloodbot-send-btn" aria-label="Send message">
+            <span>Send</span>
+            <span>➤</span>
           </button>
         </form>
       </div>
@@ -778,7 +1408,8 @@
     initBloodBotEvents();
   }
 
-  // 7. Interactive Tool Renderers
+
+// 7. Interactive Tool Renderers
   const ToolRenderers = {
     // A. Blood Volume & Fluid Recovery Calculator
     volume_calculator: (containerId) => {
@@ -1107,7 +1738,8 @@
     }
   };
 
-  // 8. Event Binding & Interactive UI Management
+
+  // 9. Event Binding & Multilingual UI Management
   function initBloodBotEvents() {
     const launcher = document.getElementById('bloodbot-launcher');
     const chatWindow = document.getElementById('bloodbot-chat-window');
@@ -1115,6 +1747,7 @@
     const clearBtn = document.getElementById('bloodbot-clear-btn');
     const voiceToggle = document.getElementById('bloodbot-voice-toggle');
     const voiceIcon = document.getElementById('bloodbot-voice-icon');
+    const langSelect = document.getElementById('bloodbot-lang-select');
     const form = document.getElementById('bloodbot-input-form');
     const inputField = document.getElementById('bloodbot-input-field');
     const messagesArea = document.getElementById('bloodbot-messages-area');
@@ -1127,10 +1760,33 @@
 
     if (!launcher || !chatWindow) return;
 
-    // Render Initial FAQ Category Chips
+    let activeCategory = 'top';
+
+    // Render FAQ Category Tabs Dynamically based on current language
+    function renderFaqTabs() {
+      if (!tabsContainer) return;
+      tabsContainer.innerHTML = Object.keys(FAQ_CATEGORIES).map(key => {
+        const cat = FAQ_CATEGORIES[key];
+        const label = (typeof cat.label === 'object') ? (cat.label[currentLanguage] || cat.label.en) : cat.label;
+        const isActive = key === activeCategory ? 'active' : '';
+        return `<button type="button" class="bloodbot-category-tab ${isActive}" data-cat="${key}">${label}</button>`;
+      }).join('');
+    }
+
+    // Render FAQ Chips for Active Category in current language
     function renderFaqChips(catKey) {
-      const cat = FAQ_CATEGORIES[catKey] || FAQ_CATEGORIES.popular;
-      faqsList.innerHTML = cat.chips.map(chip => `
+      if (!faqsList) return;
+      activeCategory = catKey || activeCategory || 'top';
+      const cat = FAQ_CATEGORIES[activeCategory] || FAQ_CATEGORIES.top;
+      let chips = [];
+      if (cat.chips) {
+        if (Array.isArray(cat.chips)) {
+          chips = cat.chips;
+        } else if (typeof cat.chips === 'object') {
+          chips = cat.chips[currentLanguage] || cat.chips.en || [];
+        }
+      }
+      faqsList.innerHTML = chips.map(chip => `
         <button type="button" class="bloodbot-faq-chip" 
           ${chip.query ? `data-query="${escapeHtml(chip.query)}"` : ''} 
           ${chip.tool ? `data-tool="${escapeHtml(chip.tool)}"` : ''} 
@@ -1139,7 +1795,10 @@
         </button>
       `).join('');
     }
-    renderFaqChips('popular');
+
+    // Initial render
+    renderFaqTabs();
+    renderFaqChips('top');
 
     // Handle Tab Selection
     tabsContainer.addEventListener('click', (e) => {
@@ -1147,18 +1806,79 @@
       if (!tab) return;
       tabsContainer.querySelectorAll('.bloodbot-category-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      renderFaqChips(tab.dataset.cat);
+      activeCategory = tab.dataset.cat;
+      renderFaqChips(activeCategory);
       if (window.soundFX) window.soundFX.playRadarPing();
     });
+
+    // Language Switcher Function
+    function switchLanguage(newLang, announce = true) {
+      if (!LANGUAGES[newLang]) newLang = 'en';
+      currentLanguage = newLang;
+      if (langSelect && langSelect.value !== newLang) {
+        langSelect.value = newLang;
+      }
+
+      renderFaqTabs();
+      renderFaqChips(activeCategory);
+
+      // Update input placeholder in current language
+      if (inputField) {
+        const placeholders = {
+          en: 'Ask in English, తెలుగు, हिंदी... (e.g., KIMS helpline, ml required)',
+          te: 'తెలుగులో అడగండి... (ఉదా: KIMS నంబర్, ఎన్ని ml రక్తం, అర్హత)',
+          hi: 'हिंदी में पूछें... (उदा: KIMS हेल्पलाइन, कितने ml खून, पात्रता)',
+          ta: 'தமிழில் கேளுங்கள்... (KIMS உதவி எண், இரத்த அளவு)',
+          kn: 'ಕನ್ನಡದಲ್ಲಿ ಕೇಳಿ... (KIMS ಸಹಾಯವಾಣಿ, ರಕ್ತದ ಪ್ರಮಾಣ)',
+          es: 'Pregunta en español... (volumen en ml, hospital KIMS)'
+        };
+        inputField.placeholder = placeholders[newLang] || placeholders.en;
+      }
+
+      // Update active speech recognition language
+      if (recognizer) {
+        try {
+          recognizer.lang = LANGUAGES[currentLanguage]?.code || 'en-US';
+        } catch (e) {}
+      }
+
+      if (announce) {
+        const langAnnouncements = {
+          en: 'Switched to English. Ask me about blood donation volume (350ml/450ml), KIMS Hospital (+91 97015 16959), Apollo (+91 87121 27287), or compatibility!',
+          te: 'తెలుగు భాష ఎంచుకోబడింది. రక్త పరిమాణం (350ml/450ml), KIMS ఆసుపత్రి (+91 97015 16959), అపోలో (+91 87121 27287), లేదా అర్హత గురించి ఏదైనా అడగండి!',
+          hi: 'हिंदी भाषा चुनी गई है। रक्तदान में कितने ml (350ml/450ml), KIMS अस्पताल (+91 97015 16959), अपोलो (+91 87121 27287) या पात्रता के बारे में पूछें!',
+          ta: 'தமிழ் மொழி தேர்ந்தெடுக்கப்பட்டது. இரத்த தான அளவு (350ml/450ml), KIMS மருத்துவமனை (+91 97015 16959), அப்பல்லோ அல்லது தகுதி பற்றி கேளுங்கள்!',
+          kn: 'ಕನ್ನಡ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆ ಮಾಡಲಾಗಿದೆ. ರಕ್ತದ ಪ್ರಮಾಣ (350ml/450ml), KIMS ಆಸ್ಪತ್ರೆ (+91 97015 16959), ಅಪೊಲೊ ಅಥವಾ ಅರ್ಹತೆಯ ಬಗ್ಗೆ ಕೇಳಿ!',
+          es: 'Idioma cambiado a español. ¡Pregúntame sobre el volumen de sangre (350ml/450ml), KIMS Hospital (+91 97015 16959), Apollo o compatibilidad!'
+        };
+        const text = langAnnouncements[newLang] || langAnnouncements.en;
+        appendBotResponse({
+          badge: LANGUAGES[newLang].flag + ' ' + LANGUAGES[newLang].name,
+          title: '🌐 ' + LANGUAGES[newLang].label,
+          answer: text,
+          actions: [
+            { label: '🧮 Calculator', tool: 'volume_calculator' },
+            { label: '🩺 Screener', tool: 'eligibility_wizard' }
+          ]
+        }, isSpeechEnabled);
+      }
+    }
+
+    if (langSelect) {
+      langSelect.addEventListener('change', (e) => {
+        switchLanguage(e.target.value, true);
+      });
+    }
 
     // Proactive Teaser Fact Cycling (every 6 seconds)
     let teaserIdx = 0;
     const rotateTeaser = () => {
-      teaserIdx = (teaserIdx + 1) % TEASER_FACTS.length;
+      const facts = TEASER_FACTS[currentLanguage] || TEASER_FACTS.en;
+      teaserIdx = (teaserIdx + 1) % facts.length;
       if (teaserText) {
         teaserText.style.opacity = '0';
         setTimeout(() => {
-          teaserText.textContent = TEASER_FACTS[teaserIdx].text;
+          teaserText.textContent = facts[teaserIdx].text;
           teaserText.style.opacity = '1';
         }, 250);
       }
@@ -1169,7 +1889,8 @@
     teaserBubble.addEventListener('click', (e) => {
       if (e.target === teaserDismiss) return;
       toggleChat(true);
-      const fact = TEASER_FACTS[teaserIdx];
+      const facts = TEASER_FACTS[currentLanguage] || TEASER_FACTS.en;
+      const fact = facts[teaserIdx] || facts[0];
       if (fact.tool) {
         setTimeout(() => executeTool(fact.tool), 300);
       } else if (fact.query) {
@@ -1245,7 +1966,7 @@
       });
     }
 
-    // 8. Robust Speech-to-Text & Voice Command System
+    // 10. Robust Speech-to-Text & Multilingual Voice Command System
     let recognizer = null;
     let isListening = false;
     let capturedTranscript = '';
@@ -1274,9 +1995,8 @@
         recognizer.interimResults = true;
         recognizer.maxAlternatives = 1;
 
-        // Auto select English locale
-        const sysLang = navigator.language || 'en-US';
-        recognizer.lang = sysLang.startsWith('en') ? sysLang : 'en-US';
+        // Multilingual: dynamically select the user-chosen or detected language locale!
+        recognizer.lang = LANGUAGES[currentLanguage]?.code || 'en-US';
 
         capturedTranscript = '';
         isListening = true;
@@ -1290,11 +2010,22 @@
         if (listeningOverlay) {
           listeningOverlay.style.display = 'block';
         }
+
+        const listeningPrompts = {
+          en: { status: 'Listening... Speak your question now', placeholder: 'Listening... Say: "What is KIMS helpline?" or "How much ml to donate?"' },
+          te: { status: 'వింటున్నాను... మీ ప్రశ్న చెప్పండి', placeholder: 'వింటున్నాను... చెప్పండి: "KIMS నంబర్ ఎంత?" లేదా "ఎన్ని ml రక్తం కావాలి?"' },
+          hi: { status: 'सुन रहा हूँ... अपना सवाल बोलें', placeholder: 'सुन रहा हूँ... बोलिए: "KIMS का नंबर क्या है?" या "कितने ml खून दान करें?"' },
+          ta: { status: 'கேட்கிறேன்... உங்கள் கேள்வியைக் கூறுங்கள்', placeholder: 'கேட்கிறேன்... சொல்லுங்கள்: "KIMS உதவி எண்" அல்லது "எத்தனை ml?"' },
+          kn: { status: 'ಕೇಳುತ್ತಿದ್ದೇನೆ... ಪ್ರಶ್ನೆ ಕೇಳಿ', placeholder: 'ಕೇಳುತ್ತಿದ್ದೇನೆ... ಹೇಳಿ: "KIMS ಸಹಾಯವಾಣಿ" ಅಥವಾ "ಎಷ್ಟು ml ರಕ್ತದಾನ?"' },
+          es: { status: 'Escuchando... Di tu pregunta ahora', placeholder: 'Escuchando... Di: "¿Cuánto volumen de sangre?" o "¿Teléfono de KIMS?"' }
+        };
+
+        const p = listeningPrompts[currentLanguage] || listeningPrompts.en;
         if (listeningStatus) {
-          listeningStatus.textContent = 'Listening... Speak your question now';
+          listeningStatus.textContent = p.status;
         }
         if (listeningTranscript) {
-          listeningTranscript.textContent = 'Listening... Say: "What is KIMS helpline?" or "How much ml to donate?"';
+          listeningTranscript.textContent = p.placeholder;
           listeningTranscript.classList.remove('has-text');
         }
 
@@ -1304,7 +2035,9 @@
 
         recognizer.onstart = () => {
           isListening = true;
-          if (listeningStatus) listeningStatus.textContent = 'Listening... Speak now';
+          if (listeningStatus) {
+            listeningStatus.textContent = p.status;
+          }
         };
 
         recognizer.onresult = (event) => {
@@ -1402,10 +2135,10 @@
 
     if (listeningSend) {
       listeningSend.addEventListener('click', () => {
-        const query = (capturedTranscript || (inputField ? inputField.value : '')).trim();
+        const text = capturedTranscript || (inputField ? inputField.value.trim() : '');
         stopListening();
-        if (query) {
-          handleVoiceCommandOrQuery(query);
+        if (text) {
+          handleVoiceCommandOrQuery(text);
         }
       });
     }
@@ -1415,29 +2148,27 @@
       msgDiv.className = 'bloodbot-msg bloodbot-msg-bot';
       msgDiv.innerHTML = `
         <div class="bloodbot-msg-avatar">🎙️</div>
-        <div class="bloodbot-msg-content" style="border-left: 3px solid #f59e0b;">
-          <div class="bloodbot-msg-badge" style="background: rgba(245, 158, 11, 0.18); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);">
-            ⚠️ Microphone Permission Required
-          </div>
-          <div class="bloodbot-msg-title">How to Enable Voice Commands:</div>
+        <div class="bloodbot-msg-content">
+          <div class="bloodbot-msg-badge">Microphone Access Required</div>
+          <div class="bloodbot-msg-title">How to Enable Microphone in Browser</div>
           <div class="bloodbot-msg-body">
-            Your browser blocked microphone access. To talk with BloodBot AI:<br><br>
-            <strong>1.</strong> Look at your browser address bar (top left next to the URL).<br>
-            <strong>2.</strong> Click the <strong>Site Settings / Lock 🔒 / Camera 📹</strong> icon.<br>
-            <strong>3.</strong> Change <strong>Microphone</strong> from "Block" to <strong>"Allow"</strong>.<br>
-            <strong>4.</strong> Tap the button below to retry speaking!
+            To speak directly to BloodBot AI, allow microphone permissions for this site:<br><br>
+            1. Look at your browser address bar (top left).<br>
+            2. Click the <strong>🔒 Tune / Padlock</strong> icon.<br>
+            3. Under Permissions, toggle <strong>Microphone</strong> to <strong>Allow</strong>.<br>
+            4. Refresh or click the <strong>Retry Voice</strong> button below.
           </div>
           <div class="bloodbot-action-buttons">
-            <button type="button" class="bloodbot-action-btn" id="retry-voice-mic-btn">🎙️ Retry Microphone</button>
-            <button type="button" class="bloodbot-action-btn" data-query="What is the contact number for KIMS Hospital?">🏥 KIMS Helpline</button>
-            <button type="button" class="bloodbot-action-btn" data-query="How much ml of blood is required on a donation?">🩸 Blood Volume (ml)</button>
+            <button type="button" class="bloodbot-action-btn" id="retry-voice-permission-btn">🎙️ Retry Microphone</button>
+            <button type="button" class="bloodbot-action-btn" data-query="How much ml of blood is required on a donation?">🩸 Ask ml required</button>
+            <button type="button" class="bloodbot-action-btn" data-query="What is the helpline for KIMS Hospital?">🏥 Ask KIMS Hospital</button>
           </div>
         </div>
       `;
       messagesArea.appendChild(msgDiv);
       scrollToBottom();
 
-      const retryBtn = msgDiv.querySelector('#retry-voice-mic-btn');
+      const retryBtn = msgDiv.querySelector('#retry-voice-permission-btn');
       if (retryBtn) {
         retryBtn.addEventListener('click', () => startListening());
       }
@@ -1505,7 +2236,7 @@
           <div class="bloodbot-msg-title">Speech-to-Text Notice</div>
           <div class="bloodbot-msg-body">
             Voice speech recognition is natively supported in <strong>Google Chrome</strong>, <strong>Microsoft Edge</strong>, and <strong>Safari</strong>.<br><br>
-            You can type your questions in the box below or click any of the 1-tap FAQ chips above!
+            You can type your questions in English, తెలుగు, or हिंदी in the box below!
           </div>
         </div>
       `;
@@ -1513,55 +2244,87 @@
       scrollToBottom();
     }
 
-    // Voice Command Dispatcher & Intent Analyzer
+    // Voice Command Dispatcher & Multilingual Intent Analyzer
     function handleVoiceCommandOrQuery(rawQuery) {
       const query = rawQuery.trim();
       if (!query) return;
 
+      // Auto-detect language of spoken query
+      const detectedLang = detectLanguage(query);
+      if (detectedLang && detectedLang !== currentLanguage) {
+        switchLanguage(detectedLang, false);
+      }
+
       const lower = query.toLowerCase();
 
       // Intent 1: Volume Calculator
-      if (lower.includes('volume') || lower.includes('calculator') || lower.includes('how much ml') || lower.includes('calculate blood') || lower.includes('calculate ml')) {
+      if (lower.includes('volume') || lower.includes('calculator') || lower.includes('how much ml') || lower.includes('calculate blood') || lower.includes('calculate ml') ||
+          lower.includes('ఎంత రక్తం') || lower.includes('ఎన్ని ml') || lower.includes('కాలిక్యులేటర్') || lower.includes('రక్త పరిమాణం') ||
+          lower.includes('कितना ml') || lower.includes('कितने ml') || lower.includes('कैलकुलेटर') || lower.includes('रक्त की मात्रा') ||
+          lower.includes('cuanto ml') || lower.includes('volumen') || lower.includes('eshtu ml') || lower.includes('ethanai ml')) {
         handleUserQuery(query, true);
         setTimeout(() => executeTool('volume_calculator'), 300);
         return;
       }
 
       // Intent 2: Eligibility Screener
-      if (lower.includes('eligib') || lower.includes('screener') || lower.includes('can i donate') || lower.includes('fit to donate') || lower.includes('am i eligible')) {
+      if (lower.includes('eligib') || lower.includes('screener') || lower.includes('can i donate') || lower.includes('fit to donate') || lower.includes('am i eligible') ||
+          lower.includes('అర్హత') || lower.includes('పాత్') || lower.includes('पात्रता') || lower.includes('योग्यता') ||
+          lower.includes('elegib') || lower.includes('requisitos') || lower.includes('தகுதி') || lower.includes('ಅರ್ಹತೆ')) {
         handleUserQuery(query, true);
         setTimeout(() => executeTool('eligibility_wizard'), 300);
         return;
       }
 
       // Intent 3: Blood Compatibility Matrix
-      if (lower.includes('compatib') || lower.includes('matrix') || lower.includes('who can donate') || lower.includes('universal donor') || lower.includes('universal recipient')) {
+      if (lower.includes('compatib') || lower.includes('matrix') || lower.includes('who can donate') || lower.includes('universal donor') || lower.includes('universal recipient') ||
+          lower.includes('అనుకూలత') || lower.includes('సార్వత్రిక') || lower.includes('अनुकूलता') || lower.includes('सर्वदाता') || lower.includes('सर्वग्राही') ||
+          lower.includes('compatibilidad') || lower.includes('donante universal') || lower.includes('பொருத்தம்') || lower.includes('ಹೊಂದಾಣಿಕೆ')) {
         handleUserQuery(query, true);
         setTimeout(() => executeTool('compat_matrix:all'), 300);
         return;
       }
 
       // Intent 4: Hospital Emergency Desks
-      if (lower.includes('hospital') || lower.includes('dispatch') || lower.includes('emergency gate') || lower.includes('helpline')) {
+      if (lower.includes('hospital') || lower.includes('dispatch') || lower.includes('emergency gate') || lower.includes('helpline') ||
+          lower.includes('ఆసుపత్రి') || lower.includes('ఆస్పత్రి') || lower.includes('అస్పత్రి') ||
+          lower.includes('अस्पताल') || lower.includes('மருத்துவமனை') || lower.includes('ಆಸ್ಪತ್ರೆ') || lower.includes('hospitales')) {
         handleUserQuery(query, true);
         setTimeout(() => executeTool('hospital_dispatch'), 300);
         return;
       }
 
       // Intent 5: Direct KIMS Hospital Inquiry
-      if (lower.includes('kims')) {
-        handleUserQuery('What is the contact number and helpline for KIMS Hospital Begumpet?', true);
+      if (lower.includes('kims') || lower.includes('కిమ్స్') || lower.includes('किम्स') || lower.includes('கிம்ஸ்') || lower.includes('ಕಿಮ್ಸ್')) {
+        const kimsQueries = {
+          en: 'What is the contact number and helpline for KIMS Hospital Begumpet?',
+          te: 'KIMS హాస్పిటల్ బేగంపేట హెల్ప్‌లైన్ నంబర్ ఎంత?',
+          hi: 'KIMS अस्पताल सिकंदराबाद का हेल्पलाइन नंबर क्या है?',
+          ta: 'KIMS மருத்துவமனை உதவி எண் என்ன?',
+          kn: 'KIMS ಆಸ್ಪತ್ರೆ ಸಹಾಯವಾಣಿ ಸಂಖ್ಯೆ ಎಷ್ಟು?',
+          es: '¿Cuál es el número de teléfono del Hospital KIMS?'
+        };
+        handleUserQuery(kimsQueries[currentLanguage] || kimsQueries.en, true);
         return;
       }
 
       // Intent 6: Direct Apollo Hospital Inquiry
-      if (lower.includes('apollo')) {
-        handleUserQuery('What is the emergency helpline and gate for Apollo Hospital Jubilee Hills?', true);
+      if (lower.includes('apollo') || lower.includes('అపోలో') || lower.includes('अपोलो') || lower.includes('அப்பல்லோ') || lower.includes('ಅಪೊಲೊ')) {
+        const apolloQueries = {
+          en: 'What is the emergency helpline and gate for Apollo Hospital Jubilee Hills?',
+          te: 'అపోలో హాస్పిటల్ జూబ్లీహిల్స్ ఎమర్జెన్సీ నంబర్ మరియు గేట్ ఏది?',
+          hi: 'अपोलो अस्पताल जुबली हिल्स का आपातकालीन नंबर और गेट कौन सा है?',
+          ta: 'அப்பல்லோ மருத்துவமனை உதவி எண் என்ன?',
+          kn: 'ಅಪೊಲೊ ಆಸ್ಪತ್ರೆ ಸಹಾಯವಾಣಿ ಸಂಖ್ಯೆ ಎಷ್ಟು?',
+          es: '¿Cuál es la línea de emergencia de Apollo Hospital?'
+        };
+        handleUserQuery(apolloQueries[currentLanguage] || apolloQueries.en, true);
         return;
       }
 
       // Intent 7: Stop Audio / Mute Command
-      if (lower.includes('stop speaking') || lower.includes('mute') || lower.includes('stop audio') || lower.includes('stop talking') || lower.includes('be quiet') || lower.includes('shut up')) {
+      if (lower.includes('stop speaking') || lower.includes('mute') || lower.includes('stop audio') || lower.includes('stop talking') || lower.includes('be quiet') || lower.includes('shut up') ||
+          lower.includes('ఆపు') || lower.includes('మాట్లాడకు') || lower.includes('రోకో') || lower.includes('बंद करो') || lower.includes('शांत') || lower.includes('parar') || lower.includes('silencio')) {
         stopSpeaking();
         appendBotResponse({
           title: '🔇 Voice Audio Stopped',
@@ -1715,13 +2478,19 @@
     }
 
     function handleUserQuery(userText, isVoiceTrigger = false) {
+      // Auto-detect language of prompt
+      const detected = detectLanguage(userText);
+      if (detected && detected !== currentLanguage) {
+        switchLanguage(detected, false);
+      }
+
       appendUserMessage(userText, isVoiceTrigger);
       if (window.soundFX) window.soundFX.playSuccessChime();
       const typingId = appendTypingIndicator();
 
       setTimeout(() => {
         removeTypingIndicator(typingId);
-        const match = BloodBotBrain.matchQuery(userText);
+        const match = BloodBotBrain.matchQuery(userText, currentLanguage);
         appendBotResponse(match, isVoiceTrigger);
       }, 400);
     }
@@ -1802,7 +2571,7 @@
 
       // Read aloud if general voice output is enabled OR if query was initiated by voice command!
       if (isSpeechEnabled || isVoiceTrigger) {
-        speakResponse(data.title + '. ' + data.answer, true);
+        speakResponse(data.title + '. ' + data.answer, true, currentLanguage);
       }
     }
 
