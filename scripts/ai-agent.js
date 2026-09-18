@@ -1974,7 +1974,7 @@
     const hasSpeechRecognition = typeof window !== 'undefined' && 
       ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window);
 
-    function startListening() {
+    function startListening(forceUniversal = false) {
       if (!hasSpeechRecognition) {
         showVoiceUnsupportedCard();
         return;
@@ -1985,8 +1985,12 @@
         return;
       }
 
-      // Stop any ongoing TTS audio
+      // Stop any ongoing TTS audio and cancel existing recognition session cleanly
       stopSpeaking();
+      if (recognizer) {
+        try { recognizer.abort(); } catch (e) {}
+        recognizer = null;
+      }
 
       try {
         const SpeechRecClass = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1995,8 +1999,12 @@
         recognizer.interimResults = true;
         recognizer.maxAlternatives = 1;
 
-        // Multilingual: dynamically select the user-chosen or detected language locale!
-        recognizer.lang = LANGUAGES[currentLanguage]?.code || 'en-US';
+        // Multilingual: use universal mode if forced, else selected language
+        if (forceUniversal) {
+          recognizer.lang = navigator.language && navigator.language.startsWith('en') ? navigator.language : 'en-US';
+        } else {
+          recognizer.lang = LANGUAGES[currentLanguage]?.code || 'en-US';
+        }
 
         capturedTranscript = '';
         isListening = true;
@@ -2020,9 +2028,9 @@
           es: { status: 'Escuchando... Di tu pregunta ahora', placeholder: 'Escuchando... Di: "¿Cuánto volumen de sangre?" o "¿Teléfono de KIMS?"' }
         };
 
-        const p = listeningPrompts[currentLanguage] || listeningPrompts.en;
+        const p = listeningPrompts[forceUniversal ? 'en' : currentLanguage] || listeningPrompts.en;
         if (listeningStatus) {
-          listeningStatus.textContent = p.status;
+          listeningStatus.textContent = p.status + (forceUniversal ? ' (Universal)' : '');
         }
         if (listeningTranscript) {
           listeningTranscript.textContent = p.placeholder;
@@ -2036,7 +2044,7 @@
         recognizer.onstart = () => {
           isListening = true;
           if (listeningStatus) {
-            listeningStatus.textContent = p.status;
+            listeningStatus.textContent = p.status + (forceUniversal ? ' (Universal)' : '');
           }
         };
 
@@ -2074,6 +2082,20 @@
 
         recognizer.onerror = (event) => {
           console.warn('SpeechRecognition error:', event.error);
+
+          // If a regional language triggers 'network', auto-fallback to universal English mode once!
+          if (event.error === 'network' && !forceUniversal && currentLanguage !== 'en') {
+            console.info('Regional speech recognition server unreachable, auto-retrying in universal mode...');
+            stopListening(false);
+            if (listeningStatus) {
+              listeningStatus.textContent = '🔄 Retrying with universal speech server...';
+            }
+            setTimeout(() => {
+              startListening(true);
+            }, 300);
+            return;
+          }
+
           stopListening();
 
           if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
@@ -2082,6 +2104,10 @@
             showNoSpeechNotification();
           } else if (event.error === 'network') {
             showNetworkVoiceNotification();
+          } else if (event.error === 'audio-capture') {
+            showAudioCaptureErrorCard();
+          } else if (event.error === 'language-not-supported') {
+            startListening(true);
           }
         };
 
@@ -2096,23 +2122,29 @@
         stopListening();
         if (err.name === 'NotAllowedError') {
           showMicPermissionCard();
+        } else {
+          showNetworkVoiceNotification();
         }
       }
     }
 
-    function stopListening() {
+    function stopListening(resetUI = true) {
       isListening = false;
       if (recognizer) {
-        try { recognizer.stop(); } catch (e) {}
+        try {
+          recognizer.abort(); // Use abort() rather than stop() so underlying sockets release immediately
+        } catch (e) {}
         recognizer = null;
       }
-      if (micBtn) {
-        micBtn.classList.remove('listening');
-        micBtn.textContent = '🎤';
-        micBtn.title = 'Voice Command (Click to Speak)';
-      }
-      if (listeningOverlay) {
-        listeningOverlay.style.display = 'none';
+      if (resetUI) {
+        if (micBtn) {
+          micBtn.classList.remove('listening');
+          micBtn.textContent = '🎤';
+          micBtn.title = 'Voice Command (Click to Speak)';
+        }
+        if (listeningOverlay) {
+          listeningOverlay.style.display = 'none';
+        }
       }
     }
 
@@ -2202,18 +2234,26 @@
     }
 
     function showNetworkVoiceNotification() {
+      const isBrave = (navigator.brave && typeof navigator.brave.isBrave === 'function');
       const msgDiv = document.createElement('div');
       msgDiv.className = 'bloodbot-msg bloodbot-msg-bot';
       msgDiv.innerHTML = `
         <div class="bloodbot-msg-avatar">🌐</div>
         <div class="bloodbot-msg-content">
-          <div class="bloodbot-msg-badge">Network Notice</div>
-          <div class="bloodbot-msg-title">Voice Recognition Service Busy</div>
+          <div class="bloodbot-msg-badge">🎙️ Voice Assistant Network Help</div>
+          <div class="bloodbot-msg-title">Voice Recognition Service Busy / Blocked</div>
           <div class="bloodbot-msg-body">
-            The browser speech recognition service timed out or had a temporary network connection issue. You can try speaking again or type your question below.
+            Google's cloud speech recognition service timed out or was blocked by browser shields / adblockers.<br>
+            ${isBrave ? '<div style="margin: 6px 0; padding: 6px 10px; background: rgba(234,88,12,0.2); border: 1px solid #ea580c; border-radius: 6px; font-size: 11px;">🦁 <strong>Brave Browser Detected:</strong> Brave shields block Google Speech Recognition by default. You can enable it in <code>brave://settings/privacy</code> or use the 1-tap spoken prompts below.</div>' : ''}
+            Don't worry! You can retry in universal voice mode or tap any prompt below to get an <strong>instant spoken voice answer</strong>:
           </div>
           <div class="bloodbot-action-buttons">
-            <button type="button" class="bloodbot-action-btn" id="retry-voice-net-btn">🎙️ Try Again</button>
+            <button type="button" class="bloodbot-action-btn" id="retry-voice-net-btn">🔄 Retry Voice (Universal Mode)</button>
+            <button type="button" class="bloodbot-action-btn voice-prompt-btn" data-voice-query="How much ml of blood is required on a donation?">🩸 Speak: "How much ml to donate?"</button>
+            <button type="button" class="bloodbot-action-btn voice-prompt-btn" data-voice-query="What is the helpline for KIMS Hospital?">🏥 Speak: "KIMS Hospital Helpline"</button>
+            <button type="button" class="bloodbot-action-btn voice-prompt-btn" data-voice-query="Where is Apollo Jubilee Hills emergency gate?">🏥 Speak: "Apollo Jubilee Hills Gate"</button>
+            <button type="button" class="bloodbot-action-btn" data-tool="volume_calculator">🧮 Open Volume Calculator</button>
+            <button type="button" class="bloodbot-action-btn" data-tool="eligibility_wizard">🩺 10s Eligibility Screener</button>
           </div>
         </div>
       `;
@@ -2222,7 +2262,43 @@
 
       const retryBtn = msgDiv.querySelector('#retry-voice-net-btn');
       if (retryBtn) {
-        retryBtn.addEventListener('click', () => startListening());
+        retryBtn.addEventListener('click', () => startListening(true));
+      }
+
+      msgDiv.querySelectorAll('.voice-prompt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const q = btn.dataset.voiceQuery;
+          if (q) {
+            handleUserQuery(q, true); // true = reads answer aloud with voice narration!
+          }
+        });
+      });
+    }
+
+    function showAudioCaptureErrorCard() {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'bloodbot-msg bloodbot-msg-bot';
+      msgDiv.innerHTML = `
+        <div class="bloodbot-msg-avatar">🎙️</div>
+        <div class="bloodbot-msg-content">
+          <div class="bloodbot-msg-badge">Microphone Hardware</div>
+          <div class="bloodbot-msg-title">No Microphone Detected</div>
+          <div class="bloodbot-msg-body">
+            No audio input device or microphone was detected by Windows/browser. Please plug in a headset or microphone and tap retry.
+          </div>
+          <div class="bloodbot-action-buttons">
+            <button type="button" class="bloodbot-action-btn" id="retry-audio-capture-btn">🔄 Retry Microphone</button>
+            <button type="button" class="bloodbot-action-btn" data-query="How much ml of blood is required on a donation?">🩸 Ask ml required</button>
+            <button type="button" class="bloodbot-action-btn" data-query="What is the helpline for KIMS Hospital?">🏥 Ask KIMS Hospital</button>
+          </div>
+        </div>
+      `;
+      messagesArea.appendChild(msgDiv);
+      scrollToBottom();
+
+      const retryBtn = msgDiv.querySelector('#retry-audio-capture-btn');
+      if (retryBtn) {
+        retryBtn.addEventListener('click', () => startListening(true));
       }
     }
 
