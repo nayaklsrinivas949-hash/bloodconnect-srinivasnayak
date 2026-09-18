@@ -1161,7 +1161,7 @@ input[type="range"] {
 }
 
 /* ==========================================================================
-   BloodBot AI Medical & Donation Assistant Styles
+   BloodBot AI Medical & Donation Assistant 2.0 Styles
    ========================================================================== */
 
 .bloodbot-container {
@@ -1172,19 +1172,81 @@ input[type="range"] {
   font-family: inherit;
 }
 
-/* Floating AI Launcher Trigger Button */
+/* Proactive Floating Fact Teaser Pill */
+.bloodbot-teaser-bubble {
+  position: absolute;
+  bottom: 74px;
+  right: 6px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%);
+  border: 1px solid rgba(6, 182, 212, 0.6);
+  border-radius: var(--radius-full);
+  padding: 8px 14px 8px 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 20px rgba(6, 182, 212, 0.35);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  animation: teaserBounce 3s ease-in-out infinite;
+  backdrop-filter: blur(20px);
+  z-index: 9998;
+  transition: all 0.2s ease;
+}
+
+.bloodbot-teaser-bubble:hover {
+  transform: translateY(-2px) scale(1.03);
+  border-color: var(--secondary-glow);
+  box-shadow: 0 12px 35px rgba(6, 182, 212, 0.5);
+}
+
+@keyframes teaserBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.teaser-sparkle {
+  font-size: 14px;
+  animation: sparkleRotate 2.4s linear infinite;
+}
+
+@keyframes sparkleRotate {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.2); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.teaser-content {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #fff;
+  transition: opacity 0.25s ease;
+}
+
+.teaser-dismiss-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+}
+
+.teaser-dismiss-btn:hover { color: #fff; }
+
+/* Floating Launcher Trigger Button */
 .bloodbot-launcher-btn {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
-  border: 1px solid rgba(6, 182, 212, 0.5);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(30, 41, 59, 0.96) 100%);
+  border: 1.5px solid rgba(6, 182, 212, 0.55);
   border-radius: var(--radius-full);
   padding: 8px 18px 8px 10px;
   color: #fff;
   cursor: pointer;
-  box-shadow: 0 8px 30px rgba(6, 182, 212, 0.35), 0 0 15px rgba(225, 29, 72, 0.25);
-  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(6, 182, 212, 0.4), 0 0 20px rgba(225, 29, 72, 0.3);
+  backdrop-filter: blur(18px);
   position: relative;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1192,31 +1254,87 @@ input[type="range"] {
 .bloodbot-launcher-btn:hover {
   transform: translateY(-3px) scale(1.03);
   border-color: var(--secondary-glow);
-  box-shadow: 0 12px 35px rgba(6, 182, 212, 0.5), 0 0 25px rgba(225, 29, 72, 0.4);
+  box-shadow: 0 12px 40px rgba(6, 182, 212, 0.6), 0 0 30px rgba(225, 29, 72, 0.5);
 }
 
-.bloodbot-launcher-avatar {
-  width: 42px;
-  height: 42px;
+/* Animated Holographic Neural Orb */
+.bloodbot-neural-orb {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  position: relative;
+  display: grid;
+  place-items: center;
+  perspective: 600px;
+}
+
+.orb-core {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: linear-gradient(135deg, #06b6d4 0%, #e11d48 100%);
   display: grid;
   place-items: center;
-  font-size: 20px;
-  position: relative;
-  box-shadow: 0 0 12px rgba(6, 182, 212, 0.6);
+  box-shadow: 0 0 16px rgba(6, 182, 212, 0.8), inset 0 0 8px rgba(255, 255, 255, 0.4);
+  animation: orbHeartbeat 2.2s ease-in-out infinite;
+  z-index: 2;
+}
+
+.orb-symbol {
+  font-size: 16px;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8));
+}
+
+@keyframes orbHeartbeat {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 14px rgba(6, 182, 212, 0.7); }
+  15% { transform: scale(1.12); box-shadow: 0 0 24px rgba(225, 29, 72, 0.9); }
+  30% { transform: scale(1.04); }
+  45% { transform: scale(1.1); box-shadow: 0 0 20px rgba(6, 182, 212, 0.9); }
+}
+
+.orb-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(6, 182, 212, 0.7);
+  pointer-events: none;
+}
+
+.orb-ring.ring-1 {
+  animation: orbSpin1 5s linear infinite;
+}
+
+.orb-ring.ring-2 {
+  border-color: rgba(225, 29, 72, 0.6);
+  border-style: dotted;
+  transform: rotateX(60deg);
+  animation: orbSpin2 7s linear infinite reverse;
+}
+
+@keyframes orbSpin1 {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes orbSpin2 {
+  from { transform: rotateX(60deg) rotate(0deg); }
+  to { transform: rotateX(60deg) rotate(360deg); }
 }
 
 .bot-status-dot {
   position: absolute;
-  bottom: 1px;
-  right: 1px;
+  bottom: 2px;
+  right: 2px;
   width: 10px;
   height: 10px;
   background: #10b981;
   border: 2px solid #0f172a;
   border-radius: 50%;
   box-shadow: 0 0 8px #10b981;
+  z-index: 3;
 }
 
 .bloodbot-launcher-label {
@@ -1227,11 +1345,20 @@ input[type="range"] {
 
 .bot-title-small {
   font-weight: 800;
-  font-size: 13px;
+  font-size: 13.5px;
   letter-spacing: 0.3px;
   background: linear-gradient(90deg, #38bdf8 0%, #f43f5e 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+.bot-badge-v2 {
+  background: linear-gradient(90deg, #e11d48, #06b6d4);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 4px;
 }
 
 .bot-subtitle-small {
@@ -1261,16 +1388,16 @@ input[type="range"] {
 .bloodbot-chat-window {
   display: none;
   position: absolute;
-  bottom: 68px;
+  bottom: 74px;
   right: 0;
-  width: 420px;
+  width: 440px;
   max-width: calc(100vw - 32px);
-  height: 600px;
-  max-height: calc(100vh - 120px);
+  height: 640px;
+  max-height: calc(100vh - 110px);
   background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(7, 12, 24, 0.99) 100%);
   border: 1px solid rgba(6, 182, 212, 0.35);
   border-radius: var(--radius-lg);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 35px rgba(6, 182, 212, 0.25);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(6, 182, 212, 0.25);
   backdrop-filter: blur(25px);
   flex-direction: column;
   overflow: hidden;
@@ -1289,8 +1416,8 @@ input[type="range"] {
 
 /* Chat Header */
 .bloodbot-header {
-  padding: 14px 16px;
-  background: rgba(10, 16, 30, 0.95);
+  padding: 12px 16px;
+  background: rgba(10, 16, 30, 0.96);
   border-bottom: 1px solid var(--border-glass);
   display: flex;
   justify-content: space-between;
@@ -1312,7 +1439,7 @@ input[type="range"] {
   place-items: center;
   font-size: 18px;
   position: relative;
-  box-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.6);
 }
 
 .bot-online-badge {
@@ -1328,20 +1455,50 @@ input[type="range"] {
 
 .bloodbot-title {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   color: #fff;
   line-height: 1.2;
 }
 
 .bloodbot-status-text {
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--accent-emerald);
+}
+
+/* Audio Equalizer Bars */
+.bloodbot-equalizer {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.bloodbot-equalizer span {
+  width: 2.5px;
+  height: 3px;
+  background: var(--secondary-glow);
+  border-radius: 1px;
+  transition: height 0.15s ease;
+}
+
+.bloodbot-equalizer.speaking span {
+  animation: eqBounce 0.5s ease-in-out infinite alternate;
+}
+
+.bloodbot-equalizer.speaking span:nth-child(1) { animation-delay: 0.1s; }
+.bloodbot-equalizer.speaking span:nth-child(2) { animation-delay: 0.25s; }
+.bloodbot-equalizer.speaking span:nth-child(3) { animation-delay: 0.05s; }
+.bloodbot-equalizer.speaking span:nth-child(4) { animation-delay: 0.2s; }
+
+@keyframes eqBounce {
+  0% { height: 3px; }
+  100% { height: 12px; }
 }
 
 .bloodbot-header-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 }
 
 .bloodbot-btn-icon {
@@ -1359,52 +1516,66 @@ input[type="range"] {
 }
 
 .bloodbot-btn-icon:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.16);
   color: #fff;
 }
 
-/* Quick FAQ Category Chips Area */
+/* Categorized FAQ Tabs & Chips Area */
 .bloodbot-faqs-container {
-  padding: 10px 14px;
-  background: rgba(5, 8, 17, 0.85);
+  padding: 8px 12px 10px;
+  background: rgba(5, 8, 17, 0.9);
   border-bottom: 1px solid var(--border-glass);
 }
 
-.bloodbot-faqs-label {
+.bloodbot-tabs-scroll {
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+}
+
+.bloodbot-tabs-scroll::-webkit-scrollbar { display: none; }
+
+.bloodbot-category-tab {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
   font-size: 11px;
   font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bloodbot-category-tab.active {
+  background: rgba(6, 182, 212, 0.2);
+  border-color: var(--secondary-glow);
   color: var(--secondary-glow);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
 }
 
 .bloodbot-faqs-scroll {
   display: flex;
   gap: 6px;
   overflow-x: auto;
-  padding-bottom: 4px;
+  padding-bottom: 2px;
   scrollbar-width: thin;
   scrollbar-color: rgba(6, 182, 212, 0.3) transparent;
 }
 
-.bloodbot-faqs-scroll::-webkit-scrollbar {
-  height: 4px;
-}
-
-.bloodbot-faqs-scroll::-webkit-scrollbar-thumb {
-  background: rgba(6, 182, 212, 0.3);
-  border-radius: 4px;
-}
+.bloodbot-faqs-scroll::-webkit-scrollbar { height: 3px; }
+.bloodbot-faqs-scroll::-webkit-scrollbar-thumb { background: rgba(6, 182, 212, 0.3); border-radius: 3px; }
 
 .bloodbot-faq-chip {
   flex-shrink: 0;
   background: rgba(30, 41, 59, 0.7);
   border: 1px solid rgba(6, 182, 212, 0.25);
   border-radius: var(--radius-full);
-  padding: 5px 12px;
-  font-size: 11.5px;
-  font-weight: 500;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
   color: #e2e8f0;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1412,7 +1583,7 @@ input[type="range"] {
 }
 
 .bloodbot-faq-chip:hover {
-  background: rgba(6, 182, 212, 0.2);
+  background: rgba(6, 182, 212, 0.25);
   border-color: var(--secondary-glow);
   color: #fff;
   transform: translateY(-1px);
@@ -1421,17 +1592,17 @@ input[type="range"] {
 /* Messages Flow Area */
 .bloodbot-messages-area {
   flex: 1;
-  padding: 16px;
+  padding: 14px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   scroll-behavior: smooth;
 }
 
 .bloodbot-msg {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   align-items: flex-start;
   animation: botMsgFadeIn 0.25s ease-out;
 }
@@ -1441,45 +1612,40 @@ input[type="range"] {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.bloodbot-msg-bot {
-  justify-content: flex-start;
-}
-
-.bloodbot-msg-user {
-  justify-content: flex-end;
-}
+.bloodbot-msg-bot { justify-content: flex-start; }
+.bloodbot-msg-user { justify-content: flex-end; }
 
 .bloodbot-msg-avatar {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
   display: grid;
   place-items: center;
-  font-size: 14px;
+  font-size: 13px;
   flex-shrink: 0;
 }
 
 .bloodbot-msg-content {
-  max-width: 82%;
-  padding: 12px 14px;
+  max-width: 86%;
+  padding: 11px 13px;
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: 12.5px;
   line-height: 1.55;
   position: relative;
 }
 
 .bloodbot-msg-bot .bloodbot-msg-content {
-  background: rgba(30, 41, 59, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   color: #f1f5f9;
-  border-top-left-radius: 4px;
+  border-top-left-radius: 3px;
 }
 
 .bloodbot-msg-user .bloodbot-msg-content {
   background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
   color: #fff;
-  border-top-right-radius: 4px;
+  border-top-right-radius: 3px;
   box-shadow: 0 4px 15px rgba(225, 29, 72, 0.3);
 }
 
@@ -1488,15 +1654,15 @@ input[type="range"] {
   background: rgba(6, 182, 212, 0.15);
   color: var(--secondary-glow);
   border: 1px solid rgba(6, 182, 212, 0.3);
-  padding: 2px 8px;
+  padding: 2px 7px;
   border-radius: var(--radius-full);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 
 .bloodbot-msg-title {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 700;
   color: #fff;
   margin-bottom: 4px;
@@ -1504,9 +1670,9 @@ input[type="range"] {
 
 .bloodbot-msg-body code {
   background: rgba(0, 0, 0, 0.4);
-  padding: 2px 6px;
+  padding: 1px 5px;
   border-radius: 4px;
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--secondary-glow);
 }
 
@@ -1515,28 +1681,28 @@ input[type="range"] {
   background: rgba(225, 29, 72, 0.2);
   color: #ff4d6d;
   font-weight: 700;
-  padding: 1px 6px;
+  padding: 1px 5px;
   border-radius: 4px;
   margin: 0 2px;
 }
 
-/* Action Buttons inside Bot Responses */
+/* Quick Action Buttons inside Bot Responses */
 .bloodbot-action-buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 10px;
+  gap: 5px;
+  margin-top: 8px;
   padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .bloodbot-action-btn {
-  background: rgba(6, 182, 212, 0.12);
-  border: 1px solid rgba(6, 182, 212, 0.35);
+  background: rgba(6, 182, 212, 0.15);
+  border: 1px solid rgba(6, 182, 212, 0.4);
   color: var(--secondary-glow);
   border-radius: var(--radius-sm);
-  padding: 4px 10px;
-  font-size: 11.5px;
+  padding: 4px 9px;
+  font-size: 11px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1547,6 +1713,291 @@ input[type="range"] {
   color: #000;
   transform: translateY(-1px);
 }
+
+/* Message Footer Tool Bar (Copy, Like, Dislike) */
+.bot-msg-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+.bot-copy-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 10.5px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.bot-copy-btn:hover { color: #fff; }
+
+.bot-react-wrap {
+  display: flex;
+  gap: 4px;
+}
+
+.bot-react-btn {
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.bot-react-btn:hover {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+/* Quick Tools Grid in Welcome Greeting */
+.bot-quick-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.bot-tool-card-btn {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bot-tool-card-btn:hover {
+  background: rgba(6, 182, 212, 0.15);
+  border-color: var(--secondary-glow);
+  transform: translateY(-2px);
+}
+
+.tool-icon { font-size: 18px; }
+.tool-label { font-size: 11.5px; font-weight: 700; color: #fff; line-height: 1.25; }
+
+/* Interactive Embedded Tool Cards */
+.bot-calculator-card, .bot-screener-card, .bot-compat-card, .bot-dispatch-card {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1.5px solid rgba(6, 182, 212, 0.4);
+  border-radius: 10px;
+  padding: 12px;
+  margin: 6px 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.bot-calc-header {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--secondary-glow);
+  border-bottom: 1px solid var(--border-glass);
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bot-calc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 11.5px;
+  color: #cbd5e1;
+}
+
+.bot-calc-slider {
+  accent-color: var(--secondary-glow);
+  cursor: pointer;
+  width: 110px;
+}
+
+.bot-calc-badge {
+  background: rgba(6, 182, 212, 0.2);
+  color: var(--secondary-glow);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.bot-calc-gender-toggle {
+  display: flex;
+  gap: 4px;
+}
+
+.gender-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-glass);
+  color: #cbd5e1;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.gender-btn.active {
+  background: var(--secondary);
+  color: #000;
+  font-weight: 700;
+}
+
+.bot-calc-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.bot-calc-stat-box {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-glass);
+  border-radius: 6px;
+  padding: 6px;
+  text-align: center;
+}
+
+.stat-label { font-size: 9.5px; color: var(--text-dim); text-transform: uppercase; }
+.stat-value { font-size: 14px; font-weight: 800; margin: 2px 0; }
+.stat-sub { font-size: 9px; color: var(--text-muted); }
+
+/* Screener Styles */
+.bot-screener-row {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.screener-q-text {
+  font-size: 11.5px;
+  color: #e2e8f0;
+  margin-bottom: 4px;
+}
+
+.screener-q-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.screener-btn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-glass);
+  color: #cbd5e1;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.screener-btn:hover { background: rgba(255, 255, 255, 0.15); }
+.screener-btn.selected {
+  background: var(--secondary);
+  color: #000;
+  font-weight: 700;
+}
+
+/* Compatibility Visualizer */
+.bot-compat-pills {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.bot-group-pill {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-glass);
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.bot-group-pill.active {
+  background: var(--primary);
+  border-color: #ff4d6d;
+  box-shadow: 0 0 10px rgba(225, 29, 72, 0.5);
+}
+
+.bot-compat-tag-badge {
+  display: inline-block;
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--accent-emerald);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.compat-chip {
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.compat-chip.give {
+  background: rgba(14, 165, 233, 0.2);
+  color: var(--secondary-glow);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+}
+
+.compat-chip.recv {
+  background: rgba(16, 185, 129, 0.2);
+  color: var(--accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+/* Hospital Dispatch List */
+.bot-dispatch-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.bot-dispatch-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-glass);
+  border-radius: 6px;
+  padding: 8px 10px;
+  gap: 8px;
+}
+
+.bot-dispatch-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.dispatch-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+  font-size: 13px;
+  transition: transform 0.2s ease;
+}
+
+.dispatch-btn:hover { transform: translateY(-2px); }
+.dispatch-btn.call { background: rgba(16, 185, 129, 0.25); color: #10b981; }
+.dispatch-btn.wa { background: rgba(37, 211, 102, 0.25); color: #25d366; }
+.dispatch-btn.map { background: rgba(14, 165, 233, 0.25); color: var(--secondary-glow); }
 
 /* Typing Dots Animation */
 .bloodbot-typing-dots {
@@ -1574,8 +2025,8 @@ input[type="range"] {
 
 /* Input Form */
 .bloodbot-input-form {
-  padding: 12px 14px;
-  background: rgba(10, 16, 30, 0.95);
+  padding: 10px 14px;
+  background: rgba(10, 16, 30, 0.96);
   border-top: 1px solid var(--border-glass);
   display: flex;
   align-items: center;
@@ -1583,8 +2034,8 @@ input[type="range"] {
 }
 
 .bloodbot-mic-btn {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid var(--border-glass);
@@ -1592,13 +2043,13 @@ input[type="range"] {
   display: grid;
   place-items: center;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 14px;
   flex-shrink: 0;
   transition: all 0.2s ease;
 }
 
 .bloodbot-mic-btn.listening {
-  background: rgba(225, 29, 72, 0.3);
+  background: rgba(225, 29, 72, 0.35);
   border-color: #ff4d6d;
   animation: botMicPulse 1.2s infinite;
 }
@@ -1611,12 +2062,12 @@ input[type="range"] {
 
 .bloodbot-input-field {
   flex: 1;
-  background: rgba(2, 6, 23, 0.7);
+  background: rgba(2, 6, 23, 0.75);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-full);
-  padding: 9px 14px;
+  padding: 8px 14px;
   color: #fff;
-  font-size: 13px;
+  font-size: 12.5px;
   outline: none;
   transition: all 0.2s ease;
 }
@@ -1632,8 +2083,8 @@ input[type="range"] {
   border-radius: var(--radius-full);
   padding: 8px 14px;
   color: #000;
-  font-weight: 700;
-  font-size: 12px;
+  font-weight: 800;
+  font-size: 11.5px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1652,11 +2103,20 @@ input[type="range"] {
     bottom: 16px;
     right: 16px;
   }
+  .bloodbot-teaser-bubble {
+    bottom: 66px;
+    right: 0;
+    max-width: 260px;
+    white-space: normal;
+  }
   .bloodbot-chat-window {
-    width: calc(100vw - 24px);
+    width: calc(100vw - 20px);
     right: -8px;
     bottom: 60px;
-    height: 520px;
+    height: 540px;
+  }
+  .bot-quick-tools-grid {
+    grid-template-columns: 1fr;
   }
 }
 
